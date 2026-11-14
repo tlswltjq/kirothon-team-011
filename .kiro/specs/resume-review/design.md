@@ -302,7 +302,7 @@ sequenceDiagram
 | 영역 재계산·픽셀 검사 실패 | 422 `MASKING_INCOMPLETE` + failures | 4.5 |
 | 초안 원본 만료 | 410 `DRAFT_SOURCE_EXPIRED` | 4.8 |
 | 게시된 버전에 게시·단어 변경 | 409 `ALREADY_PUBLISHED` | 4.9 |
-| 후보 없음 | 404 `NO_REVIEWABLE_RESUME` | 6.6 |
+| 후보 없음 | 204 본문 없음(정상 상태, 2026-11-14 요구사항 6.6 정정) | 6.6 |
 | 같은 버전 중복 평가(동시 포함) | 409 `DUPLICATE_REVIEW` | 8.5 |
 | 자기 이력서 평가 | 403 `SELF_REVIEW` | 8.7 |
 | 없는·초안 버전 평가, 남의 이력서 접근, 초안 PNG 평가자 요청, 데모 꺼짐 | 404 `NOT_FOUND` | 8.8, 11.1, 11.5, 12.2 |

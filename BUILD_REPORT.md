@@ -6,7 +6,7 @@
 - **한 줄 지시 → 병렬 서브에이전트:** "병렬로 시작해" 같은 짧은 지시로 worktree별 서브에이전트(최대 6개 동시)를 띄우고, 완료 이벤트로 결과만 받아 확인했다.
 - **선택지 버튼으로 결정:** 쟁점마다 추천안과 선택지를 받아 버튼 하나로 결정했다(서비스 이름, 마스킹 방식, 평가 방식, 발표 구성 등).
 - **실행 중 방향 수정:** 작업 도중 "Mobile-first로", "Kiro 크레딧으로" 같은 지시를 보내면 실행 중인 에이전트에 바로 반영(`spawn_steer`)됐다.
-- **화면 확인은 스크린샷으로:** 에이전트가 Playwright로 찍은 375px·1280px 스크린샷과 녹화 프레임을 대화창에서 보고 판단했다. 앱 자체도 Tailscale로 핸드폰에서 열어 직접 써 봤다.
+- **화면 확인은 스크린샷으로:** 에이전트가 Playwright로 찍은 375px·1280px 스크린샷과 녹화 프레임을 대화창에서 보고 판단했다. 앱 자체도 핸드폰에서 열어 직접 써 봤다. 앱은 계속 `127.0.0.1`에만 바인딩했고, 공개 포트를 열지 않은 채 Tailscale 사설망(내 인증된 기기만 접속 가능)을 거쳐 접속했다.
 - **마감 관리:** 마감에서 거꾸로 잡은 알림(Kiro Crew cron)이 핸드폰으로 왔다.
 
 ## Kiro 활용 내역
@@ -18,7 +18,7 @@
 | 준비 | Hooks (kiro-cli 에이전트 hook) | `agentSpawn`: spec 진행률과 아직 안 쓴 Kiro 기능을 세션 시작 때 표시. `postToolUse(write)`: 파일 쓰기와 권한 차단(BLOCKED)을 로그로 남김 | `.kiro/agents/kirothon*.json`의 `hooks`, `scripts/kiro_log.py`, `.kiro/evidence/hook-events.log` |
 | 기획 | Spec (requirements) | spec 에이전트가 EARS 형식(`WHEN … THE SYSTEM SHALL …`) 요구사항 14개, 인수 조건 97개를 작성. 사용자 결정이 바뀔 때마다 spec을 3회 다시 실행 | `.kiro/specs/resume-review/requirements.md`, `.kiro/steering/product.md` |
 | 기획 | 교차 리뷰(다른 모델) | 구현 전에 gpt-5.6-terra가 spec 일관성 리뷰. 지적 5건 중 3건 반영(평가 제출 응답 본문 제거, E2E 시나리오 구체화, 샘플 PDF 리소스화) | `KIRO-USAGE.md` 2026-11-14T02:50 |
-| 설계 | Spec (design) | API 19개, 데이터 모델 9개 테이블, 접근 경계, 오류 표, 테스트 전략. 병렬 구현 전에 요청·응답 JSON 계약과 공유 타입을 설계에 고정해 에이전트 사이 형식 불일치를 막음 | `.kiro/specs/resume-review/design.md`, `src/main/java/dev/kirothon/resume/pdf/PdfTypes.java` |
+| 설계 | Spec (design) | API 19개 설계(그중 복구 코드 API는 확장 작업으로 미구현), 데이터 모델 9개 테이블, 접근 경계, 오류 표, 테스트 전략. 병렬 구현 전에 요청·응답 JSON 계약과 공유 타입을 설계에 고정해 에이전트 사이 형식 불일치를 막음 | `.kiro/specs/resume-review/design.md`, `src/main/java/dev/kirothon/resume/pdf/PdfTypes.java` |
 | 설계 | Spec (tasks) | 작업 16개를 요구사항 번호(`_요구사항: x.y_`)로 추적. MVP 핵심(마스킹 + 익명 평가) / 배포·녹화 / 확장으로 우선순위 재조정 | `.kiro/specs/resume-review/tasks.md` |
 | 구현 | Kiro Crew 병렬 서브에이전트(`spawn_run`, Kiro 백엔드) + git worktree | 파일 경계가 다른 작업을 worktree 하나씩에 배정해 동시 구현 후 병합. 웨이브 1: 골격 / 웨이브 2: PDF 추출·마스킹 영역·렌더링 3개 동시 / 웨이브 3: 업로드·게시 API, 화면 2개, 샘플 PDF 4개 동시 / 웨이브 4: 평가 API, Docker 배포, 코드 리뷰 3개 동시. 병합할 때마다 전체 테스트 재실행 | `KIRO-USAGE.md` 구현 행, 커밋 이력 |
 | 검증 | 교차 코드 리뷰(gpt-5.6-terra, 읽기 전용) | 병합된 백엔드를 리뷰해 높음 5건 발견(게시와 초안 교체 경쟁, 원본 PDF 만료 미강제, 페이지 크기 무제한 메모리, 타임아웃 후 스레드 누적, 평가 API 미구현) | `KIRO-USAGE.md` 검증 행 |
