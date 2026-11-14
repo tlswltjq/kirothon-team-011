@@ -69,7 +69,7 @@ MVP 핵심은 이력서 마스킹과 익명 평가다(2026-11-14 사용자 결�
 
 ## 배포와 제출
 
-- [ ] 13. 로컬 컨테이너 배포와 smoke
+- [x] 13. 로컬 컨테이너 배포와 smoke
   - `.kiro/templates/deploy/` 기반, `fonts-noto-cjk` 설치, `DATA_DIR=/data` 볼륨, `127.0.0.1:18080` 바인딩, `SPRING_PROFILES_ACTIVE=demo`
   - `python3 scripts/tools.py smoke --port 18080` 종료 코드 기록, 샘플 PNG의 한글 렌더링 눈 확인
   - _요구사항: 11.8, 2.13_
