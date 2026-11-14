@@ -7,20 +7,20 @@ const presetResumeId = params.get('resumeId');
 const presetVersionNo = params.get('versionNo');
 
 const ERRORS = {
-  UNAUTHENTICATED: '이 브라우저의 익명 열쇠가 사라져 초안을 이어 갈 수 없어요. PDF를 다시 올려 주세요.',
+  UNAUTHENTICATED: '이 브라우저에 저장된 열쇠가 없어서 초안을 이어 갈 수 없어요. PDF를 처음부터 다시 올려 주세요.',
   NOT_PDF: 'PDF 파일이 아니에요. PDF만 올릴 수 있어요.',
-  FILE_TOO_LARGE: '파일이 5MB를 넘어요. 더 작은 PDF를 올려 주세요.',
-  TOO_MANY_PAGES: '10쪽을 넘는 PDF는 올릴 수 없어요.',
+  FILE_TOO_LARGE: '파일이 5MB를 넘어요. 이미지를 줄여 다시 저장한 PDF를 올려 주세요.',
+  TOO_MANY_PAGES: 'PDF가 10쪽을 넘어요. 10쪽 이하로 줄여 올려 주세요.',
   ENCRYPTED_PDF: '암호가 걸린 PDF예요. 암호를 풀고 다시 올려 주세요.',
-  NO_TEXT_LAYER: '글자를 선택할 수 없는 PDF(스캔본)예요. 텍스트가 있는 PDF를 올려 주세요.',
-  PDF_PARSE_FAILED: 'PDF를 읽을 수 없어요. 다른 도구로 다시 저장한 PDF를 올려 주세요.',
+  NO_TEXT_LAYER: '글자를 복사할 수 없는 PDF(스캔본)라 자동으로 가릴 수 없어요. 글자가 들어 있는 PDF로 다시 저장해 올려 주세요.',
+  PDF_PARSE_FAILED: 'PDF를 읽지 못했어요. 다른 프로그램에서 PDF로 다시 저장해 올려 주세요.',
   PDF_TOO_COMPLEX: 'PDF가 너무 복잡해 처리하지 못했어요. 단순한 PDF로 다시 시도해 주세요.',
   UNSUPPORTED_PAGE_ROTATION: '회전된 페이지가 있는 PDF는 지원하지 않아요. 회전을 풀고 다시 저장해 주세요.',
-  PREVIEW_OUTDATED: '가린 결과가 바뀌었어요. 최신 이미지를 다시 확인해 주세요.',
-  MASKING_INCOMPLETE: '가림 검증에 실패해 게시하지 않았어요. 가릴 단어를 다시 저장해 주세요.',
-  DRAFT_SOURCE_EXPIRED: '초안 원본 보관 시간(24시간)이 지나 지웠어요. 같은 PDF를 다시 올려 주세요.',
-  ALREADY_PUBLISHED: '이미 게시된 버전이에요. 게시된 버전은 바꿀 수 없어요.',
-  NOT_FOUND: '이력서를 찾을 수 없어요.',
+  PREVIEW_OUTDATED: '가린 곳이 바뀌어서 이미지를 새로 만들었어요. 모든 쪽을 다시 확인하고 게시해 주세요.',
+  MASKING_INCOMPLETE: '가림이 덜 된 곳이 있어 게시하지 않았어요. 가릴 단어를 한 번 더 저장하면 다시 가려요.',
+  DRAFT_SOURCE_EXPIRED: '초안 원본은 24시간 뒤 지우는데 그 시간이 지났어요. 같은 PDF를 다시 올려 주세요.',
+  ALREADY_PUBLISHED: '이미 게시한 버전이에요. 고친 이력서는 새 버전으로 올려 주세요.',
+  NOT_FOUND: '이력서를 찾지 못했어요. 이 브라우저에서 올린 이력서만 볼 수 있어요.',
 };
 const ROLE_ERROR = '지원 직무에는 이메일·전화번호·링크를 넣을 수 없어요. 평가자에게 그대로 보여요.';
 
@@ -28,13 +28,18 @@ function message(err) {
   if (err instanceof ApiError) {
     if (err.code === 'VALIDATION_FAILED') {
       const f = Object.values(err.fields || {}).join(' / ');
-      return `입력값을 확인해 주세요.${f ? ' ' + f : ''}`;
+      return `입력한 내용을 확인해 주세요.${f ? ' ' + f : ''}`;
     }
     if (ERRORS[err.code]) return ERRORS[err.code];
     if (err.status === 413) return ERRORS.FILE_TOO_LARGE;
     if (err.status === 401) return ERRORS.UNAUTHENTICATED;
   }
   return errorText(err);
+}
+
+// 받침 있는 숫자(1,3,6,7,8,10...)는 '을', 나머지는 '를'. E2E 정규식(1~2글자)과 호환.
+function josa(n) {
+  return [1, 3, 6, 7, 8, 0].includes(Number(n) % 10) ? '을' : '를';
 }
 
 function show(host, text, kind) {
@@ -67,6 +72,7 @@ function imagesOk() {
 }
 
 function updateGate() {
+  $('pages').setAttribute('aria-busy', state.rebuilding ? 'true' : 'false');
   const v = state.version;
   const published = !v || v.status === 'PUBLISHED';
   const ok = !published && !state.busy && !state.rebuilding && state.seen && imagesOk();
@@ -117,7 +123,7 @@ function renderPages() {
       if (state.version.preview.previewHash !== hash) { URL.revokeObjectURL(url); return; }
       state.urls.push(url);
     };
-    jobs.push(Promise.resolve(loadPageImage(wrap, `${base()}/pages/${p}`, `${p}쪽 마스킹 미리보기`, track))
+    jobs.push(Promise.resolve(loadPageImage(wrap, `${base()}/pages/${p}`, `${p}쪽 가린 미리보기`, track))
       .catch(() => {}));
   }
   watchEnd();
@@ -150,7 +156,7 @@ function renderVersion() {
   const list = v.maskTerms || [];
   for (const t of list) {
     const chip = el('span', { cls: 'chip' + (unmatched.has(t) ? ' nomatch' : '') }, el('span', { text: t }));
-    if (unmatched.has(t)) chip.appendChild(el('small', { text: '찾지 못함' }));
+    if (unmatched.has(t)) chip.appendChild(el('small', { text: '문서에서 못 찾았어요' }));
     const rm = el('button', { text: '삭제', attrs: { type: 'button', 'aria-label': `${t} 삭제` } });
     rm.addEventListener('click', () => saveTerms((state.version.maskTerms || []).filter((x) => x !== t)));
     chip.appendChild(rm);
@@ -158,7 +164,7 @@ function renderVersion() {
   }
   const um = $('unmatched');
   um.replaceChildren();
-  if (unmatched.size) show(um, '오타가 없는지 확인하세요.', 'warn');
+  if (unmatched.size) show(um, '문서에서 못 찾은 단어가 있어요. 오타가 없는지 확인해 주세요.', 'warn');
 
   const nc = $('name-candidate');
   nc.replaceChildren();
@@ -190,7 +196,7 @@ async function saveTerms(terms) {
   state.rebuilding = true;
   updateGate();
   const msg = $('term-msg');
-  show(msg, '다시 가리는 중…');
+  show(msg, '다시 가리는 중이에요…');
   try {
     state.version = await api(`${base()}/mask-terms`, { method: 'PUT', body: { terms } });
     msg.replaceChildren();
@@ -261,7 +267,7 @@ async function init() {
   try {
     await ensureAnon();
   } catch (err) {
-    show($('top-msg'), '연결에 실패했어요. 잠시 뒤 다시 시도해 주세요.', 'error');
+    show($('top-msg'), '서버에 연결하지 못했어요. 잠시 뒤 다시 시도해 주세요.', 'error');
     return;
   }
   if (presetResumeId) {
@@ -340,8 +346,10 @@ $('upload-form').addEventListener('submit', async (e) => {
   const btn = $('upload-btn');
   const label = btn.textContent;
   btn.disabled = true;
-  btn.textContent = '가리는 중…';
+  btn.textContent = '가리는 중이에요…';
   $('upload-loading').classList.remove('hidden');
+  $('upload-form').setAttribute('aria-busy', 'true');
+  $('pages').setAttribute('aria-busy', 'true');
   try {
     await ensureAnon();
     afterUpload(await api(path, { method: 'POST', body: form }));
@@ -360,6 +368,8 @@ $('upload-form').addEventListener('submit', async (e) => {
     btn.disabled = false;
     btn.textContent = label;
     $('upload-loading').classList.add('hidden');
+    $('upload-form').setAttribute('aria-busy', 'false');
+    $('pages').setAttribute('aria-busy', 'false');
   }
 });
 
@@ -391,7 +401,7 @@ $('publish-btn').addEventListener('click', async () => {
     state.version.status = res.status;
     lockPublished();
     $('preview-card').classList.add('hidden');
-    $('done-title').textContent = `v${res.versionNo}을 게시했어요`;
+    $('done-title').textContent = `v${res.versionNo}${josa(res.versionNo)} 게시했어요`;
     $('done-my').setAttribute('href', `/my.html?resumeId=${encodeURIComponent(state.resumeId)}`);
     $('done-card').classList.remove('hidden');
     $('upload-card').classList.add('hidden');
@@ -414,7 +424,7 @@ $('publish-btn').addEventListener('click', async () => {
     }
     if (err instanceof ApiError && (err.status === 410 || err.status === 401)) {
       $('preview-card').classList.add('hidden');
-      expandUpload('PDF 다시 올리기');
+      expandUpload('같은 PDF 다시 올리기');
       if (err.status === 401) { state.resumeId = null; useNewResume(); }
       show($('file-msg'), message(err), 'error');
     }
