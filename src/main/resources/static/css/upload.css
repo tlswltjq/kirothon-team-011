@@ -74,3 +74,7 @@ h2.sub { margin-top: 16px; font-size: 16px; }
   .done-actions { flex-direction: row; }
   .steps li { padding: 8px 12px; }
 }
+
+/* mobile touch target: confirm checkbox */
+.confirm-line { min-height: 44px; }
+.confirm-line input[type=checkbox] { width: 24px; height: 24px; flex: none; }

@@ -46,3 +46,4 @@ main.landing { max-width: none; padding: 0 0 48px; }
   .landing h1 { font-size: 44px; }
   .landing .hero-art { width: 300px; }
 }
+.landing .demo button { max-width: calc(100% - 32px); }

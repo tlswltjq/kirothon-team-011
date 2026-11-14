@@ -99,3 +99,6 @@ ul.plain { padding-left: 18px; margin: 6px 0; }
   main { padding-top: 28px; }
   .pages { gap: 24px; }
 }
+
+/* pin list header: keep "1쪽" on one line */
+.pin-item .head { gap: 8px; white-space: nowrap; }
