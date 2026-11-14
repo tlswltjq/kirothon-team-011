@@ -71,7 +71,7 @@ function showError(e) {
 }
 
 async function loadList() {
-  setStatus('불러오는 중...', true);
+  setStatus('불러오는 중이에요…', true);
   show('error-state', false);
   show('empty-state', false);
   if (!getToken()) {
@@ -112,6 +112,9 @@ async function loadList() {
 function publishedOf(versions) {
   return versions.filter((v) => v.status === 'PUBLISHED').sort((a, b) => a.versionNo - b.versionNo);
 }
+
+// 숫자 받침에 맞춘 목적격 조사(1·3·6·7·8·10은 '을').
+const objParticle = (n) => ([0, 1, 3, 6, 7, 8].includes(n % 10) ? '을' : '를');
 
 const hasAvg = (v) => v && v.averageScore !== null && v.averageScore !== undefined;
 
@@ -162,20 +165,22 @@ function renderTrend(r) {
   badge.hidden = true;
   $('trend-wait').hidden = hasAvg(last);
   if (!prev) {
-    $('trend-summary').textContent = hasAvg(last) ? `v${last.versionNo} ${Number(last.averageScore).toFixed(2)}` : `v${last.versionNo} 평가 없음`;
+    $('trend-summary').textContent = hasAvg(last) ? `v${last.versionNo} 평균 ${Number(last.averageScore).toFixed(2)}점` : `v${last.versionNo} 평가 없음`;
     $('trend-chart').hidden = true;
     clear($('trend-chart'));
     show('trend-single', true);
     $('trend-single-text').textContent = hasAvg(last)
-      ? `v${last.versionNo} 평균 ${Number(last.averageScore).toFixed(2)}점 · 평가 ${last.reviewCount}개`
-      : `v${last.versionNo} 평가 없음`;
+      ? `평균 ${Number(last.averageScore).toFixed(2)}점 · 평가 ${last.reviewCount}개`
+      : '아직 받은 평가가 없어요.';
+    $('trend-single-hint').textContent = `v${last.versionNo + 1}${objParticle(last.versionNo + 1)} 올리면 여기서 점수 변화를 비교해요.`;
+    $('trend-latest-note').hidden = true;
     $('trend-upload').href = `upload.html?resumeId=${encodeURIComponent(r.resumeId)}`;
     $('trend-upload').textContent = `고친 이력서 올리기 (v${last.versionNo + 1})`;
     return;
   }
   show('trend-single', false);
   $('trend-chart').hidden = false;
-  const fmt = (v) => (hasAvg(v) ? Number(v.averageScore).toFixed(2) : '평가 없음');
+  const fmt = (v) => (hasAvg(v) ? `${Number(v.averageScore).toFixed(2)}점` : '평가 없음');
   $('trend-summary').textContent = `v${prev.versionNo} ${fmt(prev)} → v${last.versionNo} ${fmt(last)}`;
   if (hasAvg(last) && hasAvg(prev)) {
     const d = Math.round((last.averageScore - prev.averageScore) * 100) / 100;
@@ -183,6 +188,9 @@ function renderTrend(r) {
     badge.className = 'my-delta ' + (d > 0 ? 'up' : d < 0 ? 'down' : '');
     badge.textContent = d === 0 ? '±0.00' : `${d > 0 ? '+' : '-'}${Math.abs(d).toFixed(2)}`;
   }
+  const note = $('trend-latest-note');
+  note.hidden = !(last.reviewCount > 0);
+  note.textContent = `v${last.versionNo}에 평가 ${last.reviewCount}개가 쌓였어요.`;
   renderChart(pub);
 }
 
@@ -193,7 +201,7 @@ async function openResume(resumeId, autoOpen) {
   revokeBlobs();
   $('detail-section').hidden = true;
   mark('resume-list', null, (li) => li.getAttribute('data-id') === String(resumeId));
-  setStatus('불러오는 중...', true);
+  setStatus('불러오는 중이에요…', true);
   try {
     const r = await api(`/api/my/resumes/${encodeURIComponent(resumeId)}`);
     if (seq !== state.seq) return;
@@ -240,6 +248,10 @@ async function openResume(resumeId, autoOpen) {
   }
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 function clearActive() {
   document.querySelectorAll('.my-pin-active').forEach((n) => n.classList.remove('my-pin-active'));
 }
@@ -251,7 +263,7 @@ function activatePin(key) {
   if (item) item.classList.add('my-pin-active');
   if (target) {
     target.classList.add('my-pin-active');
-    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
   }
 }
 
@@ -270,7 +282,7 @@ async function openVersion(resumeId, v) {
   $('review-empty').hidden = true;
   const base = `/api/my/resumes/${encodeURIComponent(resumeId)}/versions/${encodeURIComponent(v.versionNo)}`;
   const wraps = buildPages(v.pageCount, base, seq);
-  setStatus('평가를 불러오는 중...', true);
+  setStatus('평가를 불러오는 중이에요…', true);
   try {
     const reviews = await api(`${base}/reviews`);
     if (seq !== state.seq) return;
@@ -302,7 +314,7 @@ function buildPages(count, base, seq) {
       if (seq !== state.seq) URL.revokeObjectURL(u);
       else state.blobUrls.push(u);
     };
-    Promise.resolve(loadPageImage(imgBox, `${base}/pages/${i + 1}`, `이력서 ${i + 1}쪽 (마스킹됨)`, track))
+    Promise.resolve(loadPageImage(imgBox, `${base}/pages/${i + 1}`, `이력서 ${i + 1}쪽 (가림 처리됨)`, track))
       .catch(() => {});
   }
   return wraps;
