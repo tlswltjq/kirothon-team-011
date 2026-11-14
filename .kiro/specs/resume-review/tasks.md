@@ -74,7 +74,7 @@ MVP 핵심은 이력서 마스킹과 익명 평가다(2026-11-14 사용자 결�
   - `python3 scripts/tools.py smoke --port 18080` 종료 코드 기록, 샘플 PNG의 한글 렌더링 눈 확인
   - _요구사항: 11.8, 2.13_
 
-- [ ] 14. 데모 녹화와 KIRO-USAGE.md
+- [ ] 14. 데모 녹화와 KIRO-USAGE.md (일부 완료: 실제 이력서 녹화 79초 MP4 게시 youtu.be/NpGPTHtYJJQ와 KIRO-USAGE.md 기록은 있음. 3분 길이 기준과 `kiro_log.py status` 최종 점검은 미확정이라 미완료로 둠)
   - 첫 30초: 이름이 드러난 원본·흩어진 피드백(문제) → 버전별 평균 총점 추이와 핀 오버레이(결과). 이어서 주인 창 업로드·마스킹·게시, 시크릿 창에서 실제 평가, 주인 창에서 새 핀 확인
   - `python3 scripts/kiro_log.py status`로 미기록 기능 점검, 실패 시도 포함 기록
   - _요구사항: 12.3, 9.3, 9.5_
@@ -88,11 +88,44 @@ MVP 핵심은 이력서 마스킹과 익명 평가다(2026-11-14 사용자 결�
   - HTTP 테스트: 코드 1회 노출, 올바른 코드로 새 토큰·이전 토큰 401, 틀린 코드 401, 연속 5회 실패 차단
   - _요구사항: 14.1, 14.2, 14.3_
 
-- [ ] 16. 확장 2: 점수 추이 차트, 평가자 필터, 버전 간 변경 비교
-  - API: 추이·증감(9.3·9.4), `GET .../diff`(LCS, v1 409). 화면: SVG 추이 차트와 증감, 평가자 필터(9.6), diff 색 구분
-  - HTTP 테스트: 평가 0개 버전의 점·증감 생략, v1 diff 409, diff 주인 전용
-  - _요구사항: 9.3, 9.4, 9.6, 10.1, 10.2, 10.3, 10.4_
+- [ ] 16. 확장 2: 점수 추이 차트, 평가자 필터, 버전 간 변경 비교 (일부 완료)
+  - [x] 16a. 화면: SVG 점수 추이 차트와 최신 vs 직전 게시 버전 증감 배지, 평가 없음 버전의 점·증감 생략. 근거: `src/main/resources/static/js/my.js`(`renderTrend`, `createElementNS`), 서버 추이 필드는 만들지 않고 `versions[].averageScore`로 화면 계산(ux-flow 7절). E2E가 추이 카드를 확인한다
+  - [ ] 16b. 미구현: 서버 추이 API, `GET .../diff`(LCS, v1 409), diff 색 구분 화면, 평가자 필터. `src/main`에 diff·필터 코드가 없음을 grep으로 확인(2026-11-14)
+  - HTTP 테스트: 평가 0개 버전의 점·증감 생략, v1 diff 409, diff 주인 전용 (diff 쪽은 미작성)
+  - _요구사항: 9.3, 9.4 (16a 완료), 9.6, 10.1, 10.2, 10.3, 10.4 (16b 미완료)_
 
 - [ ] 15. 확장 3: 수동 박스 마스킹(2순위)
   - 미리보기 이미지 위 드래그로 박스 추가·삭제(`MANUAL` 영역), 단어 변경 시 유지, 게시 픽셀 검사 포함, 스캔본 허용(2.7 → 13.5)
   - _요구사항: 13.1, 13.2, 13.3, 13.4, 13.5, 13.6_
+
+## UX 개편 (ux-flow.md 8절, 2026-11-14)
+
+화면 요구사항 번호가 직접 대응하지 않는 항목은 `ux-flow 절 번호`로 적었다. 코드 존재는 `src/main/resources/static/`을 grep으로 확인했다.
+
+- [ ] T0. spec 문구 반영(requirements 1.1·1.3·8.1, design 화면 목록, tasks). requirements 1.1이 아직 닉네임 입력 화면 문구라 미완료
+  - _요구사항: ux-flow 7절_
+- [x] T1. 공통: `ensureAnon()`, `loadPageImage()`(실패한 쪽만 `다시 불러오기`), 내비, `.banner`·`.sticky-bar` (`js/api.js`, `css/app.css`)
+  - _요구사항: 1.1, 1.3, ux-flow 3.0_
+- [x] T2. 랜딩: 두 큰 링크·안심 문구·데모 버튼 (`index.html`, `js/index.js`, `css/landing.css`)
+  - _요구사항: 1.1, 12.1, ux-flow 3.1_
+- [x] T3. 평가하기: 자동 다음 이력서, `#empty-area`, 총평 카운터, 총점 설명 (`review.html`, `js/review.js`, `css/review.css`)
+  - _요구사항: 6.6, 8.1, ux-flow 3.2_
+- [x] T4. 평가받기: 단계 표시, 업로드 카드 접기, `다른 PDF로 바꾸기`, 이름 후보 단어 버튼, 고정 게시 바, 완료 카드 (`upload.html`, `js/upload.js`, `css/upload.css`)
+  - _요구사항: 2.1, 3.6, 3.7, 4.1, 5.3, ux-flow 3.3_
+- [x] T5. 내 이력서: 추이 카드·자동 열기·빈 상태 (`my.html`, `js/my.js`, `css/my.css`)
+  - _요구사항: 9.2, 9.3, 9.4, 9.5, ux-flow 3.4_
+- [x] T6. E2E를 새 화면 흐름에 맞춰 갱신 (`e2e/resume-flow.spec.cjs`, `e2e/demo.spec.cjs`)
+  - _요구사항: 12.3, ux-flow 8절_
+- [x] T7. 평가하기 900px 이상 두 열 + sticky 패널, 좁은 화면 제출 `.sticky-bar` (`css/review.css`)
+  - _요구사항: ux-flow 8절 P1 T7_
+- [x] T8. `#pages-end` IntersectionObserver로 마지막 쪽 확인 전 게시 확인 잠금 (`js/upload.js`)
+  - _요구사항: 4.1, ux-flow 2.3_
+- [x] T9. 총점 버튼형 라벨 `label:has(input:checked)` (`css/review.css`)
+  - _요구사항: 8.1, ux-flow 8절 P1 T9_
+- [x] T11. 초안 `versionNo`로 2단계 바로 열기, 내 이력서 `이어서 게시` 링크 (`js/upload.js`, `js/my.js`)
+  - _요구사항: 5.3, ux-flow 8절 P1 T11_
+- [x] T12. 파일 이름으로 빈 제목 자동 채움 (`js/upload.js`)
+  - _요구사항: 2.1, ux-flow 8절 P1 T12_
+- [x] T13. 기존 이력서가 있으면 `새 버전으로 올리기 →` 안내 (`js/upload.js`)
+  - _요구사항: 5.1, ux-flow 8절 P1 T13_
+- T10(이미지 `다시 불러오기`)은 T1 `loadPageImage()`로 합쳐져 별도 작업이 없다.

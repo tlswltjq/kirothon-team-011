@@ -25,3 +25,15 @@
 | 2026-11-14T04:17:24Z | 6. 제출 | artifact | PRESENTATION.pdf (presentation/slides.html → Playwright Chromium PDF, 9쪽) | 생성·페이지 이미지 직접 확인. 실제 이력서 데모 리허설 92.9초 MP4 생성, 프레임 확인으로 이름·연락처·사진 노출 없음 |
 | 2026-11-14T05:44:22Z | 4. 검증 | review | gpt-5.6-terra high (5b94e2b3f1460c64), 화면 개편 diff | 지적 9건(높음2·중간5·낮음3 중 1건 기각): E2E 스크롤 지적은 E2E 통과로 기각, 나머지 8건 impl에 위임 |
 | 2026-11-14T06:25:00Z | 3. 구현 | spawn_run | 팀 6역할: 아트디렉터(opus)·UX라이터·접근성감사(gpt)·데모프로듀서 -> 구현 W1~W6 -> QA | 문서 4개 -> 구현 6개 병렬 합본, 테스트 150 통과, E2E·데모 통과(스크립트 선택자 수정 2건) |
+| 2026-11-14T07:28:40Z | 2. 명세 | workflow_run | wf_000003 kirothon-ux-design-loop (설계 claude-opus-5.5 <-> 평가 gpt-5.6-terra, kiro backend), .kiro/specs/resume-review/ux-flow.md | 성공: 3라운드, 평균 7.0->5.1->4.57(평가자가 설계가 아닌 현재 구현을 채점). 결과 ux-flow.md |
+| 2026-11-14T07:28:40Z | 3. 구현 | spawn_run | UX T1~T5 병렬 5개(worktree) + T6 E2E 1개 (kiro backend) | 성공: E2E 통과, 테스트 150개 |
+| 2026-11-14T07:28:40Z | 3. 구현 | spawn_run | 디자인 D1~D4 병렬 4개 + spawn_steer로 실행 중 'Mobile-first' 지시를 4개에 주입 | 성공: 375/1280px 가로 넘침 0 |
+| 2026-11-14T07:28:40Z | 4. 검증 | spawn_run | 리뷰 지적 수정 1개 (acb20e1171cb0a8f) | 성공: 8건 반영 |
+| 2026-11-14T07:28:40Z | 2. 명세 | spawn_run | 기획·검토 팀 4명: 아트디렉터 claude-opus-5.5(1b97dad2f860c6ed), UX 라이터 sonnet(a1570f84ce2b7c91), 접근성 감사 gpt-5.6-terra(f4257f1c8e1f0377), 데모 프로듀서 gpt-5.6-terra(66be201cb27cc0e0) | 성공: 문서 4개 .kiro/specs/resume-review/team/ |
+| 2026-11-14T07:28:40Z | 4. 검증 | spawn_run | QA 1개 (704c5f22d57809cd) | 성공: E2E·데모 스크립트 선택자 2건 수정 후 통과, 모바일 게시 바 201px 측정 |
+| 2026-11-14T07:28:40Z | 4. 검증 | review | gpt-5.6-terra high (13890111c3b49c92), 팀 반영분 교차 리뷰 | 지적 9건 중 8건 반영, 1건(visible=true 선택자)은 실제 테스트 통과로 기각 |
+| 2026-11-14T07:28:40Z | 3. 구현 | spawn_run | 병렬 3개: F1(a50d3e5aae44e88f), G1(e6d075635653c658), G2(877314c1ff5f2d11) | 성공: F1 모바일 게시 바 201->96px, G1 키보드 핀 좌표 검증·알림 중복 제거, G2 데모 이름 가림·콜드오픈 구간 |
+| 2026-11-14T07:28:40Z | 4. 검증 | browser | Playwright 실제 이력서 최종 녹화 79초 MP4, YouTube youtu.be/NpGPTHtYJJQ | 프레임 점검으로 영문 이름·가릴 단어 칩 실명 노출 2건 발견 -> 수정 후 재녹화 성공 |
+| 2026-11-14T07:28:40Z | 4. 검증 | browser | 운영자료 Notion 재확인 시도 | 실패: 스냅샷에 제목만, iframe 때문에 스크린샷 차단 |
+| 2026-11-14T07:28:40Z | 3. 구현 | spawn_run | 화면 마무리 1개 (871608db6b4359f4) | 성공: my.css 2건 수정 |
+| 2026-11-14T07:28:40Z | 6. 제출 | artifact | PRESENTATION.pdf 재생성, 슬라이드별 PNG presentation/slides/ 9장, 발표 대본 presentation/script.md | 성공: 생성 완료 |
