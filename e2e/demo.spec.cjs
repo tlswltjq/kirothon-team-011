@@ -116,7 +116,7 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
 
   // ===== b. 새 버전 올리기: v2 업로드 -> 마스킹 미리보기 -> 단어 추가 -> 게시 =====
   seg.BODY_START = since(); // 편집 시 v1 확인 장면은 건너뛰고 여기부터 이어 붙인다
-  await hclick(page.locator('#new-version-link'));
+  await hclick(page.locator('#trend-upload, #new-version-link').locator('visible=true').first());
   await expect(page.locator('#upload-btn')).toBeVisible();
   await pause(page, 1.5);
   await page.locator('#file').setInputFiles(V2_PDF);

@@ -78,6 +78,8 @@ test('주인 v1 게시 -> 평가자 핀·총평·총점 -> 핀 오버레이 -> v
   await expect(owner.locator('#unmatched .msg')).toHaveCount(0);
   await imageLoaded(owner.locator('#pages img').first());
   await shot(owner, '01-owner-v1-masked-preview');
+  await owner.locator('#pages-end').scrollIntoViewIfNeeded();
+  await expect(owner.locator('#confirm')).toBeEnabled();
   await owner.locator('#confirm').check();
   await owner.locator('#publish-btn').click();
   await expect(owner.locator('#done-card')).toContainText(/v1.{1,2} 게시했어요/);
@@ -164,11 +166,13 @@ test('주인 v1 게시 -> 평가자 핀·총평·총점 -> 핀 오버레이 -> v
   // ---- 주인: v2 업로드·게시. v1 핀은 v2에 없다(9.8) ----
   await owner.goto('/my.html');
   await owner.locator('#resume-list li button').first().click();
-  await owner.locator('#new-version-link').click();
+  await owner.locator('#trend-upload, #new-version-link').locator('visible=true').first().click();
   await owner.locator('#file').setInputFiles(path.join(DEMO, 'owner-v2.pdf'));
   await owner.locator('#upload-btn').click();
   await expect(owner.locator('#preview-card')).toBeVisible();
   await expect(owner.locator('#terms .chip')).toContainText('김하늘'); // 직전 버전 단어 이월
+  await owner.locator('#pages-end').scrollIntoViewIfNeeded();
+  await expect(owner.locator('#confirm')).toBeEnabled();
   await owner.locator('#confirm').check();
   await owner.locator('#publish-btn').click();
   await expect(owner.locator('#done-card')).toContainText(/v2.{1,2} 게시했어요/);
