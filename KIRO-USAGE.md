@@ -23,3 +23,4 @@
 | 2026-11-14T03:47:58Z | 4. 검증 | spawn_run | 작업 11 샘플 시드·E2E·녹화 스크립트 (sonnet-5.5/medium, kiro backend, 22분 48초) | 성공: 병합 후 테스트 148개, Playwright E2E 1개 통과, 시험 녹화 1분 41초. 스크린샷 직접 확인으로 화면 결함 2건(평가 화면 'null' 표시, 내 이력서 메뉴 불일치) 발견·수정 후 E2E 재통과 |
 | 2026-11-14T04:07:06Z | 4. 검증 | browser | Playwright 컨테이너 headless Chromium으로 실제 이력서 3개 업로드, 마스킹 미리보기 캡처 (demo-private, 커밋 안 함) | 결함 2건 발견·수정: 괄호 국가번호 전화 형식 미검출, 이름 후보에 가린 이메일 노출. 테스트 150개 통과 |
 | 2026-11-14T04:17:24Z | 6. 제출 | artifact | PRESENTATION.pdf (presentation/slides.html → Playwright Chromium PDF, 9쪽) | 생성·페이지 이미지 직접 확인. 실제 이력서 데모 리허설 92.9초 MP4 생성, 프레임 확인으로 이름·연락처·사진 노출 없음 |
+| 2026-11-14T05:44:22Z | 4. 검증 | review | gpt-5.6-terra high (5b94e2b3f1460c64), 화면 개편 diff | 지적 9건(높음2·중간5·낮음3 중 1건 기각): E2E 스크롤 지적은 E2E 통과로 기각, 나머지 8건 impl에 위임 |
