@@ -40,8 +40,8 @@ public class MaskRegionFinder {
 
     static final Pattern PHONE = Pattern.compile(
             "(?<![\\d+])(?:"
-                    // +82 (국가번호), 선택적 (0)
-                    + "\\+82" + SEP + "?(?:\\(0\\))?" + "(?:1[016789]|\\d{1,2})" + SEP + "?" + PHONE_BODY
+                    // +82 (국가번호), 괄호 표기 (+82) 허용, 선택적 (0)
+                    + "\\(?\\+82\\)?" + SEP + "?(?:\\(0\\))?" + "(?:1[016789]|\\d{1,2})" + SEP + "?" + PHONE_BODY
                     // 휴대폰: 구분자 선택
                     + "|01[016789]" + SEP + "?" + PHONE_BODY
                     // 지역번호: 구분자 필수 (날짜·학번 오탐 방지)
@@ -185,15 +185,28 @@ public class MaskRegionFinder {
             if (line.text().isBlank()) {
                 continue;
             }
+            // 이미 가려진 글자(이메일·전화 등)는 후보 문구에서 빼서, 미리보기 화면에 다시 드러나지 않게 한다.
+            StringBuilder visible = new StringBuilder();
+            boolean any = false;
             for (int i = 0; i < line.text().length(); i++) {
+                char c = line.text().charAt(i);
                 Box b = line.charBoxes().get(i);
-                if (b != null && !Character.isWhitespace(line.text().charAt(i))
-                        && !covered(regions, line.page(), b)) {
-                    String t = line.text().strip();
-                    return t.length() > NAME_CANDIDATE_MAX ? t.substring(0, NAME_CANDIDATE_MAX) : t;
+                if (b != null && covered(regions, line.page(), b)) {
+                    if (visible.length() > 0 && visible.charAt(visible.length() - 1) != ' ') {
+                        visible.append(' ');
+                    }
+                    continue;
+                }
+                visible.append(c);
+                if (b != null && !Character.isWhitespace(c)) {
+                    any = true;
                 }
             }
-            return null;
+            if (!any) {
+                return null;
+            }
+            String t = visible.toString().replaceAll("\\s+", " ").strip();
+            return t.length() > NAME_CANDIDATE_MAX ? t.substring(0, NAME_CANDIDATE_MAX) : t;
         }
         return null;
     }

@@ -93,7 +93,9 @@ class MaskRegionFinderTest {
     @ValueSource(strings = {
             "010-1234-5678", "010.1234.5678", "010 1234 5678", "01012345678", "011-123-4567",
             "02-123-4567", "02 1234 5678", "031-123-4567", "031.123.4567",
-            "(02) 123-4567", "+82-10-1234-5678", "+82 10 1234 5678", "+82 (0)10-1234-5678", "+82-2-123-4567"})
+            "(02) 123-4567", "+82-10-1234-5678", "+82 10 1234 5678", "+82 (0)10-1234-5678", "+82-2-123-4567",
+            // 실제 이력서에서 놓친 형식(2026-11-14): 국가번호를 괄호로 감싼 표기
+            "(+82) 10-1234-5678", "(+82)10-1234-5678"})
     void phone_3_1(String phone) {
         MaskPlan plan = find("전화 " + phone + " 끝");
         assertThat(count(plan, RegionType.PHONE)).as(phone).isEqualTo(1);
@@ -267,9 +269,11 @@ class MaskRegionFinderTest {
     }
 
     @Test
-    void nameCandidate_partiallyCoveredLineIsCandidate() {
+    void nameCandidate_partiallyCoveredLineIsCandidateWithoutMaskedText() {
+        // 실제 이력서에서 발견(2026-11-14): 후보 문구에 이미 가린 이메일이 그대로 드러났다.
         MaskPlan plan = find("홍길동 a@b.com");
-        assertThat(plan.nameCandidate()).isEqualTo("홍길동 a@b.com");
+        assertThat(plan.nameCandidate()).isEqualTo("홍길동");
+        assertThat(find("홍길동 a@b.com 백엔드").nameCandidate()).isEqualTo("홍길동 백엔드");
     }
 
     @Test
