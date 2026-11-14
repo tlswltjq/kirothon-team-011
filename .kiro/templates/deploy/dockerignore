@@ -1,0 +1,8 @@
+# 루트에 .dockerignore 로 복사한다. 빌드 문맥에는 Dockerfile과 실행 JAR만 보낸다.
+**
+!Dockerfile
+!build/
+build/*
+!build/libs/
+build/libs/*
+!build/libs/*.jar

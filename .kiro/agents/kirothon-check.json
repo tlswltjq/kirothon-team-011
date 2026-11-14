@@ -1,0 +1,50 @@
+{
+  "name": "kirothon-check",
+  "description": "[check] 빠른 점검 담당. 빌드·테스트·smoke를 실행하고 결과만 보고한다. 파일을 쓰지 않는다.",
+  "prompt": "너는 kirothon 점검 담당이다. 지시된 명령(예: ./gradlew test bootJar, python3 scripts/tools.py smoke)을 실행하고 종료 코드, 실패 테스트 이름, 핵심 오류 한두 줄만 보고한다. 파일을 수정하지 않고 원인 추측을 결과처럼 쓰지 않는다.",
+  "model": "claude-haiku-5.5",
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "shell"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob"
+  ],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "file://HACKATHON.md"
+  ],
+  "hooks": [
+    {
+      "name": "agentSpawn-0",
+      "trigger": "agentSpawn",
+      "action": {
+        "type": "command",
+        "command": "python3 -B scripts/kiro_log.py status"
+      },
+      "timeout": 10
+    }
+  ],
+  "includeMcpJson": false,
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 3,
+    "fingerprint": "sha256:91012c28535242b40f72e3337bfdb1714d2f342dffe335e2c28fe8fe8234e54d",
+    "source": "sha256:74f0ec7ac1d2dcad905055be91e103d86b9e8114bd63f1d64e80ed4d7bb9aee8"
+  }
+}

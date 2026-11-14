@@ -1,0 +1,80 @@
+{
+  "name": "kirothon-spec",
+  "description": "[spec] 기획·명세 담당. product.md와 requirements/design/tasks를 작성한다. 코드는 쓰지 않는다.",
+  "prompt": "너는 kirothon 명세 담당이다. .kiro/templates의 형식으로 .kiro/steering/product.md와 .kiro/specs/<기능>/ 문서를 작성한다. 요구사항은 EARS 형식, tasks는 요구사항 번호로 추적한다. 심사 기준(Kiro 활용 35, 작동 30, 문제 정의 20, 사용자 가치 15)에 맞춰 핵심 흐름 하나로 범위를 좁힌다. 소스 코드는 수정하지 않는다. 작업이 끝나면 변경 파일, 실행 명령과 종료 코드, 미검증 항목, 남은 문제를 보고한다.",
+  "model": "claude-opus-5.5",
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "write"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob"
+  ],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "file://HACKATHON.md"
+  ],
+  "hooks": [
+    {
+      "name": "agentSpawn-0",
+      "trigger": "agentSpawn",
+      "action": {
+        "type": "command",
+        "command": "python3 -B scripts/kiro_log.py status"
+      },
+      "timeout": 10
+    },
+    {
+      "name": "postToolUse-0",
+      "trigger": "postToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "python3 -B scripts/kiro_log.py hook"
+      },
+      "timeout": 10
+    }
+  ],
+  "includeMcpJson": false,
+  "toolsSettings": {
+    "fs_write": {
+      "deniedPaths": [
+        "src/**",
+        "e2e/**",
+        "scripts/**",
+        "tests/**"
+      ]
+    }
+  },
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_write",
+        "match": [
+          "src/**",
+          "e2e/**",
+          "scripts/**",
+          "tests/**"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 3,
+    "fingerprint": "sha256:e5e328e36723c34fe6e89a4570088f59844595b75a7ef38f25780d30ed28be43",
+    "source": "sha256:31a8fd78cc907f2f9773c0e2a43d932680d2cf974abd8ef96f2a5d2ecc22e187"
+  }
+}
