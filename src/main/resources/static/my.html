@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>내 이력서가 받은 평가</title>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/my.css">
+</head>
+<body>
+  <header class="my-nav">
+    <nav>
+      <a href="index.html">시작</a>
+      <a href="upload.html">업로드</a>
+      <a href="review.html">평가하기</a>
+      <a href="my.html" aria-current="page">내 이력서</a>
+    </nav>
+    <span id="nickname" class="my-nick"></span>
+  </header>
+  <main class="my-main">
+    <h1>내 이력서가 받은 평가</h1>
+    <p id="status" class="my-status" role="status"></p>
+
+    <section id="list-section" aria-labelledby="list-title">
+      <h2 id="list-title">내 이력서</h2>
+      <ul id="resume-list" class="my-list"></ul>
+      <p id="resume-empty" class="my-empty" hidden>아직 올린 이력서가 없습니다. <a href="upload.html">이력서를 업로드</a>해 보세요.</p>
+    </section>
+
+    <section id="versions-section" aria-labelledby="versions-title" hidden>
+      <h2 id="versions-title">버전</h2>
+      <p id="versions-meta" class="my-meta"></p>
+      <ul id="version-list" class="my-list"></ul>
+      <p><a id="new-version-link" href="upload.html">새 버전 올리기</a></p>
+    </section>
+
+    <section id="detail-section" aria-labelledby="detail-title" hidden>
+      <h2 id="detail-title">평가 결과</h2>
+      <div class="my-detail">
+        <div id="pages" class="my-pages"></div>
+        <aside class="my-side">
+          <h3>핀 코멘트</h3>
+          <ul id="pin-list" class="my-pinlist"></ul>
+          <p id="pin-empty" class="my-empty" hidden>핀 코멘트가 없습니다.</p>
+          <h3>평가</h3>
+          <ul id="review-list" class="my-reviews"></ul>
+          <p id="review-empty" class="my-empty" hidden>아직 받은 평가가 없습니다.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="js/my.js"></script>
+</body>
+</html>

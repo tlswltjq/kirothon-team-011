@@ -1,0 +1,30 @@
+.my-nav { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; border-bottom: 1px solid #ddd; }
+.my-nav nav a { margin-right: 14px; }
+.my-nav nav a[aria-current="page"] { font-weight: bold; }
+.my-main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+.my-status { min-height: 1.4em; color: #b00020; }
+.my-status.my-info { color: #333; }
+.my-list, .my-pinlist, .my-reviews { list-style: none; padding: 0; margin: 0 0 12px; }
+.my-list li { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; padding: 8px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; }
+.my-list li.my-selected { border-color: #1a73e8; background: #eef4fe; }
+.my-badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; background: #e0e0e0; }
+.my-badge.my-published { background: #d7f0dc; }
+.my-badge.my-draft { background: #fdebc8; }
+.my-badge.my-sample { background: #e6dcf7; margin-left: 6px; }
+.my-detail { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.my-pages { flex: 2 1 420px; min-width: 0; }
+.my-side { flex: 1 1 300px; min-width: 0; }
+.my-page { position: relative; margin-bottom: 12px; border: 1px solid #ccc; line-height: 0; }
+.my-page img { width: 100%; height: auto; display: block; }
+.my-pagelabel { line-height: 1.4; font-size: 12px; color: #555; margin: 0 0 2px; }
+.my-pin { position: absolute; transform: translate(-50%, -50%); min-width: 22px; height: 22px; padding: 0 4px; box-sizing: border-box; border-radius: 11px; border: 2px solid #fff; color: #fff; font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; box-shadow: 0 0 2px rgba(0,0,0,.6); }
+.my-pin.my-pin-active { transform: translate(-50%, -50%) scale(1.5); z-index: 5; outline: 3px solid #000; }
+.my-pinitem { display: block; width: 100%; text-align: left; padding: 6px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer; font: inherit; }
+.my-pinitem.my-pin-active { border-color: #000; background: #fffbe0; }
+.my-pinitem .my-chip { display: inline-block; min-width: 22px; padding: 0 6px; border-radius: 11px; color: #fff; font-size: 12px; text-align: center; margin-right: 6px; }
+.my-pinitem .my-pinmeta { color: #555; font-size: 12px; margin-right: 6px; }
+.my-reviews li { padding: 8px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; }
+.my-reviews .my-score { font-weight: bold; }
+.my-reviews .my-time { color: #666; font-size: 12px; }
+.my-reviews .my-summary { margin: 4px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.my-empty { color: #666; }
