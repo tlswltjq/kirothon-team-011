@@ -10,14 +10,19 @@ body { font-size: 16px; }
 .my-badge.my-sample { background: var(--purple-soft); color: var(--purple-dark); margin-left: 6px; }
 .my-detail { display: flex; flex-direction: column; gap: 16px; }
 .my-pages, .my-side { min-width: 0; }
-.my-page { position: relative; margin-bottom: 12px; border: 6px solid var(--ink-2); border-radius: 8px; line-height: 0; min-height: 80px; background: var(--ink); box-shadow: 0 4px 16px rgba(11,11,18,.25); }
+.my-pages { padding: 14px; background: var(--ink); border-radius: 12px; }
+.my-pages .my-pagelabel { color: var(--purple-glow); }
+.my-page { position: relative; margin-bottom: 12px; border: 0; border-radius: 4px; line-height: 0; min-height: 80px; background: var(--white); box-shadow: 6px 6px 0 var(--purple-dark); }
 .my-overlay { position: absolute; inset: 0; pointer-events: none; }
 .my-overlay .my-pin { pointer-events: auto; }
 .my-page img { width: 100%; height: auto; display: block; }
 .my-pagelabel { line-height: 1.4; font-size: 16px; color: var(--muted); margin: 0 0 2px; }
 .my-pin { width: auto; min-height: 24px; margin: 0; position: absolute; transform: translate(-50%, -50%); min-width: 24px; height: 24px; padding: 0 4px; box-sizing: border-box; border-radius: 12px; border: 2px solid #fff; color: #fff; font-size: 16px; line-height: 20px; text-align: center; cursor: pointer; box-shadow: 0 0 3px rgba(0,0,0,.7); }
 .my-pin::after { content: ''; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
-.my-pin.my-pin-active { transform: translate(-50%, -50%) scale(1.5); z-index: 5; outline: 3px solid var(--ink); }
+.my-pin { transition: transform .15s ease; }
+.my-pin.my-pin-active { transform: translate(-50%, -50%) scale(1.5); z-index: 5; outline: 3px solid #ffd43b; outline-offset: 2px; box-shadow: 0 0 0 5px #0b0b12; }
+@keyframes pin-ring { from { box-shadow: 0 0 0 0 rgba(167, 139, 250, .9), 0 0 0 5px #0b0b12; } to { box-shadow: 0 0 0 14px rgba(167, 139, 250, 0), 0 0 0 5px #0b0b12; } }
+.my-pin.my-pin-active { animation: pin-ring .9s ease-out 2; }
 .my-pinitem, .my-pinitem:hover { color: var(--ink); }
 .my-pinitem { display: block; width: 100%; min-height: 44px; font-size: 16px; text-align: left; padding: 10px; margin-bottom: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); cursor: pointer; font: inherit; }
 .my-pinitem.my-pin-active { border-color: var(--purple); background: var(--purple-soft); }
@@ -42,15 +47,24 @@ body { font-size: 16px; }
 .my-delta.down { background: var(--err); }
 .my-chart { width: 100%; }
 .my-chart svg { width: 100%; height: auto; display: block; }
-.my-grid { stroke: var(--ink-2); stroke-opacity: 1; stroke-width: 1; }
+.my-grid { stroke: #6b6880; stroke-opacity: .6; stroke-width: 1; }
 .my-axis { fill: var(--purple-glow); font-size: 12px; }
-.my-line { stroke: var(--purple-glow); stroke-width: 2; fill: none; }
+.my-line { stroke: var(--purple-glow); stroke-width: 3; fill: none; }
 .my-dot { fill: var(--purple); stroke: var(--white); stroke-width: 1.5; }
-.my-dot.latest { fill: var(--white); stroke: var(--purple); stroke-width: 3; }
-.my-val { fill: var(--white); font-size: 13px; font-weight: 700; }
+.my-dot.latest { fill: var(--white); stroke: var(--purple); stroke-width: 4; }
+.my-val { fill: var(--white); font-size: 14px; font-weight: 700; }
 .my-list li.my-selected { font-weight: 600; }
 .my-retry { margin-left: 8px; min-height: 44px; }
 .my-trend .btn, .my-emptystate .btn, .my-emptystate button, #new-version-link { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; font-size: 16px; }
+.my-delta[hidden], #trend-wait[hidden], #trend-latest-note[hidden], #trend-single[hidden] { display: none !important; }
+.my-main > section { margin-top: 28px; }
+.my-main > section#trend-card { margin-top: 0; }
+#trend-single-text { margin: 4px 0 0; color: var(--purple-glow); }
+#trend-latest-note { margin: 0 0 8px; }
+main:has(#trend-card:not([hidden]) #trend-single:not([hidden])) #versions-section p:has(#new-version-link) { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .my-pin, .my-pin.my-pin-active { animation: none; transition: none; }
+}
 @media (min-width: 900px) {
   .my-detail { flex-direction: row; align-items: flex-start; }
   .my-pages { flex: 2 1 0; }
