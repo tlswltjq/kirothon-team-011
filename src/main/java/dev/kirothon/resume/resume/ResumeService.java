@@ -24,10 +24,12 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -115,13 +117,14 @@ public class ResumeService {
             ResumeVersion v;
             if (draft != null) {
                 UUID id = draft.getId();
+                v = versions.findByIdForUpdate(id).orElseThrow(ApiException::notFound);
+                if (v.isPublished()) {
+                    throw new ApiException(HttpStatus.CONFLICT, "ALREADY_PUBLISHED", "이미 게시된 버전입니다.");
+                }
                 regions.deleteByVersion(id);
                 images.deleteByVersion(id);
                 drafts.deleteByVersion(id);
                 v = versions.findById(id).orElseThrow(ApiException::notFound);
-                if (v.isPublished()) {
-                    throw new ApiException(HttpStatus.CONFLICT, "ALREADY_PUBLISHED", "이미 게시된 버전입니다.");
-                }
             } else {
                 int next = versions.findByResumeIdOrderByVersionNoAsc(resume.getId()).stream()
                         .mapToInt(ResumeVersion::getVersionNo).max().orElse(0) + 1;
@@ -178,16 +181,22 @@ public class ResumeService {
         if (v.isPublished()) {
             throw alreadyPublished();
         }
-        DraftSource src = drafts.findById(v.getId()).orElseThrow(ResumeService::expired);
+        DraftSource src = liveDraft(v.getId());
         Processed p = processor.process(src.getPdf(), clean);
         UUID id = v.getId();
+        String seenHash = v.getPreviewHash();
         return tx.execute(status -> {
-            ResumeVersion cur = versions.findById(id).orElseThrow(ApiException::notFound);
+            ResumeVersion cur = versions.findByIdForUpdate(id).orElseThrow(ApiException::notFound);
             if (cur.isPublished()) {
                 throw alreadyPublished();
             }
-            if (!drafts.existsById(id)) {
+            DraftSource now = drafts.findById(id).orElseThrow(ResumeService::expired);
+            if (isExpired(now)) {
+                drafts.deleteByVersion(id);
                 throw expired();
+            }
+            if (!Objects.equals(seenHash, cur.getPreviewHash()) || !Arrays.equals(src.getPdf(), now.getPdf())) {
+                throw outdated();
             }
             terms.deleteByVersion(id);
             regions.deleteByVersion(id);
@@ -209,20 +218,27 @@ public class ResumeService {
         if (v.isPublished()) {
             throw alreadyPublished();
         }
-        DraftSource src = drafts.findById(v.getId()).orElseThrow(ResumeService::expired);
+        DraftSource src = liveDraft(v.getId());
         if (previewHash == null || !previewHash.equals(v.getPreviewHash())) {
-            throw new ApiException(HttpStatus.CONFLICT, "PREVIEW_OUTDATED",
-                    "미리보기가 최신이 아닙니다. 미리보기를 다시 확인한 뒤 게시하세요.");
+            throw outdated();
         }
+        List<String> verifiedTerms = termList(v.getId());
         verifyMasking(v, src.getPdf());
         UUID id = v.getId();
         return tx.execute(status -> {
-            ResumeVersion cur = versions.findById(id).orElseThrow(ApiException::notFound);
+            // 검증 이후 다른 요청이 초안·단어를 바꿨는지 행 잠금 아래에서 다시 확인한다.
+            ResumeVersion cur = versions.findByIdForUpdate(id).orElseThrow(ApiException::notFound);
             if (cur.isPublished()) {
                 throw alreadyPublished();
             }
-            if (!drafts.existsById(id)) {
+            DraftSource now = drafts.findById(id).orElseThrow(ResumeService::expired);
+            if (isExpired(now)) {
+                drafts.deleteByVersion(id);
                 throw expired();
+            }
+            if (!previewHash.equals(cur.getPreviewHash()) || !Arrays.equals(src.getPdf(), now.getPdf())
+                    || !verifiedTerms.equals(termList(id))) {
+                throw outdated();
             }
             cur.publish();
             versions.save(cur);
@@ -387,6 +403,25 @@ public class ResumeService {
 
     private static ApiException alreadyPublished() {
         return new ApiException(HttpStatus.CONFLICT, "ALREADY_PUBLISHED", "이미 게시된 버전입니다.");
+    }
+
+    /** 만료 시각이 지난 원본은 정리 작업을 기다리지 않고 즉시 지우고 410으로 거부한다(4.7). */
+    private DraftSource liveDraft(UUID versionId) {
+        DraftSource src = drafts.findById(versionId).orElseThrow(ResumeService::expired);
+        if (isExpired(src)) {
+            tx.executeWithoutResult(s -> drafts.deleteByVersion(versionId));
+            throw expired();
+        }
+        return src;
+    }
+
+    private static boolean isExpired(DraftSource src) {
+        return !src.getExpiresAt().isAfter(Instant.now());
+    }
+
+    private static ApiException outdated() {
+        return new ApiException(HttpStatus.CONFLICT, "PREVIEW_OUTDATED",
+                "미리보기가 최신이 아닙니다. 미리보기를 다시 확인한 뒤 게시하세요.");
     }
 
     private static ApiException expired() {

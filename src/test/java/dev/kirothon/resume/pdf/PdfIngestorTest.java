@@ -67,6 +67,11 @@ class PdfIngestorTest {
     }
 
     @Test
+    void req2_9_hugePageIsTooComplexBeforeRendering() throws IOException {
+        assertRejected(PdfFixtures.hugePage(), 422, "PDF_TOO_COMPLEX");
+    }
+
+    @Test
     void req2_2_lineTextAndCharBoxesMatch() throws IOException {
         IngestResult r = ingestor.ingest(PdfFixtures.longText());
         assertThat(r.pages()).hasSize(1);

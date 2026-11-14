@@ -381,6 +381,23 @@ class MyResumeApiTest {
     }
 
     @Test
+    void req4_7_expiredSourceRejectedAndDeletedWithoutCleanerRun() throws Exception {
+        String token = newToken();
+        Up u = created(token, ResumePdfs.resume(""));
+        jdbc.update("update draft_source set expires_at = ? where version_id = ?",
+                java.sql.Timestamp.from(Instant.now().minusSeconds(1)), u.versionId());
+        mvc.perform(termsReq(token, u, "{\"terms\":[\"Gasang Kim\"]}")).andExpect(status().isGone())
+                .andExpect(jsonPath("$.code").value("DRAFT_SOURCE_EXPIRED"));
+        assertThat(drafts.existsById(u.versionId())).isFalse();
+        Up u2 = created(token, ResumePdfs.resume(""));
+        jdbc.update("update draft_source set expires_at = ? where version_id = ?",
+                java.sql.Timestamp.from(Instant.now().minusSeconds(1)), u2.versionId());
+        mvc.perform(publishReq(token, u2, u2.hash(), true)).andExpect(status().isGone())
+                .andExpect(jsonPath("$.code").value("DRAFT_SOURCE_EXPIRED"));
+        assertThat(drafts.existsById(u2.versionId())).isFalse();
+    }
+
+    @Test
     void req4_7_cleanerKeepsFreshDrafts() throws Exception {
         String token = newToken();
         Up u = created(token, ResumePdfs.resume(""));

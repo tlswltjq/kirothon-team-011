@@ -30,6 +30,9 @@ public class PdfIngestor {
     static final int MAX_PAGES = 10;
     static final int MIN_TEXT_CHARS = 100;
     static final long MAX_IMAGE_PIXELS = 25_000_000L;
+    /** 150DPI 렌더링 결과의 변 길이와 전체 픽셀 상한. 렌더링 전에 막아 메모리 고갈을 피한다. */
+    static final double MAX_PAGE_SIDE_PX = 5000;
+    static final double MAX_TOTAL_PAGE_PIXELS = 25_000_000d;
     private static final byte[] MAGIC = {'%', 'P', 'D', 'F', '-'};
 
     public IngestResult ingest(byte[] pdf) {
@@ -53,6 +56,7 @@ public class PdfIngestor {
                 throw parseFailed();
             }
             List<PageSize> pages = new ArrayList<>();
+            double totalPixels = 0;
             for (int i = 0; i < pageCount; i++) {
                 PDPage page = doc.getPage(i);
                 if (page.getRotation() != 0) {
@@ -60,6 +64,14 @@ public class PdfIngestor {
                             (i + 1) + "쪽이 회전되어 있습니다. 회전 없이 다시 저장해서 올려 주세요.");
                 }
                 PDRectangle box = page.getCropBox();
+                double wPx = box.getWidth() * PageRenderer.SCALE;
+                double hPx = box.getHeight() * PageRenderer.SCALE;
+                totalPixels += wPx * hPx;
+                if (!(wPx > 0) || !(hPx > 0) || wPx > MAX_PAGE_SIDE_PX || hPx > MAX_PAGE_SIDE_PX
+                        || totalPixels > MAX_TOTAL_PAGE_PIXELS) {
+                    throw new PdfRejectedException(422, "PDF_TOO_COMPLEX",
+                            (i + 1) + "쪽의 페이지 크기가 너무 커서 처리할 수 없습니다.");
+                }
                 pages.add(new PageSize(i + 1, box.getWidth(), box.getHeight()));
             }
 
@@ -116,6 +128,9 @@ public class PdfIngestor {
 
         @Override
         protected void writeString(String string, List<TextPosition> positions) throws IOException {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new IOException("cancelled");
+            }
             for (TextPosition tp : positions) {
                 String uni = tp.getUnicode();
                 boolean bad = uni == null || uni.isEmpty();

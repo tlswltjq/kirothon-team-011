@@ -49,6 +49,22 @@ final class PdfFixtures {
         }
     }
 
+    /** 글자가 있는 정상 PDF지만 페이지 한 장이 30000x30000pt. */
+    static byte[] hugePage() throws IOException {
+        try (PDDocument doc = new PDDocument()) {
+            PDPage page = new PDPage(new PDRectangle(30000f, 30000f));
+            doc.addPage(page);
+            try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
+                cs.beginText();
+                cs.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
+                cs.newLineAtOffset(50, 700);
+                cs.showText(LONG_TEXT);
+                cs.endText();
+            }
+            return save(doc);
+        }
+    }
+
     static byte[] longText() throws IOException {
         return build(PageSpec.text(LONG_TEXT));
     }

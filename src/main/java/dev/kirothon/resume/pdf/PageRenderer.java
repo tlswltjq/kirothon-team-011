@@ -38,6 +38,9 @@ public class PageRenderer {
             List<byte[]> pngs = new ArrayList<>();
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             for (int i = 0; i < doc.getNumberOfPages(); i++) {
+                if (Thread.currentThread().isInterrupted()) {
+                    throw new IOException("cancelled");
+                }
                 BufferedImage image = renderer.renderImageWithDPI(i, DPI, ImageType.RGB);
                 List<Rectangle> rects = pixelRects(regions, i + 1, image.getWidth(), image.getHeight());
                 Graphics2D g = image.createGraphics();
