@@ -1,7 +1,3 @@
-.my-nav { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; border-bottom: 1px solid #ddd; }
-.my-nav nav a { margin-right: 14px; }
-.my-nav nav a[aria-current="page"] { font-weight: bold; }
-.my-main { max-width: 1100px; margin: 0 auto; padding: 16px; }
 .my-status { min-height: 1.4em; color: #b00020; }
 .my-status.my-info { color: #333; }
 .my-list, .my-pinlist, .my-reviews { list-style: none; padding: 0; margin: 0 0 12px; }
@@ -14,7 +10,9 @@
 .my-detail { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
 .my-pages { flex: 2 1 420px; min-width: 0; }
 .my-side { flex: 1 1 300px; min-width: 0; }
-.my-page { position: relative; margin-bottom: 12px; border: 1px solid #ccc; line-height: 0; }
+.my-page { position: relative; margin-bottom: 12px; border: 1px solid #ccc; line-height: 0; min-height: 80px; background: #eceef2; }
+.my-overlay { position: absolute; inset: 0; pointer-events: none; }
+.my-overlay .my-pin { pointer-events: auto; }
 .my-page img { width: 100%; height: auto; display: block; }
 .my-pagelabel { line-height: 1.4; font-size: 12px; color: #555; margin: 0 0 2px; }
 .my-pin { position: absolute; transform: translate(-50%, -50%); min-width: 22px; height: 22px; padding: 0 4px; box-sizing: border-box; border-radius: 11px; border: 2px solid #fff; color: #fff; font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; box-shadow: 0 0 2px rgba(0,0,0,.6); }
@@ -29,3 +27,22 @@
 .my-reviews .my-time { color: #666; font-size: 12px; }
 .my-reviews .my-summary { margin: 4px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .my-empty { color: #666; }
+.my-meta { color: var(--muted); margin: 0 0 8px; }
+.my-emptystate { text-align: center; padding: 32px 12px; }
+.my-trend h2 { margin-bottom: 2px; }
+.my-summary-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 8px 0; }
+.my-bigsummary { font-size: 28px; font-weight: 700; margin: 0; }
+.my-delta { display: inline-block; padding: 2px 12px; border-radius: 999px; font-weight: 700; color: #fff; background: #777; }
+.my-delta.up { background: var(--ok); }
+.my-delta.down { background: var(--danger); }
+.my-chart { width: 100%; max-width: 480px; }
+.my-chart svg { width: 100%; height: auto; display: block; }
+.my-grid { stroke: #d9dde5; stroke-width: 1; }
+.my-axis { fill: #5d6676; font-size: 10px; }
+.my-line { stroke: #2457d6; stroke-width: 2; fill: none; }
+.my-dot { fill: #2457d6; }
+.my-dot.latest { fill: #e8590c; }
+.my-val { fill: #1d2330; font-size: 11px; font-weight: 700; }
+.my-list li.my-selected { border-color: #1a73e8; background: #eef4fe; font-weight: 600; }
+.my-retry { margin-left: 8px; }
+@media (max-width: 600px) { .my-detail { flex-direction: column; } .my-bigsummary { font-size: 22px; } }
