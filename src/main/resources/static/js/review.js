@@ -1,101 +1,153 @@
-import { api, imageUrl, el, errorText, getToken, ApiError } from './api.js';
+import { api, el, errorText, ApiError, ensureAnon, loadPageImage, showBanner } from './api.js';
 import { renderNav } from './nav.js';
 
 const $ = (id) => document.getElementById(id);
 const MAX_PINS = 50;
+const MIN_SUMMARY = 20;
 
-const ERRORS = {
-  UNAUTHENTICATED: '로그인 정보가 없습니다. 홈에서 닉네임으로 다시 시작해 주세요.',
-  DUPLICATE_REVIEW: '이미 평가한 이력서입니다. 다음 이력서를 받아 주세요.',
-  SELF_REVIEW: '내 이력서는 평가할 수 없습니다. 다른 이력서를 받아 주세요.',
-  NOT_FOUND: '평가할 수 없는 이력서입니다(비공개로 바뀌었거나 없습니다). 다른 이력서를 받아 주세요.',
-};
+const state = { target: null, pins: [], selected: -1, urls: [], busy: false, loadSeq: 0 };
 
-const state = { target: null, pins: [], selected: -1, urls: [], busy: false, done: false };
+function banner(text, kind) {
+  showBanner($('done-area'), text, kind || 'ok', 4000);
+}
 
-function message(err) {
-  if (err instanceof ApiError) {
-    if (err.code === 'VALIDATION_FAILED') {
-      const f = Object.entries(err.fields || {}).map(([k, v]) => `${k}: ${v}`).join(' / ');
-      return `입력값을 확인해 주세요.${f ? ' ' + f : ''}`;
-    }
-    if (ERRORS[err.code]) return ERRORS[err.code];
+function status(text, kind, retry) {
+  const nodes = [];
+  if (text) nodes.push(el('div', { text, cls: `msg ${kind || ''}` }));
+  if (retry) {
+    const b = el('button', { text: '다시 확인', cls: 'secondary', attrs: { type: 'button' } });
+    b.addEventListener('click', () => loadNext(null));
+    nodes.push(b);
   }
-  return errorText(err);
+  $('status').replaceChildren(...nodes);
 }
 
-function status(text, kind) {
-  $('status').replaceChildren(...(text ? [el('div', { text, cls: `msg ${kind || ''}` })] : []));
+function reviewedCount() {
+  return Number(sessionStorage.getItem('reviewedCount') || '0');
 }
 
+// 작성 상태와 화면만 비운다. 배너(#done-area)는 건드리지 않는다.
 function resetView() {
   for (const u of state.urls) URL.revokeObjectURL(u);
   state.urls = [];
   state.target = null;
   state.pins = [];
   state.selected = -1;
-  state.done = false;
   $('review-area').classList.add('hidden');
-  $('done-area').classList.add('hidden');
+  $('empty-area').classList.add('hidden');
   $('pages').replaceChildren();
+  $('pin-list').replaceChildren();
   $('summary').value = '';
-  $('summary-len').textContent = '0';
-  $('form-error').replaceChildren();
+  updateCounter();
+  clearErrors();
   for (const r of document.querySelectorAll('input[name=score]')) r.checked = false;
 }
 
-async function loadNext(skip) {
+function clearErrors() {
+  $('form-error').replaceChildren();
+  $('pin-error').replaceChildren();
+  $('summary-error').textContent = '';
+  $('score-error').textContent = '';
+}
+
+function updateCounter() {
+  const n = $('summary').value.trim().length;
+  const c = $('summary-len');
+  if (n >= MIN_SUMMARY) {
+    c.textContent = `${n}자 · 좋아요`;
+    c.className = 'counter ok';
+  } else {
+    c.textContent = `${n} / ${MIN_SUMMARY}자 이상`;
+    c.className = 'counter short';
+  }
+}
+
+function fetchNext(skip) {
+  const q = skip ? `?skip=${encodeURIComponent(skip)}` : '';
+  return api(`/api/review-queue/next${q}`);
+}
+
+// opts.afterSubmit: 제출 직후. opts.prevId: 건너뛰기 전 versionId.
+async function loadNext(skip, opts = {}) {
   if (state.busy) return;
   state.busy = true;
+  const seq = ++state.loadSeq;
   resetView();
-  status('평가할 이력서를 찾는 중입니다...');
+  status('평가할 이력서를 고르는 중…');
   try {
-    const q = skip ? `?skip=${encodeURIComponent(skip)}` : '';
-    const target = await api(`/api/review-queue/next${q}`);
+    await ensureAnon();
+    let target;
+    try {
+      target = await fetchNext(skip);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        await ensureAnon(); // api.js가 지운 토큰을 새로 받고 한 번만 다시 요청
+        target = await fetchNext(skip);
+      } else {
+        throw err;
+      }
+    }
+    if (seq !== state.loadSeq) return;
     if (!target) {
-      status('지금 평가할 이력서가 없습니다. 잠시 후 다시 확인해 주세요.', 'warn');
+      showEmpty(opts.afterSubmit);
       return;
+    }
+    if (opts.prevId && target.versionId === opts.prevId) {
+      banner('다른 이력서가 없어 같은 이력서를 다시 보여 드려요.', 'warn');
     }
     state.target = target;
     status('');
     $('target-role').textContent = `지원 직무: ${target.targetRole}`;
-    $('target-version').textContent = `(v${target.versionNo}, ${target.pageCount}쪽)`;
+    $('target-version').textContent = `· v${target.versionNo} · ${target.pageCount}쪽`;
     $('review-area').classList.remove('hidden');
     buildPages();
     renderPins();
   } catch (err) {
-    if (err instanceof ApiError && err.status === 404 && err.code === 'NO_REVIEWABLE_RESUME') {
-      status('지금 평가할 이력서가 없습니다. 잠시 후 다시 확인해 주세요.', 'warn');
+    if (err instanceof ApiError) {
+      status(errorText(err), 'error', true);
     } else {
-      status(message(err), 'error');
+      status('연결에 실패했어요.', 'error', true);
     }
-    if (err instanceof ApiError && err.status === 401) setTimeout(() => location.replace('/index.html'), 1500);
   } finally {
     state.busy = false;
   }
 }
 
+function showEmpty(afterSubmit) {
+  status('');
+  const n = reviewedCount();
+  const count = $('empty-count');
+  if (n > 0 && !afterSubmit) {
+    count.textContent = `이번에 ${n}개를 평가했어요. 고마워요!`;
+    count.classList.remove('hidden');
+  } else {
+    count.classList.add('hidden');
+  }
+  $('empty-area').classList.remove('hidden');
+}
+
 function buildPages() {
   const host = $('pages');
   const t = state.target;
+  const versionId = t.versionId;
   for (let p = 1; p <= t.pageCount; p++) {
-    const img = el('img', { attrs: { alt: `${p}쪽 마스킹된 이력서`, draggable: 'false' } });
-    const wrap = el('div', { cls: 'page-wrap clickable', attrs: { 'data-page': String(p) } }, img);
-    img.addEventListener('click', (e) => {
-      if (state.done) return;
+    const wrap = el('div', { cls: 'page-wrap clickable', attrs: { 'data-page': String(p) } });
+    wrap.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+      const img = wrap.querySelector('img');
+      if (!img) return;
       const rect = img.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
       addPin(p, (e.clientX - rect.left) / rect.width, (e.clientY - rect.top) / rect.height);
     });
     host.appendChild(el('div', {}, el('div', { text: `${p} / ${t.pageCount}쪽`, cls: 'page-label' }), wrap));
-    const versionId = t.versionId;
-    imageUrl(`/api/versions/${versionId}/pages/${p}`).then((url) => {
-      if (!state.target || state.target.versionId !== versionId) { URL.revokeObjectURL(url); return; }
-      state.urls.push(url);
-      img.src = url;
-    }).catch((err) => {
-      wrap.appendChild(el('div', { text: `이미지를 불러오지 못했습니다. ${message(err)}`, cls: 'msg error' }));
-    });
+    Promise.resolve(loadPageImage(wrap, `/api/versions/${versionId}/pages/${p}`, `${p}쪽 마스킹된 이력서`))
+      .then((url) => {
+        if (!url) return;
+        if (!state.target || state.target.versionId !== versionId) { URL.revokeObjectURL(url); return; }
+        state.urls.push(url);
+      })
+      .catch(() => { /* 실패 표시와 다시 불러오기는 loadPageImage가 맡는다 */ });
   }
 }
 
@@ -105,10 +157,10 @@ function clamp01(n) {
 
 function addPin(page, x, y) {
   if (state.pins.length >= MAX_PINS) {
-    $('form-error').replaceChildren(el('div', { text: `핀은 최대 ${MAX_PINS}개까지 만들 수 있습니다.`, cls: 'msg error' }));
+    $('pin-error').replaceChildren(el('div', { text: `핀은 최대 ${MAX_PINS}개까지 만들 수 있어요.`, cls: 'msg error' }));
     return;
   }
-  $('form-error').replaceChildren();
+  $('pin-error').replaceChildren();
   state.pins.push({ page, x: clamp01(x), y: clamp01(y), comment: '' });
   state.selected = state.pins.length - 1;
   renderPins();
@@ -153,50 +205,66 @@ function renderPins() {
       state.selected = -1;
       renderPins();
     });
-    const ta = el('textarea', { attrs: { maxlength: '500', 'aria-label': `핀 ${idx + 1} 코멘트`, placeholder: '이 위치에 대한 코멘트 (1~500자)' } });
+    const count = el('span', { text: `${pin.comment.length} / 500`, cls: 'muted' });
+    const ta = el('textarea', { attrs: { maxlength: '500', 'aria-label': `핀 ${idx + 1} 코멘트`,
+      placeholder: '이 위치에 대한 코멘트 (예: 성과에 숫자를 넣어 보세요)' } });
     ta.value = pin.comment;
     ta.addEventListener('input', () => {
       pin.comment = ta.value;
       count.textContent = `${ta.value.length} / 500`;
     });
     ta.addEventListener('focus', () => select(idx));
-    const count = el('span', { text: `${pin.comment.length} / 500`, cls: 'muted' });
     list.appendChild(el('div', { cls: 'pin-item' + (idx === state.selected ? ' active' : ''), attrs: { 'data-idx': String(idx) } },
       el('div', { cls: 'head' },
         el('span', {}, el('span', { text: String(idx + 1), cls: 'pin' }), el('span', { text: `${pin.page}쪽` })),
         del),
-      ta, count));
+      ta, count, el('div', { cls: 'field-error pin-err' })));
   });
   $('pin-count').textContent = `(${state.pins.length} / ${MAX_PINS})`;
   $('pin-empty').classList.toggle('hidden', state.pins.length > 0);
 }
 
-$('summary').addEventListener('input', () => {
-  $('summary-len').textContent = String($('summary').value.length);
-});
+$('summary').addEventListener('input', updateCounter);
+
+function firstScroll(node) {
+  if (node) node.scrollIntoView({ block: 'center' });
+}
 
 $('review-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (state.busy || !state.target) return;
-  const err = $('form-error');
-  err.replaceChildren();
-  const problems = [];
+  clearErrors();
+  for (const n of document.querySelectorAll('.pin-err')) n.textContent = '';
+  let first = null;
   const summary = $('summary').value.trim();
-  if (summary.length < 20 || summary.length > 1000) problems.push('총평은 공백을 뺀 20~1000자여야 합니다.');
+  if (summary.length < MIN_SUMMARY || summary.length > 1000) {
+    $('summary-error').textContent = '총평을 20자 이상 써 주세요. 공백은 세지 않아요.';
+    first = first || $('summary');
+  }
   const checked = document.querySelector('input[name=score]:checked');
-  if (!checked) problems.push('총점(1~5)을 선택해 주세요.');
+  if (!checked) {
+    $('score-error').textContent = '총점을 1~5 중에서 골라 주세요.';
+    first = first || $('score');
+  }
   state.pins.forEach((pin, idx) => {
     const c = pin.comment.trim();
-    if (c.length < 1 || c.length > 500) problems.push(`핀 ${idx + 1}의 코멘트는 공백을 뺀 1~500자여야 합니다.`);
+    if (c.length < 1 || c.length > 500) {
+      const item = document.querySelector(`#pin-list .pin-item[data-idx="${idx}"]`);
+      const slot = item && item.querySelector('.pin-err');
+      if (slot) slot.textContent = `핀 ${idx + 1}의 코멘트를 1~500자로 써 주세요.`;
+      first = first || item;
+    }
   });
-  if (problems.length) {
-    err.appendChild(el('div', { cls: 'msg error' }, ...problems.map((t) => el('div', { text: t }))));
-    return;
-  }
+  if (first) { firstScroll(first); return; }
+
+  const versionId = state.target.versionId;
   state.busy = true;
-  $('submit-btn').disabled = true;
+  const btn = $('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '보내는 중…';
+  let outcome = null;
   try {
-    await api(`/api/versions/${state.target.versionId}/reviews`, {
+    await api(`/api/versions/${versionId}/reviews`, {
       method: 'POST',
       body: {
         totalScore: Number(checked.value),
@@ -204,30 +272,43 @@ $('review-form').addEventListener('submit', async (e) => {
         pins: state.pins.map((p) => ({ page: p.page, x: p.x, y: p.y, comment: p.comment.trim() })),
       },
     });
-    state.done = true;
-    $('review-area').classList.add('hidden');
-    $('done-area').classList.remove('hidden');
-    status('');
+    sessionStorage.setItem('reviewedCount', String(reviewedCount() + 1));
+    outcome = { text: '익명으로 전달했어요. 다음 이력서예요.', kind: 'ok', afterSubmit: true };
   } catch (ex) {
-    err.appendChild(el('div', { text: message(ex), cls: 'msg error' }));
+    if (ex instanceof ApiError && (ex.status === 409 || ex.status === 404)) {
+      outcome = { text: '이미 평가했거나 내려간 이력서라 다음 이력서로 넘어왔어요.', kind: 'warn' };
+    } else if (ex instanceof ApiError && ex.status === 403) {
+      outcome = { text: '내 이력서라 건너뛰었어요.', kind: 'warn' };
+    } else if (ex instanceof ApiError && ex.status === 400) {
+      const f = ex.fields || {};
+      const msgs = Object.values(f);
+      $('form-error').appendChild(el('div', { text: msgs.length ? `입력을 확인해 주세요. ${msgs.join(' / ')}` : '입력을 확인해 주세요.', cls: 'msg error' }));
+    } else if (ex instanceof ApiError) {
+      $('form-error').appendChild(el('div', { text: errorText(ex), cls: 'msg error' }));
+    } else {
+      $('form-error').appendChild(el('div', { text: '연결에 실패했어요. 다시 보내 주세요.', cls: 'msg error' }));
+    }
   } finally {
     state.busy = false;
-    $('submit-btn').disabled = false;
+    btn.disabled = false;
+    btn.textContent = '평가 보내고 다음 이력서';
+  }
+  if (outcome) {
+    banner(outcome.text, outcome.kind);
+    // 같은 이력서가 다시 오지 않도록 방금 낸 versionId를 건너뛴다(후보가 하나뿐이면 서버가 그대로 돌려준다)
+    await loadNext(outcome.afterSubmit || outcome.kind === 'warn' ? versionId : null, { afterSubmit: outcome.afterSubmit });
   }
 });
 
 $('other-btn').addEventListener('click', () => {
   if (state.pins.length || $('summary').value.trim()) {
-    if (!window.confirm('작성 중인 핀과 총평이 사라집니다. 다른 이력서를 받을까요?')) return;
+    if (!window.confirm('작성 중인 핀과 총평이 사라져요. 건너뛸까요?')) return;
   }
-  loadNext(state.target ? state.target.versionId : null);
+  const prevId = state.target ? state.target.versionId : null;
+  loadNext(prevId, { prevId });
 });
 
-$('next-btn').addEventListener('click', () => loadNext(null));
+$('retry-btn').addEventListener('click', () => loadNext(null));
 
 renderNav();
-if (!getToken()) {
-  location.replace('/index.html');
-} else {
-  loadNext(null);
-}
+loadNext(null);
