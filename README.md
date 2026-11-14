@@ -4,7 +4,7 @@
 
 **Demo:** [배포 주소(심사 기간 공개, 데모 샘플 버튼 켜짐)](https://host-10-0-0-56.tail21684f.ts.net:8443) · [데모 영상(YouTube, 79초 핵심 시연)](https://youtu.be/NpGPTHtYJJQ).
 
-<img src="docs/images/demo-qr.png" alt="배포 주소 QR 코드" width="140"> 휴대폰 카메라로 찍으면 배포 주소가 바로 열린다. 본인(신지섭)의 실제 이력서로 녹화했고 이름·연락처·사진은 가려져 있다. 녹화 스크립트는 `e2e/demo.spec.cjs`(실행: `e2e/run.sh demo`), 편집·MP4 변환은 `e2e/to-mp4.sh`. 로컬 실행 방법은 아래 6. 설치와 실행.
+<img src="docs/images/demo-qr.png" alt="배포 주소 QR 코드" width="140"> 휴대폰 카메라로 찍으면 배포 주소가 바로 열린다. 주소: https://host-10-0-0-56.tail21684f.ts.net:8443 본인(신지섭)의 실제 이력서로 녹화했고 이름·연락처·사진은 가려져 있다. 녹화 스크립트는 `e2e/demo.spec.cjs`(실행: `e2e/run.sh demo`), 편집·MP4 변환은 `e2e/to-mp4.sh`. 로컬 실행 방법은 아래 6. 설치와 실행.
 
 ---
 
