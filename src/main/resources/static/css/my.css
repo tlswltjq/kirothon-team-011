@@ -41,7 +41,7 @@ body { font-size: 16px; }
 .my-trend .btn.secondary { background: transparent; color: var(--white); border: 2px solid var(--white); }
 .my-trend .btn.secondary:hover { background: var(--ink-2); }
 .my-summary-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 8px 0; }
-.my-bigsummary { font-size: 48px; line-height: 1.1; font-weight: 800; margin: 0; color: var(--white); }
+.my-bigsummary { font-size: 40px; line-height: 1.1; font-weight: 800; margin: 0; color: var(--white); }
 .my-delta { display: inline-block; padding: 8px 14px; min-height: 44px; box-sizing: border-box; font-size: 16px; border-radius: 999px; font-weight: 700; color: #fff; background: var(--muted); }
 .my-delta.up { background: var(--ok); }
 .my-delta.down { background: var(--err); }
@@ -65,6 +65,9 @@ main:has(#trend-card:not([hidden]) #trend-single:not([hidden])) #versions-sectio
 @media (prefers-reduced-motion: reduce) {
   .my-pin, .my-pin.my-pin-active { animation: none; transition: none; }
 }
+@media (min-width: 640px) {
+  .my-bigsummary { font-size: 48px; }
+}
 @media (min-width: 900px) {
   .my-detail { flex-direction: row; align-items: flex-start; }
   .my-pages { flex: 2 1 0; }
@@ -72,3 +75,6 @@ main:has(#trend-card:not([hidden]) #trend-single:not([hidden])) #versions-sectio
   .my-bigsummary { font-size: 56px; }
   .my-chart { max-width: 480px; }
 }
+
+.my-status:empty { display: none; }
+.my-main > section > h2 { letter-spacing: -0.02em; }
