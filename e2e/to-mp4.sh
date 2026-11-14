@@ -18,6 +18,8 @@ if [ "${EDIT:-1}" != "0" ] && [ -f "$SEG" ]; then
   # shellcheck disable=SC1090
   . "$SEG"
   : "${PROBLEM_END:?}" "${RESULT_START:?}" "${RESULT_END:?}" "${BODY_START:?}"
+  # 결과 구간(추이 카드 4초 + 핀 오버레이 4초 이상)이 8초 미만이면 녹화가 잘못된 것이다.
+  awk -v s="$RESULT_START" -v e="$RESULT_END" 'BEGIN{ if (e - s < 8) { print "결과 구간이 8초 미만입니다: " e - s > "/dev/stderr"; exit 1 } }'
   FILTER="[0:v]trim=0:${PROBLEM_END},setpts=PTS-STARTPTS[a];[0:v]trim=${RESULT_START}:${RESULT_END},setpts=PTS-STARTPTS[b];[0:v]trim=${BODY_START}:${RESULT_END},setpts=PTS-STARTPTS[c];[a][b][c]concat=n=3:v=1:a=0[v]"
   "${FF[@]}" -i "$IN" -filter_complex "$FILTER" -map "[v]" \
     -c:v libx264 -preset medium -crf 23 -pix_fmt yuv420p -movflags +faststart -an "$OUT"

@@ -1,4 +1,4 @@
-// 데모 녹화 스크립트(약 1분 40초). 영상 구조: 랜딩 문제 문구 -> (편집) v2 결과 콜드 오픈 -> 업로드·마스킹·게시 -> 평가자 -> v2 결과로 끝.
+// 데모 녹화 스크립트(2분 이내). 영상 구조: 랜딩 문제 문구 -> (편집) v2 결과 콜드 오픈(추이 카드 4초+핀 오버레이 4초+) -> 업로드·마스킹·게시 -> 평가자 -> v2 결과로 끝.
 // 콜드 오픈용 구간 시각은 artifacts/demo/segments.env에 기록하고, e2e/to-mp4.sh가 이를 읽어 편집한다.
 // RECORD_DEMO=1일 때만 실행한다: e2e/run.sh demo
 // 한 페이지(한 영상)에서 진행한다. 자막은 없고, 클릭 지점의 원형 표시는 앱 코드가 아니라 addInitScript로 넣는다.
@@ -14,6 +14,7 @@ const VIDEO_TMP = path.resolve(__dirname, '../test-results/demo-video');
 // 선택: 실제 이력서로 녹화할 때 환경변수로만 넘긴다(코드·저장소에 값을 두지 않는다).
 const V2_PDF = process.env.DEMO_V2_PDF || path.join(DEMO, 'owner-v2.pdf');
 const MASK_TERMS = (process.env.DEMO_MASK_TERMS || '').split(',').map((t) => t.trim()).filter(Boolean);
+const REAL_PDF = Boolean(process.env.DEMO_V2_PDF);
 const BASE = process.env.E2E_BASE_URL || 'http://127.0.0.1:18093';
 const SIZE = { width: 1280, height: 800 };
 
@@ -129,25 +130,17 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   await pause(page, 2);
   await slowScroll(-520, 1.5);
   let extra = ['바다테크', '누리소프트', '가나다대학교'];
-  if (MASK_TERMS.length) {
-    // 이름 후보 버튼을 먼저 눌러 보여 준다. 후보가 가릴 단어 목록에 없으면(맞지 않으면) 그 단어를 지운다.
+  if (REAL_PDF) {
+    // 실제 이력서: 이름이 영상에 남지 않도록 이름 후보 버튼을 항상 눌러 첫 후보를 가릴 단어에 넣는다.
+    // DEMO_MASK_TERMS는 그 위에 더하는 단어다.
     const cand = page.locator('#name-candidate button');
-    if (await cand.count()) {
-      await pause(page, 1.5);
-      await hclick(cand.first());
-      await imageLoaded(page.locator('#pages img').first());
-      await pause(page, 2);
-    }
+    await expect(cand.first(), '이름 후보 버튼이 없으면 이름이 가려지지 않는다').toBeVisible();
+    await pause(page, 1.5);
+    await hclick(cand.first());
+    await imageLoaded(page.locator('#pages img').first());
+    await pause(page, 2);
     const chips = await page.locator('#terms .chip > span').allTextContents();
     extra = MASK_TERMS.filter((t) => !chips.includes(t));
-    // 후보가 맞지 않아 들어간 단어는 지운다.
-    for (const c of chips) {
-      if (!MASK_TERMS.includes(c)) {
-        await hclick(page.locator('#terms .chip').filter({ has: page.locator('span', { hasText: new RegExp(`^${c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) }) }).locator('button').first());
-        await expect(page.locator('#terms .chip > span', { hasText: c })).toHaveCount(0);
-        await pause(page, 1);
-      }
-    }
   }
   for (const t of extra) {
     await type(page.locator('#term'), t, 110);
@@ -159,6 +152,8 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   // 마지막 쪽 끝까지 내려야 확인 체크를 켤 수 있다(화면 규칙).
   await page.locator('#pages-end').scrollIntoViewIfNeeded();
   await pause(page, 2.5);
+  // 게시 전: 가릴 단어 칩이 1개 이상이어야 한다(실제 이력서에서 이름 누락 방지).
+  expect(await page.locator('#terms .chip').count()).toBeGreaterThanOrEqual(1);
   await expect(page.locator('#confirm')).toBeEnabled();
   await hclick(page.locator('#confirm'));
   await pause(page, 1);
@@ -276,15 +271,26 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   await imageLoaded(page.locator('.my-page img').first());
   await pause(page, 3);
   seg.RESULT_START = since(); // 콜드 오픈에 쓸 v2 결과 구간의 시작
-  await hclick(page.locator('.my-pinitem').first());
-  await pause(page, 3);
-  // 마지막 장면: 추이 카드(v1 -> v2, 증감 배지)와 v2 상세가 한 화면에 보이게 4초 이상 멈춘다. v1은 다시 열지 않는다.
+  // 콜드 오픈 결과 구간: 추이 카드가 화면 안에 보인 채 4초 이상, 이어서 v2 핀 오버레이가 화면 안에 보인 채 4초 이상(실시간 대기, 배속 무관).
+  const inView = async (loc, h) => {
+    const b = await loc.boundingBox();
+    expect(b, '요소 위치를 읽을 수 없다').not.toBeNull();
+    expect(b.y).toBeGreaterThanOrEqual(0);
+    expect(b.y + h(b)).toBeLessThanOrEqual(SIZE.height);
+  };
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  await pause(page, 1);
+  await page.waitForTimeout(1000);
   await expect(page.locator('#trend-card')).toBeVisible();
+  await inView(page.locator('#trend-card'), (b) => Math.min(b.height, 200)); // 카드 상단(제목·점수)이 화면 안
+  await page.waitForTimeout(4500);
+  await inView(page.locator('#trend-card'), (b) => Math.min(b.height, 200));
   await expect(page.locator('#detail-title')).toContainText('v2');
-  await expect(page.locator('.my-page .my-pin').first()).toBeVisible();
-  await pause(page, 6);
+  const pin = page.locator('.my-page .my-pin').first();
+  await pin.evaluate((el) => el.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  await page.waitForTimeout(1200);
+  await inView(pin, (b) => b.height);
+  await page.waitForTimeout(4500);
+  await inView(pin, (b) => b.height);
   seg.RESULT_END = since();
 
   const video = page.video();
