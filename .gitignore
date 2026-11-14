@@ -28,3 +28,4 @@ playwright-report/
 
 # Kiro 리뷰 입력과 hook 로그(로컬 전용)
 .kiro/review/
+!.kiro/evidence/*.log
