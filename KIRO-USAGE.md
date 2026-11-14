@@ -15,3 +15,4 @@
 | 2026-11-14T03:07:23Z | 3. 구현 | spawn_run | 작업 5+6·9·10·11(일부) 병렬 4개 (sonnet-5.5/medium, worktree 4개) | 작업 9·10 완료·병합(정적 파일 11개, CSP 위반 없음). 5+6·11 진행 중 |
 | 2026-11-14T03:09:49Z | 5. 운영 | monitor | Kiro Crew cron 일회성 알림 5개 (df1eff59, 563d2906, 9f7116e8, a54d66d7, 1c6b6bf6) | 등록 성공: 14:30·15:45·17:00·17:20·17:45 KST 대시보드 알림 |
 | 2026-11-14T03:11:57Z | 3. 구현 | spawn_run | 작업 5+6, 11(샘플 PDF) (sonnet-5.5/medium, kiro backend) | 성공: 병합 후 테스트 115개 통과, 샘플 PDF 4개 한글 렌더링·마스킹 눈 확인 |
+| 2026-11-14T03:14:54Z | 6. 제출 | artifact | https://github.com/tlswltjq/kirothon (kirothon-2026), README.md, docs/KIRO.md | 공개 저장소 게시. 커밋 이메일 noreply로 정리 |
