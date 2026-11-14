@@ -9,7 +9,7 @@ const path = require('path');
   await page.pdf({ path: path.resolve(__dirname, '..', 'PRESENTATION.pdf'), width: '1280px', height: '720px', printBackground: true, preferCSSPageSize: true });
   const n = await page.locator('section.slide').count();
   for (let i = 0; i < n; i++) {
-    await page.locator('section.slide').nth(i).screenshot({ path: path.resolve(__dirname, '..', 'artifacts', 'slides', `s${i + 1}.png`) });
+    await page.locator('section.slide').nth(i).screenshot({ path: path.resolve(__dirname, 'slides', `slide-${String(i + 1).padStart(2, '0')}.png`) });
   }
   console.log('slides', n);
   await browser.close();
