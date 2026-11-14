@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>이게 다 너 잘되라고 하는 소리야 - team-011 취업하자</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Noto Sans CJK KR", "Noto Sans KR", sans-serif; color: #1f2933; background: #fff; }
+  .slide { width: 1280px; height: 720px; padding: 64px 80px; position: relative; overflow: hidden; page-break-after: always; break-after: page; background: #ffffff; }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .dark { background: #1d3557; color: #f1faee; }
+  h1 { font-size: 54px; margin: 0 0 16px; line-height: 1.2; }
+  h2 { font-size: 38px; margin: 0 0 28px; color: #1d3557; }
+  .dark h2 { color: #f1faee; }
+  p, li, td, th { font-size: 23px; line-height: 1.55; }
+  ul { margin: 0; padding-left: 28px; }
+  li { margin-bottom: 10px; }
+  .sub { font-size: 26px; opacity: .85; }
+  .tag { display: inline-block; background: #e63946; color: #fff; border-radius: 6px; padding: 4px 12px; font-size: 18px; margin-right: 8px; }
+  .muted { color: #52606d; font-size: 19px; }
+  .foot { position: absolute; left: 80px; right: 80px; bottom: 28px; display: flex; justify-content: space-between; font-size: 15px; color: #9aa5b1; }
+  .dark .foot { color: #a8c0d8; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .card { border: 2px solid #d9e2ec; border-radius: 12px; padding: 20px 22px; background: #f8fafc; }
+  .card h3 { margin: 0 0 10px; font-size: 25px; color: #1d3557; }
+  .card p { font-size: 20px; margin: 0; }
+  .big { font-size: 64px; font-weight: 800; color: #e63946; line-height: 1; }
+  .flow { display: flex; align-items: stretch; gap: 14px; }
+  .step { flex: 1; border-radius: 12px; padding: 18px; background: #f1f5f9; border-top: 6px solid #457b9d; }
+  .step b { display: block; font-size: 22px; margin-bottom: 8px; color: #1d3557; }
+  .step span { font-size: 18px; line-height: 1.5; display: block; }
+  .arrow { align-self: center; font-size: 30px; color: #457b9d; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border-bottom: 1px solid #d9e2ec; padding: 9px 10px; text-align: left; vertical-align: top; }
+  th { background: #eef2f7; font-size: 19px; }
+  td { font-size: 19px; line-height: 1.45; }
+  .mask { display: inline-block; background: #111; color: #111; border-radius: 2px; padding: 0 6px; }
+  .demo { display: flex; align-items: center; justify-content: center; height: 430px; border: 3px dashed #a8c0d8; border-radius: 16px; font-size: 30px; color: #a8c0d8; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- 1. 표지 -->
+<section class="slide dark">
+  <div style="margin-top:120px">
+    <p class="sub">KIROTHON 2026 · 내 일상에 바로 적용할 수 있는 서비스</p>
+    <h1 style="font-size:64px">이게 다 너 잘되라고<br>하는 소리야</h1>
+    <p class="sub">이름은 가리고, 디자인은 그대로. 모르는 다수에게 이력서 위에 직접 첨삭받고 버전마다 모아 보는 익명 이력서 평가</p>
+  </div>
+  <div class="foot"><span>team-011 취업하자 · 신지섭</span><span>github.com/tlswltjq/kirothon-team-011</span></div>
+</section>
+
+<!-- 2. 문제 -->
+<section class="slide">
+  <h2>문제: 이력서 평가, 많이 받고 싶은데 어렵다</h2>
+  <div class="grid">
+    <div class="card"><h3>1. 부탁할 사람이 적다</h3><p>지인 몇 명뿐. 채용 플랫폼 첨삭은 이름·원문을 공개해야 해서 망설여진다.</p></div>
+    <div class="card"><h3>2. 가리면 디자인을 못 본다</h3><p>개인정보를 지우려고 텍스트만 복사하면 레이아웃·가독성은 평가받지 못한다.</p></div>
+    <div class="card"><h3>3. 버전별 평가가 흩어진다</h3><p>Git 태그로 버전은 쌓이는데, 어느 버전에 어떤 피드백을 받았는지는 메신저·메모에 흩어진다.</p></div>
+  </div>
+  <div class="grid" style="margin-top:34px">
+    <div><div class="big">16일</div><p class="muted">팀원이 이력서를 Typst + Git으로 관리한 기간</p></div>
+    <div><div class="big">8 · 20</div><p class="muted">그동안 만든 릴리즈 8개, 태그 20개</p></div>
+    <div><div class="big">7개</div><p class="muted">버전과 분리돼 흩어진 리뷰 메모 파일</p></div>
+  </div>
+  <div class="foot"><span>근거: 팀원(신지섭) 개인 이력서 저장소의 실제 기록</span><span>2 / 9</span></div>
+</section>
+
+<!-- 3. 해결 흐름 -->
+<section class="slide">
+  <h2>해결: 올리고, 가리고, 다수에게 첨삭받고, 버전별로 모은다</h2>
+  <div class="flow">
+    <div class="step"><b>1. PDF 업로드</b><span>회원가입 없이 닉네임만. 5MB·10쪽 이하, 텍스트 PDF</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>2. 자동 마스킹</b><span>이메일·전화·URL·사진 자동, 이름·회사·학교는 단어 추가. 미리보기로 확인</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>3. 게시</b><span>확인해야만 게시. 게시하면 원본 PDF 삭제</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>4. 익명 첨삭</b><span>무작위로 받은 이력서 위를 클릭해 핀 코멘트 + 총평·총점(1~5)</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>5. 버전별 모아 보기</b><span>페이지 위에 모든 핀을 겹쳐 보고, 버전별 평균 총점 비교</span></div>
+  </div>
+  <p style="margin-top:40px">평가자는 마스킹된 <b>페이지 이미지</b>만 본다. 주인 정보는 평가자에게, 평가자 정보는 주인에게 보이지 않는다.</p>
+  <div class="foot"><span>핵심 기능</span><span>3 / 9</span></div>
+</section>
+
+<!-- 4. 기술 핵심 -->
+<section class="slide">
+  <h2>디자인은 그대로, 개인정보는 확실히</h2>
+  <div class="grid2">
+    <div>
+      <ul>
+        <li><b>글자 좌표 추출</b> (PDFBox): 줄마다 글자 위치를 함께 뽑아 정규식·가릴 단어 일치 구간을 사각형으로 변환</li>
+        <li><b>이미지로 렌더링 + 검은 박스</b>: PDF 위에 덮지 않는다. 텍스트 레이어가 없어 복사로도 새지 않음</li>
+        <li><b>게시 전 재검증</b>: 서버가 영역을 다시 계산하고 해당 픽셀이 정말 검은지 확인. 미리보기 해시가 바뀌었으면 거부</li>
+        <li><b>원본 PDF 삭제</b>: 게시 순간 원본 바이트 삭제, 초안도 24시간 만료</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>예시</h3>
+      <p style="font-size:22px;line-height:2">
+        <span class="mask">홍길동홍길</span> 백엔드 개발자 지원<br>
+        이메일 <span class="mask">abcdefghij@example.com</span><br>
+        전화 <span class="mask">010-0000-0000</span><br>
+        결제 API 응답 시간 40% 단축 (420ms → 250ms)
+      </p>
+      <p class="muted" style="margin-top:12px">레이아웃·글꼴·강조는 그대로 남아 디자인까지 평가받는다</p>
+    </div>
+  </div>
+  <div class="foot"><span>Java 21 · Spring Boot 4.1.2 · PDFBox 3.0.7 · 외부 API·AI 없음</span><span>4 / 9</span></div>
+</section>
+
+<!-- 5. 데모 -->
+<section class="slide dark">
+  <h2>데모</h2>
+  <div class="demo">녹화 데모 재생<br><span style="font-size:22px">README의 Demo 링크</span></div>
+  <div class="foot"><span>팀원의 실제 이력서로 업로드 → 이름 가리기 → 게시 → 다른 사용자의 핀 첨삭 → 버전별 확인</span><span>5 / 9</span></div>
+</section>
+
+<!-- 6. Kiro 1 -->
+<section class="slide">
+  <h2>Kiro 활용 1: Spec 주도 + 역할별 에이전트</h2>
+  <div class="grid2">
+    <div>
+      <ul>
+        <li><b>Spec 3회 반복</b>: 결정이 바뀔 때마다 코드보다 spec을 먼저 수정 (텍스트 노출 → 이미지 마스킹 → 핀 첨삭)</li>
+        <li>EARS 요구사항 <b>14개 · 인수 조건 97개</b>, 작업 16개를 요구사항 번호로 추적</li>
+        <li><b>Steering</b> always 4 + fileMatch 1, <b>Hooks</b>로 세션 시작 진행률·파일 쓰기 기록</li>
+      </ul>
+    </div>
+    <table>
+      <tr><th>역할</th><th>모델 / 추론</th><th>쓰기 권한</th></tr>
+      <tr><td>spec</td><td>Opus 5.5 / high</td><td>문서만</td></tr>
+      <tr><td>impl</td><td>Sonnet 5.5 / medium</td><td>전체</td></tr>
+      <tr><td>test</td><td>Sonnet 5.5 / low</td><td>src/main 거부</td></tr>
+      <tr><td>check</td><td>Haiku 5.5 / low</td><td>없음</td></tr>
+      <tr><td>review</td><td>GPT 5.6 Terra / high</td><td>없음(셸도 없음)</td></tr>
+    </table>
+  </div>
+  <div class="foot"><span>.kiro/specs · .kiro/steering · .kiro/agents · BUILD_REPORT.md</span><span>6 / 9</span></div>
+</section>
+
+<!-- 7. Kiro 2 -->
+<section class="slide">
+  <h2>Kiro 활용 2: 병렬 구현과 교차 검증 루프</h2>
+  <div class="grid">
+    <div class="card"><h3>병렬 서브에이전트</h3><p>작업마다 git worktree를 따로 주고 동시에 구현 → 병합 → 전체 테스트. 최대 4개 동시</p></div>
+    <div class="card"><h3>리뷰→수정→테스트 워크플로</h3><p>Kiro Crew Workflow 3라운드: 구현은 Claude, 리뷰는 GPT. 결함 6건 수정, 테스트 135→141</p></div>
+    <div class="card"><h3>실제 이력서로 검증</h3><p>샘플로는 완벽했지만 실제 이력서에서 전화 형식 누락·후보 문구 노출 발견 → 수정·회귀 테스트</p></div>
+  </div>
+  <div class="grid" style="margin-top:34px">
+    <div><div class="big">150</div><p class="muted">자동 테스트 (단위·HTTP·동시성·픽셀)</p></div>
+    <div><div class="big">2</div><p class="muted">교차 리뷰 대상(spec, 코드) — 리뷰 모델은 읽기 전용</p></div>
+    <div><div class="big">5</div><p class="muted">마감 역산 알림(Kiro Crew cron)</p></div>
+  </div>
+  <div class="foot"><span>.kiro/workflows/review-fix-loop.py · KIRO-USAGE.md (실패·중단 포함 기록)</span><span>7 / 9</span></div>
+</section>
+
+<!-- 8. 효과와 차별점 -->
+<section class="slide">
+  <h2>기대 효과와 차별점</h2>
+  <table>
+    <tr><th>항목</th><th>기존</th><th>이 서비스</th></tr>
+    <tr><td>평가를 부탁할 사람</td><td>지인 몇 명</td><td>익명 사용자 누구나(무작위 배정)</td></tr>
+    <tr><td>공유용 사본 만들기</td><td>버전마다 손으로 개인정보 삭제</td><td>업로드 1회 + 미리보기 확인</td></tr>
+    <tr><td>디자인 평가</td><td>텍스트 공유 시 불가</td><td>레이아웃 보존 이미지로 가능</td></tr>
+    <tr><td>피드백 형태</td><td>"전반적으로 좋네요"</td><td>이력서 위치를 짚는 핀 첨삭</td></tr>
+    <tr><td>버전별 평가</td><td>메신저·메모에 흩어짐</td><td>버전마다 한 화면, 평균 총점 비교</td></tr>
+  </table>
+  <div class="foot"><span>README 4. 기대 효과 · 5. 차별점</span><span>8 / 9</span></div>
+</section>
+
+<!-- 9. 다음 -->
+<section class="slide dark">
+  <h2>다음 단계</h2>
+  <ul>
+    <li>복구 코드: 기기를 바꿔도 익명 계정과 평가 이력을 이어 쓰기</li>
+    <li>버전 간 점수 추이 차트와 문장 변경 비교(diff)</li>
+    <li>미리보기 위에서 직접 박스를 그리는 수동 마스킹, 스캔본 PDF 지원</li>
+    <li>평가가 적은 이력서를 먼저 보여 주는 공정한 노출</li>
+  </ul>
+  <p style="margin-top:50px;font-size:30px">"이게 다 너 잘되라고 하는 소리야" — 이제는 이름 없이, 위치를 짚어서.</p>
+  <div class="foot"><span>team-011 취업하자 · 신지섭</span><span>9 / 9</span></div>
+</section>
+
+</body>
+</html>

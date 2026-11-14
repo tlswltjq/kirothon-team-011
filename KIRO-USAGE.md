@@ -22,3 +22,4 @@
 | 2026-11-14T03:37:06Z | 4. 검증 | workflow_run | wf_000002 review-fix-loop (.kiro/workflows/review-fix-loop.py), 3라운드 13분 40초 | 수정 6건(게시 경쟁 잠금, 원본 만료 강제, 페이지 크기 상한, 공용 PDF 실행기 503, 버전 업로드 직렬화, 평가 대상 확인 순서), 테스트 141개 통과. 남은 중간 2건: 6.6 명세 정정, 동일 주인 동시 요청은 한계로 기록. PDFBox 인터럽트 미보장은 추정·보류 |
 | 2026-11-14T03:47:58Z | 4. 검증 | spawn_run | 작업 11 샘플 시드·E2E·녹화 스크립트 (sonnet-5.5/medium, kiro backend, 22분 48초) | 성공: 병합 후 테스트 148개, Playwright E2E 1개 통과, 시험 녹화 1분 41초. 스크린샷 직접 확인으로 화면 결함 2건(평가 화면 'null' 표시, 내 이력서 메뉴 불일치) 발견·수정 후 E2E 재통과 |
 | 2026-11-14T04:07:06Z | 4. 검증 | browser | Playwright 컨테이너 headless Chromium으로 실제 이력서 3개 업로드, 마스킹 미리보기 캡처 (demo-private, 커밋 안 함) | 결함 2건 발견·수정: 괄호 국가번호 전화 형식 미검출, 이름 후보에 가린 이메일 노출. 테스트 150개 통과 |
+| 2026-11-14T04:17:24Z | 6. 제출 | artifact | PRESENTATION.pdf (presentation/slides.html → Playwright Chromium PDF, 9쪽) | 생성·페이지 이미지 직접 확인. 실제 이력서 데모 리허설 92.9초 MP4 생성, 프레임 확인으로 이름·연락처·사진 노출 없음 |
