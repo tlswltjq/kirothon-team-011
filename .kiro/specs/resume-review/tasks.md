@@ -29,13 +29,13 @@ MVP 핵심은 이력서 마스킹과 익명 평가다(2026-11-14 사용자 결�
   - 단위 테스트: 영역 픽셀 전부 `0x000000`, 주석 위치가 그려지지 않음, 같은 입력의 해시가 같음
   - _요구사항: 3.4, 3.5, 4.4_
 
-- [ ] 5. 업로드·미리보기·가릴 단어 API와 버전
+- [x] 5. 업로드·미리보기·가릴 단어 API와 버전
   - `POST /api/my/resumes`, `POST .../versions`(초안 교체·직전 단어 이월), `GET .../versions/{no}`, `GET .../pages/{p}`(주인, no-store), `PUT .../mask-terms`
   - 엔티티: resume, resume_version, draft_source, mask_term, mask_region, page_image. 거부 시 아무것도 저장 안 함
   - HTTP 테스트: 업로드 정상·실패 경로, 단어 검증, 일치 없음, 남의 이력서 404
   - _요구사항: 2.1, 2.11, 3.3, 3.6, 3.9, 5.1, 5.2, 5.3, 5.4, 11.1_
 
-- [ ] 6. 게시와 원본 PDF 삭제
+- [x] 6. 게시와 원본 PDF 삭제
   - `POST .../publish`: 확인값 → ALREADY_PUBLISHED → DRAFT_SOURCE_EXPIRED → 해시 비교 → 영역 재계산·픽셀 검사 → 게시 + draft_source 삭제(한 트랜잭션)
   - `DraftSourceCleaner`(24시간), 게시 후 단어 변경 거부, 이전 버전 보존
   - HTTP 테스트: 미리보기 없이·오래된 해시로 게시 거부, MASKING_INCOMPLETE(영역을 일부러 지운 경우), 게시 후 draft_source 행 0개, 마스킹 픽셀 검사 통합 테스트
