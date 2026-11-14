@@ -7,7 +7,9 @@
 .link-btn:hover { background: transparent; color: var(--purple); }
 .counts { display: flex; flex-wrap: wrap; gap: 6px; }
 .count-chip { background: var(--purple-soft); border-radius: 999px; padding: 3px 12px; font-size: 16px; }
-.count-chip.zero { opacity: .45; }
+.count-chip::before { content: ""; display: inline-block; width: 14px; height: 8px; margin-right: 6px; vertical-align: middle; background: var(--ink); border-radius: 2px; }
+.count-chip.zero { opacity: 1; color: #5B21B6; background: #EDE9FE; }
+.count-chip.zero::before { background: var(--line); }
 h2.sub { margin-top: 16px; font-size: 16px; }
 .notice-label { background: var(--purple-soft); color: var(--ink); border-left: 4px solid var(--purple); border-radius: 6px; padding: 8px 12px; font-size: 16px; font-weight: 600; }
 .chip small { margin-left: 4px; color: var(--warn); }
@@ -50,13 +52,9 @@ h2.sub { margin-top: 16px; font-size: 16px; }
 #done-card .msg.ok { background: var(--purple-soft); border-color: var(--purple-glow); color: var(--ink); }
 
 /* 게시 완료 카드: 가림 막대 모티브 */
-#done-card { position: relative; overflow: hidden; border-top: 6px solid var(--purple); padding-bottom: 28px; }
+#done-card { position: relative; overflow: hidden; border-top: 6px solid var(--purple); padding-bottom: 18px; }
 #done-card h2 { display: inline-block; padding: 2px 10px; background: var(--ink); color: var(--white); border-radius: 4px; }
-#done-card::after { content: ""; display: block; height: 30px; margin-top: 8px; width: 100%;
-  background: linear-gradient(var(--ink), var(--ink)) 0 0 / 42% 8px no-repeat,
-              linear-gradient(var(--purple-glow), var(--purple-glow)) 46% 0 / 30% 8px no-repeat,
-              linear-gradient(var(--ink), var(--ink)) 0 14px / 24% 8px no-repeat,
-              linear-gradient(var(--purple-soft), var(--purple-soft)) 28% 14px / 50% 8px no-repeat; }
+#done-card::after { content: none; }
 
 /* 모바일 기본: 세로 풀폭, 게시바 하단 고정, 입력 16px(iOS 줌 방지) */
 .card input, .card select, .card textarea { font-size: 16px; }
@@ -64,7 +62,7 @@ h2.sub { margin-top: 16px; font-size: 16px; }
 #upload-btn, #publish-btn, .done-actions .btn { width: 100%; min-height: 48px; text-align: center; }
 .publish-bar { position: sticky; bottom: 0; z-index: 5; }
 .steps { gap: 6px; }
-.steps li { min-width: 0; padding: 8px 6px; }
+.steps li { min-width: 0; padding: 8px 6px; display: flex; align-items: center; justify-content: center; line-height: 1.3; border-radius: 10px; }
 
 @media (min-width: 900px) {
   #upload-body { padding: 18px 18px 18px 84px; }
@@ -78,3 +76,33 @@ h2.sub { margin-top: 16px; font-size: 16px; }
 /* mobile touch target: confirm checkbox */
 .confirm-line { min-height: 44px; }
 .confirm-line input[type=checkbox] { width: 24px; height: 24px; flex: none; }
+
+/* 무대 통일: 검은 무대 + 흰 종이 + 보라 오프셋 그림자 */
+#preview-card .pages { padding: 14px 10px; background: var(--ink); border-radius: 12px; }
+#preview-card .pages .page-label { color: var(--purple-glow); }
+#preview-card .page-wrap { border: 0; border-radius: 4px; box-shadow: 6px 6px 0 var(--purple-dark); }
+
+/* 가린 단어는 검은 막대 */
+#terms .chip { background: var(--ink); color: var(--white); border-color: var(--ink); border-radius: 2px; }
+#terms .chip button { color: var(--purple-glow); }
+#terms .chip.nomatch { background: var(--warn-bg); color: var(--warn); border-color: #ECD28A; }
+#terms .chip.nomatch button { color: var(--warn); }
+#terms .chip small { color: inherit; }
+#name-candidate button:hover { background: var(--ink); border-color: var(--ink); color: var(--white); }
+
+/* 로딩 중 가려진 이력서 뼈대 */
+.page-wrap.loading { background: linear-gradient(var(--ink), var(--ink)) 10% 10% / 35% 3% no-repeat,
+  linear-gradient(var(--line), var(--line)) 10% 18% / 70% 2% no-repeat,
+  linear-gradient(var(--line), var(--line)) 10% 24% / 60% 2% no-repeat, var(--white); }
+
+/* 모바일 게시 바 압축 (기본값), 640px 이상에서 원래대로 */
+.publish-bar { align-items: stretch; text-align: left; padding: 10px 12px; gap: 6px; border-radius: 12px 12px 0 0; }
+.publish-bar p { margin: 2px 0; }
+#confirm-hint:empty { display: none; }
+.publish-bar .tiny { display: none; }
+
+@media (min-width: 640px) {
+  .publish-bar { padding: 12px 16px; gap: 8px; border-radius: 12px; }
+  .publish-bar p { margin: 4px 0; }
+  .publish-bar .tiny { display: block; }
+}
