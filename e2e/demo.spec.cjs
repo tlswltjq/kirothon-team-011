@@ -9,6 +9,9 @@ test.skip(!process.env.RECORD_DEMO, 'RECORD_DEMO=1일 때만 녹화한다');
 const DEMO = path.resolve(__dirname, '../src/main/resources/demo');
 const OUT = path.resolve(__dirname, '../artifacts/demo');
 const VIDEO_TMP = path.resolve(__dirname, '../test-results/demo-video');
+// 선택: 실제 이력서로 녹화할 때 환경변수로만 넘긴다(코드·저장소에 값을 두지 않는다).
+const V2_PDF = process.env.DEMO_V2_PDF || path.join(DEMO, 'owner-v2.pdf');
+const MASK_TERMS = (process.env.DEMO_MASK_TERMS || '').split(',').map((t) => t.trim()).filter(Boolean);
 const BASE = process.env.E2E_BASE_URL || 'http://127.0.0.1:18093';
 const SIZE = { width: 1280, height: 800 };
 
@@ -120,7 +123,7 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   await hclick(page.locator('#new-version-link'));
   await expect(page.locator('#upload-btn')).toBeVisible();
   await pause(page, 1.5);
-  await page.locator('#file').setInputFiles(path.join(DEMO, 'owner-v2.pdf'));
+  await page.locator('#file').setInputFiles(V2_PDF);
   await pause(page, 1.2);
   await hclick(page.locator('#upload-btn'));
   await expect(page.locator('#preview-card')).toBeVisible();
@@ -129,20 +132,34 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   await slowScroll(520, 4);
   await pause(page, 2);
   await slowScroll(-520, 1.5);
-  await type(page.locator('#term'), '바다테크', 110);
-  await hclick(page.locator('#term-btn'));
-  await expect(page.locator('#terms .chip', { hasText: '바다테크' })).toBeVisible();
-  await imageLoaded(page.locator('#pages img').first());
-  await pause(page, 2);
-  await type(page.locator('#term'), '누리소프트', 110);
-  await hclick(page.locator('#term-btn'));
-  await expect(page.locator('#terms .chip', { hasText: '누리소프트' })).toBeVisible();
-  await pause(page, 1.5);
-  await type(page.locator('#term'), '가나다대학교', 110);
-  await hclick(page.locator('#term-btn'));
-  await expect(page.locator('#terms .chip', { hasText: '가나다대학교' })).toBeVisible();
-  await imageLoaded(page.locator('#pages img').first());
-  await pause(page, 1.5);
+  let extra = ['바다테크', '누리소프트', '가나다대학교'];
+  if (MASK_TERMS.length) {
+    // 이름 후보 버튼을 먼저 눌러 보여 준다. 후보가 가릴 단어 목록에 없으면(맞지 않으면) 그 단어를 지운다.
+    const cand = page.locator('#name-candidate button');
+    if (await cand.count()) {
+      await pause(page, 1.5);
+      await hclick(cand.first());
+      await imageLoaded(page.locator('#pages img').first());
+      await pause(page, 2);
+    }
+    const chips = await page.locator('#terms .chip > span').allTextContents();
+    extra = MASK_TERMS.filter((t) => !chips.includes(t));
+    // 후보가 맞지 않아 들어간 단어는 지운다.
+    for (const c of chips) {
+      if (!MASK_TERMS.includes(c)) {
+        await hclick(page.locator('#terms .chip').filter({ has: page.locator('span', { hasText: new RegExp(`^${c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) }) }).locator('button').first());
+        await expect(page.locator('#terms .chip > span', { hasText: c })).toHaveCount(0);
+        await pause(page, 1);
+      }
+    }
+  }
+  for (const t of extra) {
+    await type(page.locator('#term'), t, 110);
+    await hclick(page.locator('#term-btn'));
+    await expect(page.locator('#terms .chip', { hasText: t })).toBeVisible();
+    await imageLoaded(page.locator('#pages img').first());
+    await pause(page, 2);
+  }
   await slowScroll(520, 3);
   await pause(page, 2.5);
   await slowScroll(-520, 1.5);

@@ -18,8 +18,14 @@ import dev.kirothon.resume.web.ApiException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
@@ -65,6 +71,10 @@ public class DemoSeeder {
                     List.of(pin(0.50, 0.12, "여백이 없어 눈이 피로합니다. 항목 사이에 간격을 두세요."),
                             pin(0.45, 0.21, "결제 관련 개발이라고만 되어 있어 규모와 결과를 알 수 없습니다."))));
 
+    private static final Logger log = LoggerFactory.getLogger(DemoSeeder.class);
+
+    private final String ownerV1Path;
+    private final List<String> ownerTerms;
     private final AnonUserRepository users;
     private final ResumeRepository resumes;
     private final ResumeVersionRepository versions;
@@ -73,7 +83,12 @@ public class DemoSeeder {
     private final ReviewService reviewService;
 
     public DemoSeeder(AnonUserRepository users, ResumeRepository resumes, ResumeVersionRepository versions,
-                      ReviewRepository reviews, ResumeService resumeService, ReviewService reviewService) {
+                      ReviewRepository reviews, ResumeService resumeService, ReviewService reviewService,
+                      @Value("${app.demo.owner-v1-path:}") String ownerV1Path,
+                      @Value("${app.demo.owner-terms:}") String ownerTerms) {
+        this.ownerV1Path = ownerV1Path == null ? "" : ownerV1Path.trim();
+        this.ownerTerms = Arrays.stream((ownerTerms == null ? "" : ownerTerms).split(","))
+                .map(String::trim).filter(t -> !t.isEmpty()).toList();
         this.users = users;
         this.resumes = resumes;
         this.versions = versions;
@@ -90,9 +105,9 @@ public class DemoSeeder {
         List<UUID> reviewers = PEOPLE.stream().map(this::ensureSampleUser).toList();
 
         UploadResponse up = resumeService.createResume(requesterId, "백엔드 개발자 이력서 (샘플)", "백엔드 개발자",
-                load("owner-v1.pdf"));
+                loadOwnerV1());
         resumes.markSample(up.resumeId());
-        publish(requesterId, up, "김하늘");
+        publish(requesterId, up, ownerTermsOrDefault());
 
         UUID versionId = versionId(up.resumeId(), 1);
         for (int i = 0; i < V1_REVIEWS.size(); i++) {
@@ -117,13 +132,13 @@ public class DemoSeeder {
             UploadResponse up = resumeService.createResume(u.getId(), p.role() + " 이력서 (샘플)", p.role(),
                     load(p.pdf()));
             resumes.markSample(up.resumeId());
-            publish(u.getId(), up, p.name());
+            publish(u.getId(), up, List.of(p.name()));
         }
         return u.getId();
     }
 
-    private void publish(UUID ownerId, UploadResponse up, String name) {
-        OwnerVersionView masked = resumeService.replaceTerms(ownerId, up.resumeId(), up.versionNo(), List.of(name));
+    private void publish(UUID ownerId, UploadResponse up, List<String> terms) {
+        OwnerVersionView masked = resumeService.replaceTerms(ownerId, up.resumeId(), up.versionNo(), terms);
         resumeService.publish(ownerId, up.resumeId(), up.versionNo(), masked.preview().previewHash(), true);
     }
 
@@ -131,6 +146,27 @@ public class DemoSeeder {
         Resume r = resumes.findById(resumeId).orElseThrow(ApiException::notFound);
         ResumeVersion v = versions.findByResumeIdAndVersionNo(r.getId(), no).orElseThrow(ApiException::notFound);
         return v.getId();
+    }
+
+    /** 선택 설정이 있으면 그 PDF를, 없거나 읽을 수 없으면 클래스패스 샘플을 쓴다. 경고 로그에는 경로만 남긴다. */
+    private byte[] loadOwnerV1() {
+        if (!ownerV1Path.isEmpty()) {
+            try {
+                return Files.readAllBytes(Path.of(ownerV1Path));
+            } catch (IOException | RuntimeException e) {
+                log.warn("app.demo.owner-v1-path 파일을 읽지 못해 기본 샘플을 사용합니다: {}", ownerV1Path);
+            }
+        }
+        return load("owner-v1.pdf");
+    }
+
+    /** 설정한 PDF를 실제로 쓸 때만 설정한 가릴 단어를 쓴다. 기본 샘플은 가상 인물 이름이다. */
+    private List<String> ownerTermsOrDefault() {
+        return usingCustomV1() && !ownerTerms.isEmpty() ? ownerTerms : List.of("김하늘");
+    }
+
+    private boolean usingCustomV1() {
+        return !ownerV1Path.isEmpty() && Files.isReadable(Path.of(ownerV1Path));
     }
 
     private static byte[] load(String name) {

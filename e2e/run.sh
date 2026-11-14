@@ -14,7 +14,17 @@ JAR="build/libs/app.jar"
 [ -d node_modules/@playwright/test ] || { echo "먼저 npm ci 를 실행하세요." >&2; exit 2; }
 
 DATA="$(mktemp -d "${TMPDIR:-/tmp}/e2e-data.XXXXXX")"
-timeout 900 env SERVER_ADDRESS=127.0.0.1 SERVER_PORT="$PORT" DATA_DIR="$DATA" SPRING_PROFILES_ACTIVE=demo \
+# 데모 모드: 실제 이력서 경로·가릴 단어는 호스트 환경변수로만 받는다(값을 파일·로그에 남기지 않는다).
+# 호스트 경로를 그대로 쓰며, 컨테이너 안에서는 /work/... 로 바꿔 전달한다.
+abs_path() { case "$1" in /*) printf '%s' "$1" ;; *) printf '%s' "$PWD/$1" ;; esac; }
+to_work() { local a; a="$(abs_path "$1")"; case "$a" in "$PWD"/*) printf '/work/%s' "${a#"$PWD"/}" ;; *) echo "프로젝트 폴더 밖 경로는 쓸 수 없습니다." >&2; exit 2 ;; esac; }
+APP_ENV=()
+if [ "$MODE" = demo ]; then
+  if [ -n "${DEMO_OWNER_V1_PDF:-}" ]; then APP_ENV+=("APP_DEMO_OWNER_V1_PATH=$(abs_path "$DEMO_OWNER_V1_PDF")"); fi
+  if [ -n "${DEMO_OWNER_TERMS:-}" ]; then APP_ENV+=("APP_DEMO_OWNER_TERMS=$DEMO_OWNER_TERMS"); fi
+fi
+
+timeout 900 env SERVER_ADDRESS=127.0.0.1 SERVER_PORT="$PORT" DATA_DIR="$DATA" SPRING_PROFILES_ACTIVE=demo ${APP_ENV[@]+"${APP_ENV[@]}"} \
   java -jar "$JAR" >"$DATA/app.log" 2>&1 &
 APP_PID=$!
 cleanup() {
@@ -36,6 +46,8 @@ ENVS=(-e "E2E_BASE_URL=http://127.0.0.1:$PORT")
 if [ "$MODE" = demo ]; then
   ARGS=(-c e2e/demo.config.cjs)
   ENVS+=(-e RECORD_DEMO=1)
+  if [ -n "${DEMO_V2_PDF:-}" ]; then ENVS+=(-e "DEMO_V2_PDF=$(to_work "$DEMO_V2_PDF")"); fi
+  if [ -n "${DEMO_MASK_TERMS:-}" ]; then ENVS+=(-e "DEMO_MASK_TERMS=$DEMO_MASK_TERMS"); fi
 fi
 
 timeout 600 docker run --rm --network host --ipc=host --init -u "$(id -u):$(id -g)" -e HOME=/tmp "${ENVS[@]}" \
