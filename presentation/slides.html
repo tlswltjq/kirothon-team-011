@@ -145,18 +145,19 @@
 
 <!-- 7. Kiro 2 -->
 <section class="slide">
-  <h2>Kiro 활용 2: 병렬 구현과 교차 검증 루프</h2>
+  <h2>Kiro 활용 2: 핸드폰 하나로, 에이전트 팀을 지휘</h2>
+  <p class="muted" style="margin-top:-8px">노트북 화면 고장 + 외부 모니터를 깜빡 → 원격 서버의 Kiro Crew 대시보드에 핸드폰으로 접속해 모든 작업을 진행</p>
   <div class="grid">
-    <div class="card"><h3>병렬 서브에이전트</h3><p>작업마다 git worktree를 따로 주고 동시에 구현 → 병합 → 전체 테스트. 최대 4개 동시</p></div>
-    <div class="card"><h3>리뷰→수정→테스트 워크플로</h3><p>Kiro Crew Workflow 3라운드: 구현은 Claude, 리뷰는 GPT. 결함 6건 수정, 테스트 135→141</p></div>
-    <div class="card"><h3>실제 이력서로 검증</h3><p>샘플로는 완벽했지만 실제 이력서에서 전화 형식 누락·후보 문구 노출 발견 → 수정·회귀 테스트</p></div>
+    <div class="card"><h3>역할별 에이전트 팀</h3><p>아트디렉터(Opus)·UX 라이터·접근성 감사(GPT)·데모 프로듀서가 문서를 쓰고 → 구현 6명이 파일 소유권대로 병렬 반영 → QA</p></div>
+    <div class="card"><h3>반복 루프 워크플로</h3><p>리뷰→수정→테스트(3라운드, 결함 6건), UX 설계↔평가(3라운드). 구현은 Claude, 리뷰는 GPT</p></div>
+    <div class="card"><h3>짧은 지시, 즉시 반영</h3><p>"병렬로 시작해" → worktree별 동시 실행. 실행 중 "Mobile-first" 지시도 에이전트에 바로 주입(steer)</p></div>
   </div>
   <div class="grid" style="margin-top:34px">
-    <div><div class="big">150</div><p class="muted">자동 테스트 (단위·HTTP·동시성·픽셀)</p></div>
-    <div><div class="big">2</div><p class="muted">교차 리뷰 대상(spec, 코드) — 리뷰 모델은 읽기 전용</p></div>
-    <div><div class="big">5</div><p class="muted">마감 역산 알림(Kiro Crew cron)</p></div>
+    <div><div class="big">150</div><p class="muted">자동 테스트 + 브라우저 E2E</p></div>
+    <div><div class="big">6</div><p class="muted">동시 실행한 서브에이전트(worktree 분리)</p></div>
+    <div><div class="big">4</div><p class="muted">교차 리뷰(spec·백엔드·화면 2회), 리뷰 모델은 읽기 전용</p></div>
   </div>
-  <div class="foot"><span>.kiro/workflows/review-fix-loop.py · KIRO-USAGE.md (실패·중단 포함 기록)</span><span>7 / 9</span></div>
+  <div class="foot"><span>.kiro/workflows · .kiro/specs/resume-review/team · KIRO-USAGE.md</span><span>7 / 9</span></div>
 </section>
 
 <!-- 8. 효과와 차별점 -->
