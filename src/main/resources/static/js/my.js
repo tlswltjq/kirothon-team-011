@@ -3,7 +3,8 @@ import { api, el, errorText, getToken, loadPageImage } from './api.js';
 import { renderNav } from './nav.js';
 
 // 평가자별 고정 팔레트 8색(라벨 순환).
-const PALETTE = ['#d32f2f', '#1976d2', '#388e3c', '#f57c00', '#7b1fa2', '#00838f', '#c2185b', '#5d4037'];
+// 흰 글자 대비 4.5:1 이상인 색만 쓴다. 첫 색은 서비스 보라(--purple)와 같다.
+const PALETTE = ['#7c3aed', '#1d4ed8', '#15803d', '#b45309', '#be185d', '#0e7490', '#b91c1c', '#5b21b6'];
 const colorOf = (label) => PALETTE[(((label - 1) % 8) + 8) % 8];
 
 const $ = (id) => document.getElementById(id);
