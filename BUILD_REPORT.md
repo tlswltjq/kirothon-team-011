@@ -15,7 +15,7 @@
 |---|---|---|---|
 | 준비 | Steering (always 4 + fileMatch 1) | 기술 규칙(localhost 바인딩, 비밀 파일 금지, 검증 명령), Kiro 우선 워크플로, 역할별 에이전트 표, `*.java`에만 적용되는 코딩 규칙을 작성 | `.kiro/steering/tech.md`, `kiro-workflow.md`, `agents.md`, `java.md` |
 | 준비 | 커스텀 에이전트 5개(역할별 모델·추론 깊이·쓰기 권한) | spec(claude-opus-5.5/high, 문서만 쓰기), impl(claude-sonnet-5.5/medium), test(sonnet/low, `src/main` 쓰기 거부), check(claude-haiku-5.5/low, 쓰기 도구 없음), review(gpt-5.6-terra/high, 셸·쓰기 도구 없음). `--trust-all-tools`로 실행해도 권한 규칙이 쓰기를 막는 것을 실제로 확인 | `.kiro/agents/*.json`, `scripts/kiro.sh` |
-| 준비 | Hooks (kiro-cli 에이전트 hook) | `agentSpawn`: spec 진행률과 아직 안 쓴 Kiro 기능을 세션 시작 때 표시. `postToolUse(write)`: 파일 쓰기와 권한 차단(BLOCKED)을 로그로 남김 | `.kiro/agents/kirothon*.json`의 `hooks`, `scripts/kiro_log.py`, `.kiro/evidence/hook-events.log` |
+| 준비 | Hooks (kiro-cli 에이전트 hook) | `agentSpawn`: spec 진행률과 아직 안 쓴 Kiro 기능을 세션 시작 때 표시. `postToolUse(write)`: 파일 쓰기를 로그로 남기고, 권한에 막힌 쓰기는 BLOCKED로 표시하도록 구현. hook 로그는 kiro-cli 경로(spec 단계)에서만 쌓였고, 이후 Kiro Crew 서브에이전트 경로에서는 kiro-cli hook이 실행되지 않는다 | `.kiro/agents/kirothon*.json`의 `hooks`, `scripts/kiro_log.py`, `.kiro/evidence/hook-events.log` |
 | 기획 | Spec (requirements) | spec 에이전트가 EARS 형식(`WHEN … THE SYSTEM SHALL …`) 요구사항 14개, 인수 조건 97개를 작성. 사용자 결정이 바뀔 때마다 spec을 3회 다시 실행 | `.kiro/specs/resume-review/requirements.md`, `.kiro/steering/product.md` |
 | 기획 | 교차 리뷰(다른 모델) | 구현 전에 gpt-5.6-terra가 spec 일관성 리뷰. 지적 5건 중 3건 반영(평가 제출 응답 본문 제거, E2E 시나리오 구체화, 샘플 PDF 리소스화) | `KIRO-USAGE.md` 2026-11-14T02:50 |
 | 설계 | Spec (design) | API 19개 설계(그중 복구 코드 API는 확장 작업으로 미구현), 데이터 모델 9개 테이블, 접근 경계, 오류 표, 테스트 전략. 병렬 구현 전에 요청·응답 JSON 계약과 공유 타입을 설계에 고정해 에이전트 사이 형식 불일치를 막음 | `.kiro/specs/resume-review/design.md`, `src/main/java/dev/kirothon/resume/pdf/PdfTypes.java` |
@@ -39,7 +39,7 @@
 |---|---|---|
 | 이력서에서 텍스트를 추출해 마스킹한 **텍스트만** 평가자에게 보여 줌 | 페이지를 **PNG로 렌더링하고 검은 박스**를 칠한 이미지를 보여 줌 | 이력서 디자인(가시성·시인성)도 평가 대상이어야 한다는 사용자 판단. PDF 위에 박스만 덮으면 텍스트가 남아 복사로 새므로 이미지로 렌더링 |
 | 항목별 1~5점 평가표 | 이미지 위 **클릭 첨삭 핀** + 총평·총점 | 위치를 짚는 구체적 피드백이 더 쓸모 있다는 사용자 판단 |
-| 문장 diff·복구 코드까지 MVP(점수 추이 차트는 이후 구현됨) | MVP는 **마스킹 + 익명 평가**에 집중, 나머지는 확장 작업 | 6시간 일정 안에서 핵심 흐름 완주를 우선 |
+| 문장 diff·복구 코드까지 MVP(점수 추이 차트는 이후 구현됨) | MVP는 **마스킹 + 익명 평가**에 집중, 나머지는 확장 작업 | 7시간(11:00~18:00) 일정 안에서 핵심 흐름 완주를 우선 |
 | 서브에이전트 백엔드 혼용(Codex 검증 1회) | 모든 서브에이전트를 **Kiro 백엔드**로 실행하고, 다른 모델이 필요하면 Kiro의 model 인자로 선택 | 행사 Kiro 크레딧 사용 원칙(사용자 지시) |
 | 공개 배포 | 로컬 Docker 배포 + 녹화 데모 | 배포는 필수가 아니고, 시간은 핵심 기능에 쓰기로 결정 |
 

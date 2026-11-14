@@ -2,6 +2,8 @@
 
 `python3 scripts/kiro_log.py add`로만 추가한다. 실패한 시도도 기록한다.
 
+> 기록 시각 안내: `2026-11-14T02:44:32Z`, `2026-11-14T07:28:40Z`처럼 같은 시각이 여러 행에 붙은 것은 앞선 작업들을 그 시각에 한꺼번에 기록한 것이다. 이 경우 행 순서가 실제 작업 순서다. 당시 저장소 `tlswltjq/kirothon`은 운영자료 확인 후 템플릿 기반 제출 저장소 `tlswltjq/kirothon-team-011`로 옮겼다.
+
 | UTC | 단계 | 기능 | 참조 | 결과 |
 |---|---|---|---|---|
 | 2026-11-14T02:44:32Z | 2. 명세 | spec | kiro.sh spec run1 (kirothon-spec, claude-opus-5.5/high) | 중단: 텍스트 노출 전제 → 사용자가 렌더링 마스킹으로 변경. product/requirements/design 초안 생성 |
@@ -13,7 +15,7 @@
 | 2026-11-14T02:51:03Z | 3. 구현 | spawn_run | 작업 1 impl (claude-sonnet-5.5/medium) | 성공: ./gradlew test bootJar 종료 코드 0, 테스트 11개 통과, 기동 후 health UP |
 | 2026-11-14T02:58:47Z | 3. 구현 | spawn_run | 작업 2·3·4 병렬 (sonnet-5.5/medium ×3, git worktree 3개) | 성공: 각 2~4분, 병합 후 전체 테스트 90개 통과 |
 | 2026-11-14T03:07:23Z | 3. 구현 | spawn_run | 작업 5+6·9·10·11(일부) 병렬 4개 (sonnet-5.5/medium, worktree 4개) | 작업 9·10 완료·병합(정적 파일 11개, CSP 위반 없음). 5+6·11 진행 중 |
-| 2026-11-14T03:09:49Z | 5. 운영 | monitor | Kiro Crew cron 일회성 알림 5개 (df1eff59, 563d2906, 9f7116e8, a54d66d7, 1c6b6bf6) | 등록 성공: 14:30·15:45·17:00·17:20·17:45 KST 대시보드 알림 |
+| 2026-11-14T03:09:49Z | 5. 운영 | cron | Kiro Crew cron 일회성 알림 5개 (df1eff59, 563d2906, 9f7116e8, a54d66d7, 1c6b6bf6) | 등록 성공: 14:30·15:45·17:00·17:20·17:45 KST 대시보드 알림 |
 | 2026-11-14T03:11:57Z | 3. 구현 | spawn_run | 작업 5+6, 11(샘플 PDF) (sonnet-5.5/medium, kiro backend) | 성공: 병합 후 테스트 115개 통과, 샘플 PDF 4개 한글 렌더링·마스킹 눈 확인 |
 | 2026-11-14T03:14:54Z | 6. 제출 | artifact | https://github.com/tlswltjq/kirothon (kirothon-2026), README.md, docs/KIRO.md | 공개 저장소 게시. 커밋 이메일 noreply로 정리 |
 | 2026-11-14T03:17:21Z | 4. 검증 | spawn_run | 작업 13 Docker 배포 (sonnet-5.5/medium, kiro backend) | 성공: compose up, smoke 통과, 이미지 467MB(fonts-noto-cjk). 업로드 확인은 curl -F가 보안 정책(반출 패턴)에 차단 → E2E로 대체 |
@@ -23,7 +25,7 @@
 | 2026-11-14T03:47:58Z | 4. 검증 | spawn_run | 작업 11 샘플 시드·E2E·녹화 스크립트 (sonnet-5.5/medium, kiro backend, 22분 48초) | 성공: 병합 후 테스트 148개, Playwright E2E 1개 통과, 시험 녹화 1분 41초. 스크린샷 직접 확인으로 화면 결함 2건(평가 화면 'null' 표시, 내 이력서 메뉴 불일치) 발견·수정 후 E2E 재통과 |
 | 2026-11-14T04:07:06Z | 4. 검증 | browser | Playwright 컨테이너 headless Chromium으로 실제 이력서 3개 업로드, 마스킹 미리보기 캡처 (demo-private, 커밋 안 함) | 결함 2건 발견·수정: 괄호 국가번호 전화 형식 미검출, 이름 후보에 가린 이메일 노출. 테스트 150개 통과 |
 | 2026-11-14T04:17:24Z | 6. 제출 | artifact | PRESENTATION.pdf (presentation/slides.html → Playwright Chromium PDF, 9쪽) | 생성·페이지 이미지 직접 확인. 실제 이력서 데모 리허설 92.9초 MP4 생성, 프레임 확인으로 이름·연락처·사진 노출 없음 |
-| 2026-11-14T05:44:22Z | 4. 검증 | review | gpt-5.6-terra high (5b94e2b3f1460c64), 화면 개편 diff | 지적 9건(높음2·중간5·낮음3 중 1건 기각): E2E 스크롤 지적은 E2E 통과로 기각, 나머지 8건 impl에 위임 |
+| 2026-11-14T05:44:22Z | 4. 검증 | review | gpt-5.6-terra high (5b94e2b3f1460c64), 화면 개편 diff | 지적 10건(높음2·중간5·낮음3), 그중 1건 기각: E2E 스크롤 지적은 E2E 통과로 기각, 나머지 8건 impl에 위임 |
 | 2026-11-14T06:25:00Z | 3. 구현 | spawn_run | 팀 6역할: 아트디렉터(opus)·UX라이터·접근성감사(gpt)·데모프로듀서 -> 구현 W1~W6 -> QA | 문서 4개 -> 구현 6개 병렬 합본, 테스트 150 통과, E2E·데모 통과(스크립트 선택자 수정 2건) |
 | 2026-11-14T07:28:40Z | 2. 명세 | workflow_run | wf_000003 kirothon-ux-design-loop (설계 claude-opus-5.5 <-> 평가 gpt-5.6-terra, kiro backend), .kiro/specs/resume-review/ux-flow.md | 성공: 3라운드, 평균 7.0->5.1->4.57(평가자가 설계가 아닌 현재 구현을 채점). 결과 ux-flow.md |
 | 2026-11-14T07:28:40Z | 3. 구현 | spawn_run | UX T1~T5 병렬 5개(worktree) + T6 E2E 1개 (kiro backend) | 성공: E2E 통과, 테스트 150개 |

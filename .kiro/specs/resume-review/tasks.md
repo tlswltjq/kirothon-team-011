@@ -74,7 +74,7 @@ MVP 핵심은 이력서 마스킹과 익명 평가다(2026-11-14 사용자 결�
   - `python3 scripts/tools.py smoke --port 18080` 종료 코드 기록, 샘플 PNG의 한글 렌더링 눈 확인
   - _요구사항: 11.8, 2.13_
 
-- [ ] 14. 데모 녹화와 KIRO-USAGE.md (일부 완료: 실제 이력서 녹화 79초 MP4 게시 youtu.be/NpGPTHtYJJQ와 KIRO-USAGE.md 기록은 있음. 3분 길이 기준과 `kiro_log.py status` 최종 점검은 미확정이라 미완료로 둠)
+- [x] 14. 데모 녹화와 KIRO-USAGE.md (실제 이력서로 녹화한 79초 핵심 시연 youtu.be/NpGPTHtYJJQ. 운영자료 확인 후 발표 5분 기준으로 바뀜(product.md). `kiro_log.py status` 점검: 미기록 task_run·monitor는 kiro-workflow.md 회고에 사유 기록)
   - 첫 30초: 이름이 드러난 원본·흩어진 피드백(문제) → 버전별 평균 총점 추이와 핀 오버레이(결과). 이어서 주인 창 업로드·마스킹·게시, 시크릿 창에서 실제 평가, 주인 창에서 새 핀 확인
   - `python3 scripts/kiro_log.py status`로 미기록 기능 점검, 실패 시도 포함 기록
   - _요구사항: 12.3, 9.3, 9.5_
@@ -102,7 +102,7 @@ MVP 핵심은 이력서 마스킹과 익명 평가다(2026-11-14 사용자 결�
 
 화면 요구사항 번호가 직접 대응하지 않는 항목은 `ux-flow 절 번호`로 적었다. 코드 존재는 `src/main/resources/static/`을 grep으로 확인했다.
 
-- [ ] T0. spec 문구 반영(requirements 1.1·1.3·8.1, design 화면 목록, tasks). requirements 1.1이 아직 닉네임 입력 화면 문구라 미완료
+- [x] T0. spec 문구 반영(requirements 1.1·1.2, design 화면 목록·E2E, tasks). 닉네임은 화면이 '익명NNNN'으로 자동 생성해 보낸다
   - _요구사항: ux-flow 7절_
 - [x] T1. 공통: `ensureAnon()`, `loadPageImage()`(실패한 쪽만 `다시 불러오기`), 내비, `.banner`·`.sticky-bar` (`js/api.js`, `css/app.css`)
   - _요구사항: 1.1, 1.3, ux-flow 3.0_

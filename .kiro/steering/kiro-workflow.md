@@ -15,6 +15,8 @@ description: 단계별로 사용할 Kiro/Kiro Crew 기능과 증거 기록 규�
 | 5. 운영 | `monitor_start`로 마감 알림(예산 제한), `session_ledger_record`로 진행 상태 | 모니터·원장 |
 | 6. 제출 | `artifact`/위젯으로 발표 대시보드, 데모 녹화 | `KIRO-USAGE.md`, 영상 |
 
+실제 적용(2026-11-14 회고): 1단계는 사용자가 주제를 직접 정해 아이디어 비교 workflow를 쓰지 않았다. 3단계 구현은 `task_run` 대신 `spawn_run` 병렬(worktree 분리)로 했다. 5단계 마감 알림은 `monitor_start` 대신 Kiro Crew cron 일회성 알림 5개를 썼고, `session_ledger_record`는 쓰지 않았다. `workflow_run`은 리뷰→수정→테스트 루프와 UX 설계↔평가 루프 두 곳에서 썼다.
+
 ## 증거 기록
 - Kiro 기능을 실제로 쓸 때마다 `python3 scripts/kiro_log.py add --stage <단계> --feature <기능> --ref <실행ID·세션·파일> --result <결과>`를 실행한다.
 - 실패한 시도도 결과에 `실패: <이유>`로 기록한다. 쓰지 않은 기능을 쓴 것처럼 적지 않는다.

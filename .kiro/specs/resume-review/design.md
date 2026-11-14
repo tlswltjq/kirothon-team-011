@@ -70,7 +70,7 @@ sequenceDiagram
 ```
 
 ## 구성 요소와 인터페이스
-화면: `/`(닉네임 시작, 메뉴), `/upload.html`(업로드·미리보기·가릴 단어·게시), `/review.html`(무작위 평가·핀·총평·총점), `/my.html`(내 이력서·버전 목록·핀 오버레이·필터·SVG 추이·diff). 인라인 스크립트 없이 `/js/*.js`, 외부 CDN 없음.
+화면: `/`(평가받기·평가하기 두 버튼, 익명 토큰은 목적 화면 진입 시 자동 발급), `/upload.html`(업로드·미리보기·가릴 단어·게시), `/review.html`(무작위 평가·핀·총평·총점), `/my.html`(내 이력서·버전 목록·핀 오버레이·SVG 추이. 평가자 필터·diff는 확장 작업으로 미구현). 인라인 스크립트 없이 `/js/*.js`, 외부 CDN 없음.
 
 ### API
 | 구성 요소 | 책임 | 인터페이스 | 요구사항 |
@@ -86,14 +86,14 @@ sequenceDiagram
 | MyResumeController | 가릴 단어 교체 → 새 미리보기 | `PUT /api/my/resumes/{resumeId}/versions/{no}/mask-terms` {terms[]} | 3.3, 3.9, 4.8, 4.9 |
 | MyResumeController | 게시 | `POST /api/my/resumes/{resumeId}/versions/{no}/publish` {previewHash, confirmed} | 4.1~4.6 |
 | MyResumeController | 평가·핀 목록(최신순, 평가자 라벨) | `GET /api/my/resumes/{resumeId}/versions/{no}/reviews` | 9.5~9.8 |
-| MyResumeController | v(no-1) ↔ v(no) 추출 텍스트 diff | `GET /api/my/resumes/{resumeId}/versions/{no}/diff` | 10.x |
+| MyResumeController (미구현, 확장 작업 16) | v(no-1) ↔ v(no) 추출 텍스트 diff | `GET /api/my/resumes/{resumeId}/versions/{no}/diff` | 10.x |
 | ReviewController | 무작위 평가 대상 | `GET /api/review-queue/next?skip={versionId}` | 6.x |
 | ReviewController | 게시된 마스킹 PNG | `GET /api/versions/{versionId}/pages/{p}` → `image/png` | 6.2, 11.5 |
 | ReviewController | 평가 제출(핀 + 총평 + 총점) | `POST /api/versions/{versionId}/reviews` → 201, 본문 없음(엔티티·식별자를 돌려주지 않는다. 교차 리뷰 반영 2026-11-14) | 7.5, 7.6, 8.x |
 | DemoStatusController | 데모 활성 여부(항상 등록, 인증 불필요) | `GET /api/demo` → {enabled} | 12.2 |
 | DemoSeedController | 샘플 데이터(`demo` 프로필에서만 빈 등록) | `POST /api/demo/seed` → 201 | 12.3~12.5 |
 | Actuator | smoke | `GET /actuator/health` | 11.8 |
-| (선택) RecoveryController | 복구 코드 사용 | `POST /api/users/recover` {code} → {token} | 14.x |
+| (미구현, 확장 작업 12) RecoveryController | 복구 코드 사용 | `POST /api/users/recover` {code} → {token} | 14.x |
 
 ### 응답 DTO 분리
 - `ReviewTargetView`(평가자용): `versionId`, `versionNo`, `targetRole`, `pageCount`. 추출 텍스트·제목·resumeId·닉네임·가릴 단어·영역·다른 평가 필드가 아예 없다(11.2).
@@ -177,7 +177,7 @@ sequenceDiagram
 ### 데모 샘플 데이터 (요구사항 12)
 - `DemoSeedController`·`DemoSeeder`는 `@Profile("demo")`. 꺼지면 매핑이 없어 404 `{code:"NOT_FOUND"}`. `GET /api/demo`는 항상 있어 화면이 버튼을 숨긴다.
 - `src/main/resources/demo/`: 샘플 사용자 3명의 이력서(백엔드·프론트엔드·데이터), 요청자용 v1(빽빽한 단일 열, 성과 수치 없음)·v2(2단 레이아웃, 여백·제목 위계 개선, 수치화된 성과). 모두 가상 인물·회사·이메일·전화와 가상 사진. 생성 스크립트 또는 PDFBox 코드로 만들고 Noto CJK 글꼴을 포함해 렌더링 차이를 없앤다.
-- 시드는 실제 `ResumeService`(추출 → 마스킹 → 게시)와 `ReviewService`를 거친다. 샘플 평가: v1 평균 약 2.7, v2 평균 약 4.0, 버전마다 핀 2~4개(예: "경력 요약이 너무 깁니다", "성과에 수치가 있어 좋습니다").
+- 시드는 실제 `ResumeService`(추출 → 마스킹 → 게시)와 `ReviewService`를 거친다. 샘플 평가: 요청자 v1만 시드(평균 약 2.7), v2는 시연에서 직접 올려 평가받는다. 평가마다 핀 2~4개(예: "경력 요약이 너무 깁니다", "성과에 수치가 있어 좋습니다").
 - `sample = true` 표시. 요청자에게 샘플 이력서가 이미 있으면 409 `DEMO_ALREADY_SEEDED`. 샘플 사용자 3명은 앱 전체에서 한 번만 만든다.
 - 시연: 주인 창에서 시드 → 시크릿 창(다른 익명 토큰)으로 실제 평가 1건 → 주인 창에서 핀이 늘어난 것을 확인.
 
@@ -346,6 +346,6 @@ sequenceDiagram
   - 거부된 요청 뒤 `review`·`annotation` 행 수가 0인지 확인(8.4). 저장된 좌표를 다시 읽었을 때 보낸 값과 같은지 확인.
 - 실패 경로 HTTP 테스트: `@SpringBootTest` + MockMvc, H2 메모리. PDF 아님, 5MB 초과, 11쪽, 암호화(`StandardProtectionPolicy`), 텍스트 없음, 회전, 해시 없음·불일치, 원본 만료, 중복 평가(동시 2요청 중 1개만 201), 자기 평가, 후보 없음. 테스트 이름에 요구사항 번호(`req8_5_duplicateReviewRejected`). 무작위는 고정 `RandomPicker`.
 - 이진 픽스처는 테스트 코드에서 생성하고 저장소에 넣지 않는다(데모 샘플 PDF는 예외).
-- 브라우저 E2E(Playwright 1.65.0, `e2e/`): 컨텍스트 2개(주인, 평가자). 닉네임 → PDF 업로드 → 이름 가리기 → 게시 → 평가자 무작위 받기 → 이미지 클릭으로 핀 2개(1개 수정, 1개 삭제 후 다시 추가) → 총평·총점 제출 → 주인이 v2 업로드·게시 → 버전 이력에서 핀 오버레이·필터·추이·diff 확인. 창 폭을 바꿔 핀 위치 비율이 유지되는지 확인. 단계별 스크린샷.
+- 브라우저 E2E(Playwright 1.65.0, `e2e/`): 컨텍스트 2개(주인, 평가자). 랜딩 '평가받기' → PDF 업로드 → 이름 가리기 → 게시 → 평가자 무작위 받기 → 이미지 클릭으로 핀 2개(1개 수정, 1개 삭제 후 다시 추가) → 총평·총점 제출 → 주인이 v2 업로드·게시 → 버전 이력에서 핀 오버레이·필터·추이·diff 확인. 창 폭을 바꿔 핀 위치 비율이 유지되는지 확인. 단계별 스크린샷.
 - 독립 검증: test 역할이 requirements.md만 보고 인수 조건 테스트 보강, check 역할이 `./gradlew test bootJar`, review 역할(gpt-5.6-terra, 대안 codex)이 diff 교차 리뷰.
 - 배포 확인: `fonts-noto-cjk` 컨테이너 기동 후 `python3 scripts/tools.py smoke --port 18080`, 데모 샘플 PNG에서 한글이 두부(□)로 나오지 않는지 눈으로 확인.
