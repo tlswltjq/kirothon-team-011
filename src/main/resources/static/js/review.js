@@ -25,7 +25,7 @@ function message(err) {
 }
 
 function status(text, kind) {
-  $('status').replaceChildren(text ? el('div', { text, cls: `msg ${kind || ''}` }) : null);
+  $('status').replaceChildren(...(text ? [el('div', { text, cls: `msg ${kind || ''}` })] : []));
 }
 
 function resetView() {

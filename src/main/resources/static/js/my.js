@@ -1,5 +1,6 @@
 // 내 이력서가 받은 평가 화면. 계약: design.md "요청·응답 JSON 계약".
-import { api, imageUrl, el, errorText, getToken, getNickname } from './api.js';
+import { api, imageUrl, el, errorText, getToken } from './api.js';
+import { renderNav } from './nav.js';
 
 // 평가자별 고정 팔레트 8색(라벨 순환).
 const PALETTE = ['#d32f2f', '#1976d2', '#388e3c', '#f57c00', '#7b1fa2', '#00838f', '#c2185b', '#5d4037'];
@@ -223,7 +224,7 @@ function init() {
     window.location.replace('index.html');
     return;
   }
-  $('nickname').textContent = getNickname() || '';
+  renderNav();
   window.addEventListener('pagehide', revokeBlobs);
   loadList();
 }
