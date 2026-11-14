@@ -96,13 +96,21 @@ h2.sub { margin-top: 16px; font-size: 16px; }
   linear-gradient(var(--line), var(--line)) 10% 24% / 60% 2% no-repeat, var(--white); }
 
 /* 모바일 게시 바 압축 (기본값), 640px 이상에서 원래대로 */
-.publish-bar { align-items: stretch; text-align: left; padding: 10px 12px; gap: 6px; border-radius: 12px 12px 0 0; }
+.publish-note { margin: 8px 0 4px; font-size: 14px; }
+.publish-bar { align-items: stretch; text-align: left; padding: 4px 12px; gap: 0; border-width: 0; border-radius: 12px 12px 0 0; }
+.publish-bar #publish-btn { min-height: 44px; padding-top: 0; padding-bottom: 0; line-height: 1.2; }
+.publish-bar .confirm-line { line-height: 1.2; font-size: 15px; }
+#publish-msg:empty { display: none; }
+#publish-msg:not(:empty) { margin: 4px 0; }
 .publish-bar p { margin: 2px 0; }
 #confirm-hint:empty { display: none; }
 .publish-bar .tiny { display: none; }
 
 @media (min-width: 640px) {
-  .publish-bar { padding: 12px 16px; gap: 8px; border-radius: 12px; }
+  .publish-bar { padding: 12px 16px; gap: 8px; border-width: 1px; border-radius: 12px; }
+  .publish-bar #publish-btn { min-height: 48px; padding-top: 14px; padding-bottom: 14px; line-height: inherit; }
+  .publish-bar .confirm-line { line-height: inherit; font-size: inherit; }
+  .publish-note { font-size: inherit; }
   .publish-bar p { margin: 4px 0; }
   .publish-bar .tiny { display: block; }
 }
