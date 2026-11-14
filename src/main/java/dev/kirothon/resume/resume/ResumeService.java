@@ -104,38 +104,54 @@ public class ResumeService {
     public UploadResponse addVersion(UUID ownerId, UUID resumeId, byte[] pdf) {
         Resume resume = owned(ownerId, resumeId);
         checkFile(pdf);
-        ResumeVersion draft = versions.findFirstByResumeIdAndStatus(resume.getId(), ResumeVersion.DRAFT).orElse(null);
-        List<String> carried;
-        if (draft != null) {
-            carried = termList(draft.getId());
-        } else {
-            ResumeVersion last = lastVersion(resume.getId());
-            carried = last == null ? List.of() : termList(last.getId());
-        }
-        Processed p = processor.process(pdf, carried);
-        return tx.execute(status -> {
-            ResumeVersion v;
+        // 동시 업로드로 초안 상태가 바뀌면 새 상태 기준으로 다시 처리한다.
+        for (int attempt = 0; attempt < 3; attempt++) {
+            ResumeVersion draft = versions.findFirstByResumeIdAndStatus(resume.getId(), ResumeVersion.DRAFT)
+                    .orElse(null);
+            UUID draftId = draft == null ? null : draft.getId();
+            List<String> carried;
             if (draft != null) {
-                UUID id = draft.getId();
-                v = versions.findByIdForUpdate(id).orElseThrow(ApiException::notFound);
-                if (v.isPublished()) {
-                    throw new ApiException(HttpStatus.CONFLICT, "ALREADY_PUBLISHED", "이미 게시된 버전입니다.");
-                }
-                regions.deleteByVersion(id);
-                images.deleteByVersion(id);
-                drafts.deleteByVersion(id);
-                v = versions.findById(id).orElseThrow(ApiException::notFound);
+                carried = termList(draft.getId());
             } else {
-                int next = versions.findByResumeIdOrderByVersionNoAsc(resume.getId()).stream()
-                        .mapToInt(ResumeVersion::getVersionNo).max().orElse(0) + 1;
-                v = new ResumeVersion(resume.getId(), next);
+                ResumeVersion last = lastVersion(resume.getId());
+                carried = last == null ? List.of() : termList(last.getId());
             }
-            storePreview(v, p, pdf);
-            if (draft == null) {
-                saveTerms(v.getId(), carried);
+            Processed p = processor.process(pdf, carried);
+            UploadResponse out = tx.execute(status -> {
+                // Resume 행 잠금으로 같은 이력서의 버전 생성·교체를 직렬화하고 초안을 다시 조회한다.
+                resumes.findByIdForUpdate(resume.getId()).orElseThrow(ApiException::notFound);
+                ResumeVersion cur = versions.findFirstByResumeIdAndStatus(resume.getId(), ResumeVersion.DRAFT)
+                        .orElse(null);
+                if (!Objects.equals(draftId, cur == null ? null : cur.getId())) {
+                    return null;
+                }
+                ResumeVersion v;
+                if (cur != null) {
+                    UUID id = cur.getId();
+                    v = versions.findByIdForUpdate(id).orElseThrow(ApiException::notFound);
+                    if (v.isPublished()) {
+                        throw new ApiException(HttpStatus.CONFLICT, "ALREADY_PUBLISHED", "이미 게시된 버전입니다.");
+                    }
+                    regions.deleteByVersion(id);
+                    images.deleteByVersion(id);
+                    drafts.deleteByVersion(id);
+                    v = versions.findById(id).orElseThrow(ApiException::notFound);
+                } else {
+                    int next = versions.findByResumeIdOrderByVersionNoAsc(resume.getId()).stream()
+                            .mapToInt(ResumeVersion::getVersionNo).max().orElse(0) + 1;
+                    v = new ResumeVersion(resume.getId(), next);
+                }
+                storePreview(v, p, pdf);
+                if (cur == null) {
+                    saveTerms(v.getId(), carried);
+                }
+                return new UploadResponse(resume.getId(), v.getVersionNo(), view(v));
+            });
+            if (out != null) {
+                return out;
             }
-            return new UploadResponse(resume.getId(), v.getVersionNo(), view(v));
-        });
+        }
+        throw new ApiException(HttpStatus.CONFLICT, "CONCURRENT_UPLOAD", "동시에 다른 업로드가 진행 중입니다. 다시 시도하세요.");
     }
 
     // ---------- 조회 ----------

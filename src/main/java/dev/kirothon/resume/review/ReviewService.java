@@ -77,6 +77,15 @@ public class ReviewService {
     // ---------- 평가 제출 (7, 8) ----------
 
     public void submit(UUID reviewerId, UUID versionId, ReviewRequest req) {
+        if (req == null) {
+            throw validation(Map.of("body", "요청 본문이 필요합니다."));
+        }
+        // 대상 상태(404)와 소유자(403)를 입력 검증(400)보다 먼저 확인한다(8.8).
+        ResumeVersion v = published(versionId);
+        Resume owner = resumes.findById(v.getResumeId()).orElseThrow(ApiException::notFound);
+        if (owner.getOwnerId().equals(reviewerId)) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "SELF_REVIEW", "자기 이력서는 평가할 수 없습니다.");
+        }
         List<PinRequest> pins = req.pins() == null ? List.of() : req.pins();
         Map<String, String> errors = new LinkedHashMap<>();
         Integer score = integral(req.totalScore(), 1, 5);
@@ -95,11 +104,6 @@ public class ReviewService {
             throw validation(errors);
         }
 
-        ResumeVersion v = published(versionId);
-        Resume owner = resumes.findById(v.getResumeId()).orElseThrow(ApiException::notFound);
-        if (owner.getOwnerId().equals(reviewerId)) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "SELF_REVIEW", "자기 이력서는 평가할 수 없습니다.");
-        }
         for (int i = 0; i < pins.size(); i++) {
             if (pins.get(i).page().intValue() > v.getPageCount()) {
                 errors.put("pins[" + i + "].page", "페이지 번호는 1~" + v.getPageCount() + " 범위여야 합니다.");

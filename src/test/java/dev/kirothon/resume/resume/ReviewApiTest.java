@@ -432,6 +432,47 @@ class ReviewApiTest {
     }
 
     @Test
+    void req8_8_missingOrDraftTargetIs404EvenWithInvalidBody() throws Exception {
+        String a = token();
+        String b = token();
+        Pub draft = draftResume(a);
+        String bad = body(9, "짧음", "[" + pin(99, 2, 2, "") + "]");
+        assertThat(submit(b, draft.versionId(), bad).getResponse().getStatus()).isEqualTo(404);
+        assertThat(submit(b, UUID.randomUUID(), bad).getResponse().getStatus()).isEqualTo(404);
+        Pub pub = publishedResume(a, "self");
+        assertThat(submit(a, pub.versionId(), bad).getResponse().getStatus()).isEqualTo(403);
+        assertThat(submit(b, pub.versionId(), bad).getResponse().getStatus()).isEqualTo(400);
+        assertThat(submit(b, pub.versionId(), "null").getResponse().getStatus()).isEqualTo(400);
+        assertThat(count("review")).isZero();
+    }
+
+    @Test
+    void req4_concurrentVersionUploadAfterPublishedNeverReturns500() throws Exception {
+        String a = token();
+        Pub p = publishedResume(a, "base");
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        try {
+            CountDownLatch go = new CountDownLatch(1);
+            List<Future<Integer>> fs = new ArrayList<>();
+            for (int i = 0; i < 2; i++) {
+                String extra = "c" + i;
+                fs.add(pool.submit(() -> {
+                    go.await();
+                    return mvc.perform(multipart("/api/my/resumes/" + p.resumeId() + "/versions")
+                            .file(file(ResumePdfs.resume(extra))).header("X-Anon-Token", a))
+                            .andReturn().getResponse().getStatus();
+                }));
+            }
+            go.countDown();
+            assertThat(List.of(fs.get(0).get(), fs.get(1).get())).containsOnly(201);
+        } finally {
+            pool.shutdownNow();
+        }
+        assertThat(jdbc.queryForObject("select count(*) from resume_version where resume_id = ?",
+                Integer.class, UUID.fromString(p.resumeId()))).isEqualTo(2);
+    }
+
+    @Test
     void req8_9_reviewOfPreviousVersionSavedToThatVersion() throws Exception {
         String a = token();
         String b = token();
