@@ -140,7 +140,26 @@ test('주인 v1 게시 -> 평가자 핀·총평·총점 -> 핀 오버레이 -> v
     near(c.x, PIN_C.x); near(c.y, PIN_C.y);
   }
   await shot(owner, '05-owner-v1-narrow');
+
+  // ---- 375px 모바일: 랜딩·평가하기·내 이력서에 가로 넘침이 없다 ----
+  await owner.setViewportSize({ width: 375, height: 800 });
+  await rater.setViewportSize({ width: 375, height: 800 });
+  const noOverflow = async (pg, label) => {
+    const w = await pg.evaluate(() => ({ s: document.documentElement.scrollWidth, c: document.documentElement.clientWidth }));
+    expect(w.s, `${label} 가로 넘침`).toBeLessThanOrEqual(w.c);
+  };
+  await noOverflow(owner, '내 이력서');
+  await owner.goto('/');
+  await noOverflow(owner, '랜딩');
+  await rater.goto('/review.html');
+  await rater.waitForLoadState('networkidle');
+  await noOverflow(rater, '평가하기');
+  await owner.goto('/my.html');
+  await owner.locator('#resume-list li button').first().click();
+  await owner.locator('#version-list li[data-no="1"]').getByRole('button', { name: '평가 보기' }).click();
+  await noOverflow(owner, '내 이력서(평가 보기)');
   await owner.setViewportSize({ width: 1280, height: 1000 });
+  await rater.setViewportSize({ width: 1280, height: 1000 });
 
   // ---- 주인: v2 업로드·게시. v1 핀은 v2에 없다(9.8) ----
   await owner.goto('/my.html');

@@ -64,6 +64,7 @@ export async function api(path, { method = 'GET', body } = {}) {
 // 토큰이 필요한 PNG를 blob URL로 받는다. 다 쓴 URL은 URL.revokeObjectURL로 해제한다.
 export async function imageUrl(path) {
   const res = await fetch(path, { headers: { 'X-Anon-Token': getToken() || '' } });
+  if (res.status === 401) clearIdentity();
   if (!res.ok) throw await toError(res);
   return URL.createObjectURL(await res.blob());
 }
@@ -73,14 +74,20 @@ let anonPromise = null;
 export function ensureAnon() {
   if (getToken()) return Promise.resolve({ token: getToken(), nickname: getNickname() });
   if (!anonPromise) {
-    const n = new Uint32Array(1);
-    crypto.getRandomValues(n);
-    const nickname = '익명' + String(1000 + (n[0] % 9000));
-    anonPromise = api('/api/users', { method: 'POST', body: { nickname } })
-      .then((res) => {
-        saveIdentity(res.token, res.nickname);
-        return res;
-      })
+    const issue = async () => {
+      // 다른 탭이 먼저 발급했을 수 있으니 락을 잡은 뒤 다시 확인한다.
+      if (getToken()) return { token: getToken(), nickname: getNickname() };
+      const n = new Uint32Array(1);
+      crypto.getRandomValues(n);
+      const nickname = '익명' + String(1000 + (n[0] % 9000));
+      const res = await api('/api/users', { method: 'POST', body: { nickname } });
+      saveIdentity(res.token, res.nickname);
+      return res;
+    };
+    const run = navigator.locks && navigator.locks.request
+      ? navigator.locks.request('anon-token-issue', issue)
+      : issue();
+    anonPromise = Promise.resolve(run)
       .finally(() => {
         anonPromise = null;
       });
@@ -90,7 +97,7 @@ export function ensureAnon() {
 
 // 페이지 이미지를 wrap 안에 넣는다. 성공하면 blob URL(해제는 호출한 화면이 맡는다), 실패하면 null.
 // 실패해도 throw 하지 않아 Promise.all로 여러 쪽을 받아도 다른 쪽은 그대로 그려진다.
-export async function loadPageImage(wrap, path, alt) {
+export async function loadPageImage(wrap, path, alt, onLoad) {
   for (const old of wrap.querySelectorAll('[data-page-image]')) old.remove();
   wrap.classList.add('loading');
   const holder = el('div', { cls: 'page-fallback', attrs: { 'data-page-image': '1' } });
@@ -101,11 +108,12 @@ export async function loadPageImage(wrap, path, alt) {
     holder.remove();
     wrap.insertBefore(img, wrap.firstChild);
     wrap.classList.remove('loading');
+    if (onLoad) onLoad(url);
     return url;
   } catch (e) {
     wrap.classList.remove('loading');
     const btn = el('button', { text: '다시 불러오기', cls: 'secondary', attrs: { type: 'button' } });
-    btn.addEventListener('click', () => loadPageImage(wrap, path, alt));
+    btn.addEventListener('click', () => loadPageImage(wrap, path, alt, onLoad));
     holder.replaceChildren(el('p', { text: '이미지를 불러오지 못했어요.', cls: 'muted' }), btn);
     return null;
   }

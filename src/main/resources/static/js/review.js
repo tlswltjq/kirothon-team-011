@@ -141,12 +141,11 @@ function buildPages() {
       addPin(p, (e.clientX - rect.left) / rect.width, (e.clientY - rect.top) / rect.height);
     });
     host.appendChild(el('div', {}, el('div', { text: `${p} / ${t.pageCount}쪽`, cls: 'page-label' }), wrap));
-    Promise.resolve(loadPageImage(wrap, `/api/versions/${versionId}/pages/${p}`, `${p}쪽 마스킹된 이력서`))
-      .then((url) => {
-        if (!url) return;
-        if (!state.target || state.target.versionId !== versionId) { URL.revokeObjectURL(url); return; }
-        state.urls.push(url);
-      })
+    const track = (url) => {
+      if (!state.target || state.target.versionId !== versionId) { URL.revokeObjectURL(url); return; }
+      state.urls.push(url);
+    };
+    Promise.resolve(loadPageImage(wrap, `/api/versions/${versionId}/pages/${p}`, `${p}쪽 마스킹된 이력서`, track))
       .catch(() => { /* 실패 표시와 다시 불러오기는 loadPageImage가 맡는다 */ });
   }
 }
@@ -281,8 +280,34 @@ $('review-form').addEventListener('submit', async (e) => {
       outcome = { text: '내 이력서라 건너뛰었어요.', kind: 'warn' };
     } else if (ex instanceof ApiError && ex.status === 400) {
       const f = ex.fields || {};
-      const msgs = Object.values(f);
-      $('form-error').appendChild(el('div', { text: msgs.length ? `입력을 확인해 주세요. ${msgs.join(' / ')}` : '입력을 확인해 주세요.', cls: 'msg error' }));
+      let focus = null;
+      const rest = [];
+      for (const [key, text] of Object.entries(f)) {
+        const pm = /^pins\[(\d+)\]/.exec(key);
+        if (key === 'summary') {
+          $('summary-error').textContent = text;
+          focus = focus || $('summary');
+        } else if (key === 'totalScore') {
+          $('score-error').textContent = text;
+          focus = focus || $('score');
+        } else if (pm) {
+          const item = document.querySelector(`#pin-list .pin-item[data-idx="${pm[1]}"]`);
+          const slot = item && item.querySelector('.pin-err');
+          if (slot) {
+            slot.textContent = slot.textContent ? `${slot.textContent} ${text}` : text;
+            focus = focus || item.querySelector('textarea') || item;
+          } else {
+            rest.push(text);
+          }
+        } else {
+          rest.push(text);
+        }
+      }
+      $('form-error').appendChild(el('div', { text: rest.length ? `입력을 확인해 주세요. ${rest.join(' / ')}` : '입력을 확인해 주세요.', cls: 'msg error' }));
+      if (focus) {
+        if (typeof focus.focus === 'function') focus.focus({ preventScroll: true });
+        firstScroll(focus);
+      }
     } else if (ex instanceof ApiError) {
       $('form-error').appendChild(el('div', { text: errorText(ex), cls: 'msg error' }));
     } else {

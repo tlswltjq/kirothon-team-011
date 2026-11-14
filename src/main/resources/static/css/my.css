@@ -15,7 +15,7 @@ body { font-size: 16px; }
 .my-overlay .my-pin { pointer-events: auto; }
 .my-page img { width: 100%; height: auto; display: block; }
 .my-pagelabel { line-height: 1.4; font-size: 16px; color: var(--muted); margin: 0 0 2px; }
-.my-pin { position: absolute; transform: translate(-50%, -50%); min-width: 24px; height: 24px; padding: 0 4px; box-sizing: border-box; border-radius: 12px; border: 2px solid #fff; color: #fff; font-size: 16px; line-height: 20px; text-align: center; cursor: pointer; box-shadow: 0 0 3px rgba(0,0,0,.7); }
+.my-pin { width: auto; min-height: 24px; margin: 0; position: absolute; transform: translate(-50%, -50%); min-width: 24px; height: 24px; padding: 0 4px; box-sizing: border-box; border-radius: 12px; border: 2px solid #fff; color: #fff; font-size: 16px; line-height: 20px; text-align: center; cursor: pointer; box-shadow: 0 0 3px rgba(0,0,0,.7); }
 .my-pin::after { content: ''; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
 .my-pin.my-pin-active { transform: translate(-50%, -50%) scale(1.5); z-index: 5; outline: 3px solid var(--ink); }
 .my-pinitem, .my-pinitem:hover { color: var(--ink); }

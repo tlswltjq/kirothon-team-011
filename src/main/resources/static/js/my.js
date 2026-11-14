@@ -297,12 +297,12 @@ function buildPages(count, base, seq) {
     pages.appendChild(el('p', { text: `${i + 1}쪽`, cls: 'my-pagelabel' }));
     pages.appendChild(wrap);
     wraps.push(overlay);
-    Promise.resolve(loadPageImage(imgBox, `${base}/pages/${i + 1}`, `이력서 ${i + 1}쪽 (마스킹됨)`))
-      .then((u) => {
-        if (typeof u !== 'string') return;
-        if (seq !== state.seq) URL.revokeObjectURL(u);
-        else state.blobUrls.push(u);
-      })
+    const track = (u) => {
+      if (typeof u !== 'string') return;
+      if (seq !== state.seq) URL.revokeObjectURL(u);
+      else state.blobUrls.push(u);
+    };
+    Promise.resolve(loadPageImage(imgBox, `${base}/pages/${i + 1}`, `이력서 ${i + 1}쪽 (마스킹됨)`, track))
       .catch(() => {});
   }
   return wraps;
@@ -314,10 +314,13 @@ function renderPins(wraps, reviews) {
       const wrap = wraps[p.page - 1];
       if (!wrap) continue;
       const key = `${r.reviewerLabel}-${p.seq}`;
-      const pin = el('span', {
+      const pin = el('button', {
         text: key,
         cls: 'my-pin',
-        attrs: { 'data-key': key, title: p.comment },
+        attrs: {
+          type: 'button', 'data-key': key, title: p.comment,
+          'aria-label': `평가자 ${r.reviewerLabel}의 ${p.seq}번 핀, ${p.page}쪽`,
+        },
       });
       pin.style.setProperty('left', `${p.x * 100}%`);
       pin.style.setProperty('top', `${p.y * 100}%`);

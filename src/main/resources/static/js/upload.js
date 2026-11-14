@@ -4,6 +4,7 @@ import { renderNav } from './nav.js';
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const presetResumeId = params.get('resumeId');
+const presetVersionNo = params.get('versionNo');
 
 const ERRORS = {
   UNAUTHENTICATED: '이 브라우저의 익명 열쇠가 사라져 초안을 이어 갈 수 없어요. PDF를 다시 올려 주세요.',
@@ -112,12 +113,11 @@ function renderPages() {
   for (let p = 1; p <= count; p++) {
     const wrap = el('div', { cls: 'page-wrap' });
     host.appendChild(el('div', {}, el('div', { text: `${p} / ${count}쪽`, cls: 'page-label' }), wrap));
-    jobs.push(Promise.resolve(loadPageImage(wrap, `${base()}/pages/${p}`, `${p}쪽 마스킹 미리보기`))
-      .then((url) => {
-        if (!url) return;
-        if (state.version.preview.previewHash !== hash) { URL.revokeObjectURL(url); return; }
-        state.urls.push(url);
-      })
+    const track = (url) => {
+      if (state.version.preview.previewHash !== hash) { URL.revokeObjectURL(url); return; }
+      state.urls.push(url);
+    };
+    jobs.push(Promise.resolve(loadPageImage(wrap, `${base()}/pages/${p}`, `${p}쪽 마스킹 미리보기`, track))
       .catch(() => {}));
   }
   watchEnd();
@@ -271,6 +271,22 @@ async function init() {
       $('upload-heading').textContent = `‘${r.title}’의 새 버전을 올려요`;
     } catch (err) {
       show($('top-msg'), message(err), 'error');
+      return;
+    }
+    if (presetVersionNo && /^\d+$/.test(presetVersionNo)) {
+      try {
+        const v = await api(`/api/my/resumes/${encodeURIComponent(presetResumeId)}/versions/${presetVersionNo}`);
+        if (v && v.status !== 'PUBLISHED' && v.preview) {
+          state.versionNo = Number(presetVersionNo);
+          state.version = v;
+          state.fileName = '이어서 게시할 초안';
+          collapseUpload();
+          setStep(2);
+          renderVersion();
+        }
+      } catch (err) {
+        // 초안을 못 불러오면 기존처럼 새 PDF 업로드 화면을 그대로 둔다.
+      }
     }
     return;
   }
@@ -384,6 +400,18 @@ $('publish-btn').addEventListener('click', async () => {
   } catch (err) {
     $('confirm').checked = false;
     show(msg, message(err), 'error');
+    if (err instanceof ApiError && (err.code === 'PREVIEW_OUTDATED' || err.code === 'MASKING_INCOMPLETE')) {
+      state.rebuilding = true;
+      updateGate();
+      try {
+        state.version = await api(base());
+        renderVersion();
+      } catch (e2) {
+        show(msg, message(e2), 'error');
+      } finally {
+        state.rebuilding = false;
+      }
+    }
     if (err instanceof ApiError && (err.status === 410 || err.status === 401)) {
       $('preview-card').classList.add('hidden');
       expandUpload('PDF 다시 올리기');
