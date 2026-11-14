@@ -1,9 +1,8 @@
 // 공통 상단 내비. <header class="nav" id="nav"> 안에 그린다.
-import { el, getNickname } from './api.js';
+import { el } from './api.js';
 
 const LINKS = [
-  ['index.html', '홈'],
-  ['upload.html', '업로드'],
+  ['upload.html', '평가받기'],
   ['review.html', '평가하기'],
   ['my.html', '내 이력서'],
 ];
@@ -13,11 +12,9 @@ export function renderNav() {
   if (!host) return;
   host.classList.add('nav');
   const current = location.pathname.split('/').pop() || 'index.html';
-  const nav = el('nav', {}, el('span', { text: '이게 다 너 잘되라고 하는 소리야', cls: 'brand' }));
+  const nav = el('nav', {}, el('a', { text: '이게 다 너 잘되라고 하는 소리야', cls: 'brand', attrs: { href: 'index.html' } }));
   for (const [href, label] of LINKS) {
     nav.appendChild(el('a', { text: label, cls: href === current ? 'current' : '', attrs: { href } }));
   }
-  const nick = getNickname();
-  if (nick) nav.appendChild(el('span', { text: `닉네임: ${nick}`, cls: 'who' }));
   host.replaceChildren(nav);
 }
