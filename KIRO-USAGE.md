@@ -39,3 +39,4 @@
 | 2026-11-14T07:28:40Z | 4. 검증 | browser | 운영자료 Notion 재확인 시도 | 실패: 스냅샷에 제목만, iframe 때문에 스크린샷 차단 |
 | 2026-11-14T07:28:40Z | 3. 구현 | spawn_run | 화면 마무리 1개 (871608db6b4359f4) | 성공: my.css 2건 수정 |
 | 2026-11-14T07:28:40Z | 6. 제출 | artifact | PRESENTATION.pdf 재생성, 슬라이드별 PNG presentation/slides/ 9장, 발표 대본 presentation/script.md | 성공: 생성 완료 |
+| 2026-11-14T07:52:37Z | 6. 제출 | deploy | Tailscale Funnel https://host-10-0-0-56.tail21684f.ts.net:8443 -> 127.0.0.1:18080 (사용자가 sudo로 직접 실행) | 외부 접속 확인(web_fetch로 랜딩 HTML·health 응답). 443 대시보드는 tailnet 전용 유지 |
