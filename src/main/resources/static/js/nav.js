@@ -13,7 +13,7 @@ export function renderNav() {
   if (!host) return;
   host.classList.add('nav');
   const current = location.pathname.split('/').pop() || 'index.html';
-  const nav = el('nav', {}, el('span', { text: '익명 이력서 평가', cls: 'brand' }));
+  const nav = el('nav', {}, el('span', { text: '이게 다 너 잘되라고 하는 소리야', cls: 'brand' }));
   for (const [href, label] of LINKS) {
     nav.appendChild(el('a', { text: label, cls: href === current ? 'current' : '', attrs: { href } }));
   }
