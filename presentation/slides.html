@@ -48,7 +48,7 @@
   <div style="margin-top:120px">
     <p class="sub">KIROTHON 2026 · 내 일상에 바로 적용할 수 있는 서비스</p>
     <h1 style="font-size:64px">이게 다 너 잘되라고<br>하는 소리야</h1>
-    <p class="sub">이름은 가리고, 디자인은 그대로. 익명 평가자에게 이력서 위에 직접 첨삭받고 버전마다 모아 보는 익명 이력서 평가</p>
+    <p class="sub">이름은 가리고, 이력서 위에서 직접 조언받고, 버전별로 결과를 모읍니다.</p>
   </div>
   <div class="foot"><span>team-011 취업하자 · 신지섭</span><span>github.com/tlswltjq/kirothon-team-011</span></div>
 </section>
@@ -57,57 +57,104 @@
 <section class="slide">
   <h2>문제: 이력서 평가, 많이 받고 싶은데 어렵다</h2>
   <div class="grid">
-    <div class="card"><h3>1. 부탁할 사람이 적다</h3><p>지인 몇 명뿐. 채용 플랫폼 첨삭은 이름·원문을 공개해야 해서 망설여진다.</p></div>
-    <div class="card"><h3>2. 가리면 디자인을 못 본다</h3><p>개인정보를 지우려고 텍스트만 복사하면 레이아웃·가독성은 평가받지 못한다.</p></div>
-    <div class="card"><h3>3. 버전별 평가가 흩어진다</h3><p>Git 태그로 버전은 쌓이는데, 어느 버전에 어떤 피드백을 받았는지는 메신저·메모에 흩어진다.</p></div>
+    <div class="card"><h3>1. 부탁할 사람이 적다</h3><p>지인 몇 명뿐. 더 많이 받고 싶지만, 첨삭 서비스는 이름과 원문을 공개해야 해서 망설여진다.</p></div>
+    <div class="card"><h3>2. 가리면 디자인을 못 본다</h3><p>개인정보를 지우려고 글자만 복사해 보내면, 디자인과 읽기 편한지는 평가받지 못한다.</p></div>
+    <div class="card"><h3>3. 고친 이력서마다 조언이 흩어진다</h3><p>수정본은 늘어나는데, 어느 파일에 어떤 피드백을 받았는지 찾기 어렵다.</p></div>
   </div>
   <div class="grid" style="margin-top:34px">
-    <div><div class="big">16일</div><p class="muted">팀원이 이력서를 Typst + Git으로 관리한 기간</p></div>
-    <div><div class="big">8 · 20</div><p class="muted">그동안 만든 릴리즈 8개, 태그 20개</p></div>
-    <div><div class="big">7개</div><p class="muted">버전과 분리돼 흩어진 리뷰 메모 파일</p></div>
+    <div><div class="big">16일</div><p class="muted">이력서를 고치고 다시 낸 기간</p></div>
+    <div><div class="big">8개</div><p class="muted">새로 만든 제출용 이력서</p></div>
+    <div><div class="big">7곳</div><p class="muted">피드백이 흩어진 메모와 대화</p></div>
   </div>
-  <div class="foot"><span>근거: 팀원(신지섭) 개인 이력서 저장소의 실제 기록</span><span>2 / 10</span></div>
+  <div class="foot"><span>근거: 발표자(신지섭)가 직접 관리한 이력서 기록</span><span>2 / 10</span></div>
 </section>
 
 <!-- 2b. 현재 이력서 버전 관리 파이프라인 -->
 <section class="slide">
-  <h2>지금의 이력서 버전 관리: 버전은 자동, 평가는 둘 곳이 없다</h2>
+  <h2>버전은 정리됐지만, 피드백은 흩어졌습니다</h2>
   <div class="flow" style="margin-top:6px">
-    <div class="step"><b>1. 원본 작성</b><span>비공개 저장소에서 이력서·포트폴리오를 Typst(.typ)로 작성</span></div>
+    <div class="step"><b>1. 이력서 수정</b><span>지원할 때마다 고쳐서 새 버전으로 저장</span></div>
     <div class="arrow">→</div>
-    <div class="step"><b>2. 태그 push</b><span><code>submission/날짜-주제</code> 태그 하나가 버전 하나</span></div>
+    <div class="step"><b>2. 버전 이름 붙이기</b><span>"11월 2일 제출본"처럼 버전마다 이름표를 붙임</span></div>
     <div class="arrow">→</div>
-    <div class="step"><b>3. GitHub Actions</b><span>Typst로 PDF 빌드 → 재현성·쪽수·크기 검증 → SHA-256 기록</span></div>
+    <div class="step"><b>3. PDF 자동 생성</b><span>이름표를 붙이면 제출용 PDF가 자동으로 만들어지고 검사됨</span></div>
     <div class="arrow">→</div>
-    <div class="step"><b>4. 비공개 Release</b><span>검증된 PDF를 버전별 Release로 보관</span></div>
+    <div class="step"><b>4. 버전 보관</b><span>언제 낸 파일인지 버전별로 찾을 수 있음</span></div>
     <div class="arrow">→</div>
-    <div class="step"><b>5. 공개 DOCS 배포</b><span>DOCS 저장소에 PDF·ZIP·manifest 갱신 → GitHub Pages 다운로드 페이지</span></div>
+    <div class="step" style="border-top-color:#e63946"><b>5. 하지만 피드백은?</b><span>카톡과 메모에 흩어져, 버전끼리 비교할 수 없음</span></div>
   </div>
   <div class="grid" style="margin-top:22px">
-    <div><div class="big">8</div><p class="muted">제출용 Release (10-22 ~ 11-06)</p></div>
-    <div><div class="big">8</div><p class="muted">회사별 맞춤 태그 (11-09 ~ 11-10)</p></div>
-    <div><div class="big" style="color:#457b9d">?</div><p class="muted">각 버전이 받은 평가가 모이는 곳: 없음. 메모 파일 7개와 메신저에 흩어짐</p></div>
+    <div><div class="big">8</div><p class="muted">제출용 버전 (16일 동안)</p></div>
+    <div><div class="big">8</div><p class="muted">회사별로 고친 맞춤 버전</p></div>
+    <div><div class="big" style="color:#457b9d">?</div><p class="muted">버전별 피드백을 모아 둔 곳: 없음</p></div>
   </div>
-  <p style="font-size:20px;margin-top:8px">빌드·검증·배포는 이미 자동화했다. 빠진 것은 <b>"이 버전, 남들은 어떻게 봤나"</b>를 버전 옆에 쌓는 일 → 이 서비스가 채운다</p>
-  <div class="foot"><span>근거: 본인 저장소의 documents.yml 워크플로·Release 목록, 공개 DOCS 저장소(tlswltjq.github.io/DOCS)</span><span>3 / 10</span></div>
+  <p style="font-size:20px;margin-top:8px">파일 버전은 관리됐지만, <b>"이 버전에 어떤 조언을 받았나"</b>는 관리되지 않았습니다</p>
+  <div class="foot"><span>근거: 발표자의 실제 이력서 저장소와 공개 문서 페이지(tlswltjq.github.io/DOCS)</span><span>3 / 10</span></div>
 </section>
 
 <!-- 3. 해결 흐름 -->
 <section class="slide">
   <h2>해결: 올리고, 가리고, 다수에게 첨삭받고, 버전별로 모은다</h2>
   <div class="flow">
-    <div class="step"><b>1. PDF 업로드</b><span>회원가입·이름 입력 없이 자동 익명 토큰. 5MB·10쪽 이하, 텍스트 PDF</span></div>
+    <div class="step"><b>1. PDF 업로드</b><span>회원가입·이름 입력 없이 시작. 글자를 읽을 수 있는 PDF만 올림</span></div>
     <div class="arrow">→</div>
-    <div class="step"><b>2. 자동 마스킹</b><span>이메일·전화·URL·사진 자동, 이름·회사·학교는 단어 추가. 미리보기로 확인</span></div>
+    <div class="step"><b>2. 개인정보 가리기</b><span>이메일·전화·링크·사진은 자동으로 가리고, 이름·회사·학교는 직접 골라 가림</span></div>
     <div class="arrow">→</div>
     <div class="step"><b>3. 게시</b><span>확인해야만 게시. 게시하면 원본 PDF 삭제</span></div>
     <div class="arrow">→</div>
-    <div class="step"><b>4. 익명 첨삭</b><span>무작위로 받은 이력서 위를 클릭해 핀 코멘트 + 총평·총점(1~5)</span></div>
+    <div class="step"><b>4. 익명 첨삭</b><span>무작위로 받은 이력서에서 고칠 곳을 눌러 의견과 점수(1~5)를 남김</span></div>
     <div class="arrow">→</div>
-    <div class="step"><b>5. 버전별 모아 보기</b><span>페이지 위에 모든 핀을 겹쳐 보고, 버전별 평균 총점 비교</span></div>
+    <div class="step"><b>5. 버전별 모아 보기</b><span>버전마다 받은 의견을 모아 보고, 평균 점수 변화를 비교</span></div>
   </div>
-  <p style="margin-top:40px">평가자는 마스킹된 <b>페이지 이미지</b>만 본다. 주인 정보는 평가자에게, 평가자 정보는 주인에게 보이지 않는다.</p>
+  <p style="margin-top:40px">평가자는 <b>가려진 이미지</b>만 봅니다. 서로 누구인지 알 수 없습니다.</p>
   <div class="foot"><span>핵심 기능</span><span>4 / 10</span></div>
+</section>
+
+<!-- 6. Kiro 1 -->
+<section class="slide">
+  <h2>Kiro 활용 1: 먼저 기준을 정하고, 역할을 나눴습니다</h2>
+  <div class="grid2">
+    <div>
+      <ul>
+        <li>기능이 바뀔 때마다 <b>무엇을 만들지 먼저 문서로 다시 정했습니다</b> (3번 갱신)</li>
+        <li>개인정보 보호·평가 방식·실패 상황까지 <b>확인 기준 97개</b>로 미리 정했습니다</li>
+        <li>기획·구현·테스트·검토 <b>역할을 나눠 서로 확인</b>하게 했습니다</li>
+      </ul>
+    </div>
+    <table>
+      <tr><th>역할</th><th>맡은 일</th><th>고칠 수 있는 범위</th></tr>
+      <tr><td>기획</td><td>만들 기준 정리</td><td>문서만</td></tr>
+      <tr><td>구현</td><td>기능 만들기</td><td>전체</td></tr>
+      <tr><td>테스트</td><td>확인 항목 작성</td><td>기능 코드는 못 고침</td></tr>
+      <tr><td>점검</td><td>실행해서 결과 확인</td><td>없음</td></tr>
+      <tr><td>검토</td><td>다른 AI가 독립 검토</td><td>없음</td></tr>
+    </table>
+  </div>
+  <div class="foot"><span>구현은 Claude, 검토는 GPT · 기록: BUILD_REPORT.md</span><span>5 / 10</span></div>
+</section>
+
+<!-- 7. Kiro 2 -->
+<section class="slide">
+  <h2>Kiro 활용 2: 핸드폰 하나로, 에이전트 팀을 지휘</h2>
+  <p class="muted" style="margin-top:-8px">노트북 화면이 고장 났고 외부 모니터를 깜빡했습니다. 그래서 핸드폰에서 지시하고 결과를 확인했습니다.</p>
+  <div class="grid">
+    <div class="card"><h3>역할을 나눈 AI 팀</h3><p>디자인·문구·접근성·데모 담당이 먼저 점검하고, 구현 담당 6명이 나눠서 만들었습니다</p></div>
+    <div class="card"><h3>만들고, 확인하고, 고치기</h3><p>검토에서 찾은 문제를 고치고 다시 테스트하는 과정을 반복했습니다</p></div>
+    <div class="card"><h3>한 줄 지시로 방향 전환</h3><p>"동시에 시작해", "휴대폰 화면부터"처럼 한 줄로 작업 중인 팀의 방향을 바꿨습니다</p></div>
+  </div>
+  <div class="grid" style="margin-top:34px">
+    <div><div class="big">150</div><p class="muted">자동 확인 항목</p></div>
+    <div><div class="big">6</div><p class="muted">동시에 일한 AI 담당자</p></div>
+    <div><div class="big">4</div><p class="muted">다른 AI의 독립 검토</p></div>
+  </div>
+  <div class="foot"><span>모든 작업 기록: KIRO-USAGE.md</span><span>6 / 10</span></div>
+</section>
+
+<!-- 5. 데모 -->
+<section class="slide dark">
+  <h2>데모</h2>
+  <div class="demo"><img src="demo-frame.png" alt="데모 영상 한 장면: v1 2.75점에서 v2 5.00점으로 오른 평균 총점 추이" style="max-height:340px;border-radius:8px"><div style="display:inline-block;vertical-align:top;margin-left:28px;text-align:center"><img src="demo-qr.png" alt="배포 주소 QR 코드" style="width:220px;height:220px;background:#fff;padding:8px;border-radius:8px"><br><span style="font-size:22px">직접 체험하기(QR)</span><br><span style="font-size:13px;white-space:nowrap">https://host-10-0-0-56.tail21684f.ts.net:8443</span></div><br><span style="font-size:24px">79초 실제 사용 영상</span></div>
+  <div class="foot"><span>업로드 → 개인정보 가리기 → 게시 → 핀 첨삭 → 버전별 결과 확인 (발표자의 실제 이력서)</span><span>7 / 10</span></div>
 </section>
 
 <!-- 4. 기술 핵심 -->
@@ -116,10 +163,10 @@
   <div class="grid2">
     <div>
       <ul>
-        <li><b>글자 좌표 추출</b> (PDFBox): 줄마다 글자 위치를 함께 뽑아 정규식·가릴 단어 일치 구간을 사각형으로 변환</li>
-        <li><b>이미지로 렌더링 + 검은 박스</b>: PDF 위에 덮지 않는다. 텍스트 레이어가 없어 복사로도 새지 않음</li>
-        <li><b>게시 전 재검증</b>: 서버가 영역을 다시 계산하고 해당 픽셀이 정말 검은지 확인. 미리보기 해시가 바뀌었으면 거부</li>
-        <li><b>원본 PDF 삭제</b>: 게시 순간 원본 바이트 삭제, 초안도 24시간 만료</li>
+        <li><b>가릴 위치 찾기</b>: 이메일·전화·링크와 지정한 단어가 있는 자리를 찾습니다</li>
+        <li><b>이미지로 바꾼 뒤 검게 칠하기</b>: 복사해도 가려진 글자가 나오지 않습니다</li>
+        <li><b>게시 직전 다시 확인</b>: 정말 검게 가려졌는지, 확인한 미리보기와 같은지 다시 봅니다</li>
+        <li><b>원본 PDF 삭제</b>: 게시하면 원본은 지우고, 게시하지 않은 파일도 24시간 뒤 지웁니다</li>
       </ul>
     </div>
     <div class="card">
@@ -133,66 +180,19 @@
       <p class="muted" style="margin-top:12px">레이아웃·글꼴·강조는 그대로 남아 디자인까지 평가받는다</p>
     </div>
   </div>
-  <div class="foot"><span>Java 21 · Spring Boot 4.1.2 · PDFBox 3.0.7 · 외부 API·AI 없음</span><span>5 / 10</span></div>
-</section>
-
-<!-- 5. 데모 -->
-<section class="slide dark">
-  <h2>데모</h2>
-  <div class="demo"><img src="demo-frame.png" alt="데모 영상 한 장면: v1 2.75점에서 v2 5.00점으로 오른 평균 총점 추이" style="max-height:340px;border-radius:8px"><div style="display:inline-block;vertical-align:top;margin-left:28px;text-align:center"><img src="demo-qr.png" alt="배포 주소 QR 코드" style="width:220px;height:220px;background:#fff;padding:8px;border-radius:8px"><br><span style="font-size:22px">직접 써 보기(QR)</span><br><span style="font-size:13px;white-space:nowrap">https://host-10-0-0-56.tail21684f.ts.net:8443</span></div><br><span style="font-size:22px">데모 영상(79초): youtu.be/NpGPTHtYJJQ · 발표 때는 영상을 직접 재생한다.</span></div>
-  <div class="foot"><span>본인의 실제 이력서로 업로드 → 이름 가리기 → 게시 → 다른 사용자의 핀 첨삭 → 버전별 확인</span><span>6 / 10</span></div>
-</section>
-
-<!-- 6. Kiro 1 -->
-<section class="slide">
-  <h2>Kiro 활용 1: Spec 주도 + 역할별 에이전트</h2>
-  <div class="grid2">
-    <div>
-      <ul>
-        <li><b>Spec 3회 반복</b>: 결정이 바뀔 때마다 코드보다 spec을 먼저 수정 (텍스트 노출 → 이미지 마스킹 → 핀 첨삭)</li>
-        <li>EARS 요구사항 <b>14개 · 인수 조건 97개</b>, 작업 16개를 요구사항 번호로 추적</li>
-        <li><b>Steering</b> always 4 + fileMatch 1, <b>Hooks</b>로 세션 시작 진행률·파일 쓰기 기록</li>
-      </ul>
-    </div>
-    <table>
-      <tr><th>역할</th><th>모델 / 추론</th><th>쓰기 권한</th></tr>
-      <tr><td>spec</td><td>Opus 5.5 / high</td><td>문서만</td></tr>
-      <tr><td>impl</td><td>Sonnet 5.5 / medium</td><td>전체</td></tr>
-      <tr><td>test</td><td>Sonnet 5.5 / low</td><td>src/main 거부</td></tr>
-      <tr><td>check</td><td>Haiku 5.5 / low</td><td>없음</td></tr>
-      <tr><td>review</td><td>GPT 5.6 Terra / high</td><td>없음(셸도 없음)</td></tr>
-    </table>
-  </div>
-  <div class="foot"><span>.kiro/specs · .kiro/steering · .kiro/agents · BUILD_REPORT.md</span><span>7 / 10</span></div>
-</section>
-
-<!-- 7. Kiro 2 -->
-<section class="slide">
-  <h2>Kiro 활용 2: 핸드폰 하나로, 에이전트 팀을 지휘</h2>
-  <p class="muted" style="margin-top:-8px">노트북 화면 고장 + 외부 모니터를 깜빡 → 원격 서버의 Kiro Crew 대시보드에 핸드폰으로 접속해 모든 작업을 진행</p>
-  <div class="grid">
-    <div class="card"><h3>역할별 에이전트 팀</h3><p>아트디렉터(Opus)·UX 라이터·접근성 감사(GPT)·데모 프로듀서가 문서를 쓰고 → 구현 6명이 파일 소유권대로 병렬 반영 → QA</p></div>
-    <div class="card"><h3>반복 루프 워크플로</h3><p>리뷰→수정→테스트(3라운드, 결함 6건), UX 설계↔평가(3라운드). 구현은 Claude, 리뷰는 GPT</p></div>
-    <div class="card"><h3>짧은 지시, 즉시 반영</h3><p>"병렬로 시작해" → worktree별 동시 실행. 실행 중 "Mobile-first" 지시도 에이전트에 바로 주입(steer)</p></div>
-  </div>
-  <div class="grid" style="margin-top:34px">
-    <div><div class="big">150</div><p class="muted">자동 테스트 + 브라우저 E2E</p></div>
-    <div><div class="big">6</div><p class="muted">동시 실행한 서브에이전트(worktree 분리)</p></div>
-    <div><div class="big">4</div><p class="muted">교차 리뷰(spec·백엔드·화면 2회), 리뷰 모델은 읽기 전용</p></div>
-  </div>
-  <div class="foot"><span>.kiro/workflows · .kiro/specs/resume-review/team · KIRO-USAGE.md</span><span>8 / 10</span></div>
+  <div class="foot"><span>Java·Spring으로 구현 · 이력서를 외부 AI나 외부 서비스로 보내지 않음</span><span>8 / 10</span></div>
 </section>
 
 <!-- 8. 효과와 차별점 -->
 <section class="slide">
-  <h2>기대 효과와 차별점</h2>
+  <h2>기존 방식과 달라진 점</h2>
   <table>
     <tr><th>항목</th><th>기존</th><th>이 서비스</th></tr>
-    <tr><td>평가를 부탁할 사람</td><td>지인 몇 명</td><td>익명 사용자 누구나(무작위 배정)</td></tr>
-    <tr><td>공유용 사본 만들기</td><td>버전마다 손으로 개인정보 삭제</td><td>업로드 1회 + 미리보기 확인</td></tr>
-    <tr><td>디자인 평가</td><td>텍스트 공유 시 불가</td><td>레이아웃 보존 이미지로 가능</td></tr>
-    <tr><td>피드백 형태</td><td>"전반적으로 좋네요"</td><td>이력서 위치를 짚는 핀 첨삭</td></tr>
-    <tr><td>버전별 평가</td><td>메신저·메모에 흩어짐</td><td>버전마다 한 화면, 평균 총점 비교</td></tr>
+    <tr><td>평가를 부탁할 사람</td><td>지인 몇 명</td><td>무작위로 연결된 익명 평가자</td></tr>
+    <tr><td>공유용 사본 만들기</td><td>버전마다 손으로 개인정보 삭제</td><td>PDF 업로드 후 가린 모습 확인</td></tr>
+    <tr><td>디자인 평가</td><td>텍스트 공유 시 불가</td><td>디자인이 그대로인 이미지로 가능</td></tr>
+    <tr><td>피드백 형태</td><td>"전반적으로 좋네요"</td><td>고칠 곳을 짚는 핀 첨삭</td></tr>
+    <tr><td>버전별 평가</td><td>메신저·메모에 흩어짐</td><td>버전마다 한 화면, 평균 점수 비교</td></tr>
   </table>
   <div class="foot"><span>README 4. 기대 효과 · 5. 차별점</span><span>9 / 10</span></div>
 </section>
@@ -202,11 +202,11 @@
   <h2>다음 단계</h2>
   <ul>
     <li>복구 코드: 기기를 바꿔도 익명 계정과 평가 이력을 이어 쓰기</li>
-    <li>버전 간 문장 변경 비교(diff). 점수 추이 차트는 구현됨</li>
-    <li>미리보기 위에서 직접 박스를 그리는 수동 마스킹, 스캔본 PDF 지원</li>
-    <li>평가할수록 내 이력서 노출 순위 상승 + 평가가 적은 이력서 우선 노출(초기 평가자 부족 대책)</li>
+    <li>수정 전후 문장 비교</li>
+    <li>직접 가릴 곳을 그려서, 스캔한 이력서도 지원</li>
+    <li>남을 평가할수록 내 이력서가 더 많이 보이게(초기 평가자 부족 대책)</li>
   </ul>
-  <p style="margin-top:50px;font-size:30px">"이게 다 너 잘되라고 하는 소리야" — 이제는 이름 없이, 위치를 짚어서.</p>
+  <p style="margin-top:50px;font-size:30px">이름은 가리고, 고칠 곳은 정확히 짚어 주는 이력서 평가.</p>
   <div class="foot"><span>team-011 취업하자 · 신지섭</span><span>10 / 10</span></div>
 </section>
 
