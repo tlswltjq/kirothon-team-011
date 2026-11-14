@@ -12,7 +12,7 @@ export function renderNav() {
   if (!host) return;
   host.classList.add('nav');
   const current = location.pathname.split('/').pop() || 'index.html';
-  const nav = el('nav', {}, el('a', { text: '이게 다 너 잘되라고 하는 소리야', cls: 'brand', attrs: { href: 'index.html' } }));
+  const nav = el('nav', {}, el('a', { cls: 'brand', attrs: { href: 'index.html' } }, el('span', { cls: 'dot', attrs: { 'aria-hidden': 'true' } }), el('span', { text: '이게 다 너 잘되라고 하는 소리야' })));
   for (const [href, label] of LINKS) {
     nav.appendChild(el('a', { text: label, cls: href === current ? 'current' : '', attrs: { href } }));
   }
