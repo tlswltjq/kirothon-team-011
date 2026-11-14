@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>이력서 업로드 - 익명 이력서 평가</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <header id="nav"></header>
+  <main>
+    <h1 id="page-title">이력서 업로드</h1>
+    <div id="top-msg"></div>
+
+    <section id="upload-card" class="card">
+      <h2 id="upload-heading">PDF 올리기</h2>
+      <p class="muted">PDF만 가능합니다. 5MB 이하, 10쪽 이하, 암호가 없고 글자를 선택할 수 있는 파일이어야 합니다.</p>
+      <form id="upload-form">
+        <div id="meta-fields">
+          <label for="title">제목</label>
+          <input id="title" type="text" maxlength="100" required>
+          <label for="targetRole">지원 직무</label>
+          <input id="targetRole" type="text" maxlength="100" required>
+        </div>
+        <label for="file">PDF 파일</label>
+        <input id="file" type="file" accept="application/pdf,.pdf" required>
+        <p><button type="submit" id="upload-btn">업로드하고 미리보기 만들기</button></p>
+      </form>
+    </section>
+
+    <section id="preview-card" class="hidden">
+      <div class="card">
+        <h2>가림 요약</h2>
+        <div id="summary"></div>
+        <div id="warnings"></div>
+      </div>
+      <div class="card">
+        <h2>가릴 단어</h2>
+        <p class="muted">이름처럼 자동으로 가려지지 않는 단어를 추가하세요. 각 단어는 2~30자, 최대 50개입니다. 바꿀 때마다 미리보기가 다시 만들어집니다.</p>
+        <form id="term-form" class="row">
+          <input id="term" type="text" maxlength="30" aria-label="가릴 단어">
+          <button type="submit" id="term-btn" class="secondary">추가</button>
+        </form>
+        <div id="name-candidate"></div>
+        <div id="terms" class="chips"></div>
+        <div id="unmatched"></div>
+        <div id="term-msg"></div>
+      </div>
+      <div class="card">
+        <h2>마스킹된 페이지 미리보기</h2>
+        <p class="muted">평가자는 아래 이미지만 봅니다. 가려지지 않은 개인정보가 없는지 모든 페이지를 확인하세요.</p>
+        <div id="pages" class="pages"></div>
+      </div>
+      <div class="card" id="publish-card">
+        <h2>게시</h2>
+        <label><input type="checkbox" id="confirm"> 마스킹을 확인했습니다 (모든 페이지를 확인했습니다)</label>
+        <p><button type="button" id="publish-btn" disabled>게시하기</button></p>
+        <div id="publish-msg"></div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="/js/upload.js"></script>
+</body>
+</html>
