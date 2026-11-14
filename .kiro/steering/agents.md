@@ -22,6 +22,7 @@ description: 역할별 서브에이전트(모델·추론 깊이)와 교차 리�
 
 ## 실행 경로 B: Kiro Crew 대시보드 (`spawn_run`)
 같은 역할을 아래 인자로 띄운다. 모든 작업에 `cwd="/home/ubuntu/workspaces/kirothon"`을 넣어 steering이 로드되게 한다.
+모든 `spawn_run`에 `backend="kiro"`를 명시해 Kiro 계정 크레딧으로 실행한다(2026-11-14 사용자 지시). ACP의 claude·codex 백엔드는 쓰지 않는다.
 
 | 역할 | `spawn_run` 인자 |
 |---|---|
@@ -30,7 +31,7 @@ description: 역할별 서브에이전트(모델·추론 깊이)와 교차 리�
 | test | `model="claude-sonnet-5.5", reasoning_effort="low"` |
 | check | `model="claude-haiku-5.5", reasoning_effort="low", include_memory=false` |
 | review | `model="gpt-5.6-terra", reasoning_effort="high", include_memory=false, include_lessons=false` + 지시에 "파일 수정 금지" |
-| review(대안) | `backend="codex", reasoning_effort="high", include_memory=false, include_lessons=false`: Kiro 밖의 다른 하네스로 한 번 더 독립 리뷰. 추론을 지정하지 않으면 low로 실행된다 |
+| review(대안) | 사용 안 함(2026-11-14): codex 백엔드 대신 Kiro 백엔드에서 다른 모델(`model="claude-opus-5.5"` 등)로 두 번째 리뷰를 띄운다 |
 
 - 파일 경계가 다른 impl/test는 한 번의 `spawn_run(tasks=[...])`로 병렬 실행. 같은 파일은 동시에 수정하지 않는다.
 - 같은 diff를 두 모델에 맡기려면 `tasks=[{task, model:"gpt-5.6-terra"}, {task, model:"claude-opus-5.5"}]`.

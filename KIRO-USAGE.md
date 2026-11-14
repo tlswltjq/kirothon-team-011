@@ -11,3 +11,5 @@
 | 2026-11-14T02:44:32Z | 2. 명세 | hook | .kiro/evidence/hook-events.log | 성공: spec 에이전트 파일 쓰기 16건 기록 |
 | 2026-11-14T02:50:33Z | 2. 명세 | review | kiro.sh review (kirothon-review, gpt-5.6-terra/high), spec 교차 리뷰 | 지적 5건(높음 2, 중간 3). 반영 3: 평가 제출 201 본문 없음, E2E 시나리오 구체화, 샘플 PDF 리소스화. 복구 코드 설계 보완 2건은 확장 작업 12 착수 조건으로 기록. 기각 2: SVG·diff MVP 유지 요구(사용자가 핵심 범위 재조정) |
 | 2026-11-14T02:51:03Z | 3. 구현 | spawn_run | 작업 1 impl (claude-sonnet-5.5/medium) | 성공: ./gradlew test bootJar 종료 코드 0, 테스트 11개 통과, 기동 후 health UP |
+| 2026-11-14T02:58:47Z | 3. 구현 | spawn_run | 작업 2·3·4 병렬 (sonnet-5.5/medium ×3, git worktree 3개) | 성공: 각 2~4분, 병합 후 전체 테스트 90개 통과 |
+| 2026-11-14T03:07:23Z | 3. 구현 | spawn_run | 작업 5+6·9·10·11(일부) 병렬 4개 (sonnet-5.5/medium, worktree 4개) | 작업 9·10 완료·병합(정적 파일 11개, CSP 위반 없음). 5+6·11 진행 중 |
