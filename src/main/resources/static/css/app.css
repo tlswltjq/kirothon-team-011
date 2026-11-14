@@ -9,24 +9,25 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--paper); color: var(--ink);
-  font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; line-height: 1.55; }
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; line-height: 1.55; font-size: 16px; -webkit-text-size-adjust: 100%; }
 header.nav { background: var(--ink); border-bottom: 1px solid var(--ink-2); }
-header.nav nav { max-width: 960px; margin: 0 auto; padding: 0 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-header.nav a.brand { font-weight: 700; margin-right: 12px; padding: 14px 0; border-bottom: 0; color: var(--white); }
+header.nav nav { max-width: 960px; margin: 0 auto; padding: 0 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; }
+header.nav a.brand { flex: 0 0 100%; display: flex; align-items: center; min-height: 44px; font-weight: 700; padding: 8px 0 0; border-bottom: 0; color: var(--white); }
+header.nav nav a:not(.brand) { flex: 0 0 auto; }
 header.nav a.brand .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--purple); margin-right: 8px; vertical-align: middle; }
-header.nav a { color: var(--white); text-decoration: none; padding: 14px 10px; border-bottom: 3px solid transparent; }
+header.nav a { color: var(--white); text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-bottom: 3px solid transparent; }
 header.nav a:hover { color: var(--purple-glow); }
 header.nav a.brand:hover { color: var(--white); }
 header.nav a.current { border-bottom-color: var(--purple); font-weight: 600; }
-main { max-width: 960px; margin: 0 auto; padding: 20px 16px 60px; }
-h1 { color: var(--ink); font-size: 24px; margin: 8px 0 16px; }
+main { max-width: 960px; margin: 0 auto; padding: 12px 12px 40px; }
+h1 { color: var(--ink); font-size: 22px; margin: 8px 0 16px; }
 h2 { font-size: 18px; margin: 0 0 12px; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 16px; box-shadow: var(--shadow); }
 label { display: block; font-weight: 600; margin: 12px 0 4px; }
-input[type=text], input[type=file], textarea, select { width: 100%; padding: 9px 10px; border: 1px solid var(--line);
+input[type=text], input[type=file], textarea, select { width: 100%; min-height: 44px; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line);
   border-radius: 6px; font: inherit; background: var(--white); }
 textarea { min-height: 80px; resize: vertical; }
-button, .btn { display: inline-block; font: inherit; padding: 9px 16px; border-radius: 6px; border: 1px solid var(--purple);
+button, .btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; font: inherit; font-size: 16px; padding: 10px 16px; text-align: center; border-radius: 6px; border: 1px solid var(--purple);
   background: var(--purple); color: var(--white); cursor: pointer; text-decoration: none; }
 button:hover, .btn:hover { background: var(--purple-dark); border-color: var(--purple-dark); color: var(--white); }
 button:focus-visible, .btn:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
@@ -36,54 +37,65 @@ button.secondary, .btn.secondary { background: var(--white); color: var(--purple
 button.secondary:hover, .btn.secondary:hover { background: var(--purple-dark); color: var(--white); }
 button.danger { background: var(--white); color: var(--err); border-color: var(--err); }
 button.danger:hover { background: var(--err); color: var(--white); border-color: var(--err); }
-.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.row > input[type=text] { flex: 1; min-width: 160px; width: auto; }
-.muted { color: var(--muted); font-size: 14px; }
+.row { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.row > input[type=text] { width: 100%; }
+.muted { color: var(--muted); font-size: 16px; }
 .msg { padding: 10px 12px; border-radius: 6px; margin: 12px 0; border: 1px solid var(--line); background: var(--purple-soft); }
 .msg.error { background: #FDECEC; border-color: #F2B8B5; color: var(--err); }
 .msg.ok { background: #E9F7EE; border-color: #A8DCB9; color: var(--ok); }
 .msg.warn { background: var(--warn-bg); border-color: #ECD28A; color: var(--warn); }
 .hidden { display: none !important; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-.chip { background: var(--purple-soft); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 14px; }
-.chip button { padding: 0 6px; margin-left: 4px; background: transparent; color: var(--err); border: 0; }
+.chip { background: var(--purple-soft); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 16px; }
+.chip button { width: auto; min-height: 32px; padding: 0 8px; margin-left: 4px; background: transparent; color: var(--err); border: 0; }
 .chip.nomatch { background: var(--warn-bg); }
 .counts { display: flex; flex-wrap: wrap; gap: 10px; }
-.counts div { background: var(--purple-soft); border-radius: 8px; padding: 6px 12px; font-size: 14px; }
+.counts div { background: var(--purple-soft); border-radius: 8px; padding: 6px 12px; font-size: 16px; }
 ul.plain { padding-left: 18px; margin: 6px 0; }
 .pages { display: flex; flex-direction: column; gap: 16px; align-items: center; }
 .page-wrap { position: relative; width: 100%; max-width: 760px; border: 1px solid var(--line); background: #fff; line-height: 0; }
 .page-wrap img { width: 100%; height: auto; display: block; }
 .page-wrap.clickable img { cursor: crosshair; }
-.page-label { font-size: 13px; color: var(--muted); line-height: 1.4; margin: 4px 0; text-align: center; }
+.page-label { font-size: 16px; color: var(--muted); line-height: 1.4; margin: 4px 0; text-align: center; }
 /* 핀: 래퍼(.page-wrap) 안 절대 위치. left/top은 x*100%, y*100%로 JS가 지정한다. 작업 10도 같은 클래스를 쓴다. */
 .pin { width: auto; position: absolute; transform: translate(-50%, -50%); min-width: 24px; height: 24px; padding: 0 5px; border-radius: 12px;
   background: var(--pin-color, #e8590c); color: #fff; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.5);
-  font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; cursor: pointer; z-index: 2; }
+  font-size: 16px; font-weight: 700; line-height: 20px; text-align: center; cursor: pointer; z-index: 2; }
+.pin::after { content: ""; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
 .pin:hover { background: var(--pin-color, #e8590c); filter: brightness(1.1); }
 .pin.active { outline: 3px solid #ffd43b; z-index: 3; }
 .pin.dim { opacity: .35; }
 .pin-item { border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin-bottom: 8px; background: #fff; }
 .pin-item.active { border-color: var(--purple); box-shadow: 0 0 0 2px var(--purple-soft); }
 .pin-item .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-weight: 600; }
-.pin-item .pin { position: static; transform: none; display: inline-block; margin-right: 6px; cursor: default; }
+.pin-item .pin { position: static; transform: none; display: inline-block; width: auto; margin-right: 6px; cursor: default; }
+.pin-item .pin::after { content: none; }
 .score { display: flex; gap: 14px; flex-wrap: wrap; }
-.score label { display: inline-flex; align-items: center; gap: 4px; font-weight: 400; margin: 0; }
-.field-error { color: var(--err); font-size: 14px; margin-top: 4px; }
+.score label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 400; margin: 0; }
+.score input { width: 22px; height: 22px; }
+.field-error { color: var(--err); font-size: 16px; margin-top: 4px; }
 .banner { padding: 10px 12px; border-radius: 12px; margin: 0 0 12px; border: 1px solid var(--purple-glow); background: var(--purple-soft); color: var(--ink); }
 .banner.ok { background: #E9F7EE; border-color: #A8DCB9; color: var(--ok); }
 .banner.error { background: #FDECEC; border-color: #F2B8B5; color: var(--err); }
 .sticky-bar { position: sticky; bottom: 0; z-index: 5; background: var(--card); border-top: 1px solid var(--line);
-  padding: 12px 16px; margin: 0 -16px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; box-shadow: 0 -2px 12px rgba(124, 58, 237, .14); }
-.big-btn { display: inline-block; font-size: 18px; font-weight: 600; padding: 14px 28px; border-radius: 10px; }
+  padding: 12px; margin: 0 -12px; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 8px 12px; align-items: center; box-shadow: 0 -2px 12px rgba(124, 58, 237, .14); }
+.big-btn { display: inline-block; width: 100%; font-size: 18px; font-weight: 600; padding: 14px 28px; border-radius: 10px; }
 .page-wrap.loading { aspect-ratio: 1 / 1.414; background: var(--purple-soft); line-height: 1.55; }
 .page-wrap .page-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 120px; padding: 16px; line-height: 1.55; }
 .page-wrap.loading .page-fallback { height: 100%; }
-@media (max-width: 600px) {
-  .big-btn { width: 100%; text-align: center; }
-  main { padding: 12px 10px 40px; }
-  h1 { color: var(--ink); font-size: 20px; }
-  header.nav a { padding: 10px 8px; }
-  button, .btn { width: 100%; text-align: center; }
-  .chip button, .pin-item button { width: auto; }
+/* 데스크톱 보강: 기본은 375px 단일 열(mobile-first) */
+@media (min-width: 640px) {
+  header.nav a.brand { flex: 0 0 auto; margin-right: 12px; padding: 0; }
+  main { padding: 20px 16px 60px; }
+  h1 { font-size: 24px; }
+  .card { padding: 18px; }
+  button, .btn { display: inline-flex; width: auto; }
+  .big-btn { width: auto; }
+  .row > input[type=text] { flex: 1; min-width: 160px; width: auto; }
+  .row { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .sticky-bar { flex-direction: row; flex-wrap: wrap; margin: 0 -16px; padding: 12px 16px; }
+}
+@media (min-width: 900px) {
+  main { padding-top: 28px; }
+  .pages { gap: 24px; }
 }
