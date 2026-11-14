@@ -9,7 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +46,32 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> tooLarge(MaxUploadSizeExceededException e) {
         return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
                 .body(ApiError.of("FILE_TOO_LARGE", "파일은 5MB 이하여야 합니다."));
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<?> api(ApiException e) {
+        if (e.failures() != null) {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("code", e.code());
+            body.put("message", e.getMessage());
+            body.put("fields", e.fields());
+            body.put("failures", e.failures());
+            return ResponseEntity.status(e.status()).body(body);
+        }
+        return ResponseEntity.status(e.status())
+                .body(new ApiError(e.code(), e.getMessage(), ApiError.sorted(e.fields())));
+    }
+
+    /** 경로 변수(UUID·번호) 형식 오류는 존재하지 않는 자원과 같게 404로 처리한다. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> badPathVariable(MethodArgumentTypeMismatchException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("NOT_FOUND", "찾을 수 없습니다."));
+    }
+
+    @ExceptionHandler({MultipartException.class, MissingServletRequestPartException.class,
+            HttpMediaTypeNotSupportedException.class})
+    public ResponseEntity<ApiError> badMultipart(Exception e) {
+        return ResponseEntity.badRequest().body(ApiError.of("VALIDATION_FAILED", "요청 형식이 올바르지 않습니다."));
     }
 
     @ExceptionHandler(PdfRejectedException.class)
