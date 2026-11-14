@@ -18,11 +18,11 @@ async function shot(page, name) {
   await page.screenshot({ path: path.join(SHOTS, `${name}.png`), fullPage: true });
 }
 
-async function start(page, nickname) {
+/** 랜딩의 큰 링크(평가받기/평가하기)를 눌러 들어간다. 입력 칸은 없다. */
+async function start(page, linkName) {
   await page.goto('/');
-  await page.locator('#nickname').fill(nickname);
-  await page.locator('#start-btn').click();
-  await expect(page.locator('#welcome')).toContainText(nickname);
+  await expect(page.locator('input')).toHaveCount(0);
+  await page.locator('main .big-btn', { hasText: linkName }).click();
 }
 
 async function imageLoaded(locator) {
@@ -60,32 +60,32 @@ test('주인 v1 게시 -> 평가자 핀·총평·총점 -> 핀 오버레이 -> v
   const rater = await (await browser.newContext({ viewport: { width: 1280, height: 1000 } })).newPage();
 
   // ---- 주인: v1 업로드, 마스킹 미리보기, 게시 ----
-  await start(owner, '주인공');
-  await owner.goto('/upload.html');
+  await start(owner, '평가받기');
+  await expect(owner).toHaveURL(/upload\.html/);
   await owner.locator('#title').fill('백엔드 개발자 이력서');
   await owner.locator('#targetRole').fill('백엔드 개발자');
   await owner.locator('#file').setInputFiles(path.join(DEMO, 'owner-v1.pdf'));
   await owner.locator('#upload-btn').click();
   await expect(owner.locator('#preview-card')).toBeVisible();
-  const counts = owner.locator('#summary .counts');
-  for (const label of ['이메일', '전화번호', 'URL', '이미지']) {
-    await expect(counts).toContainText(new RegExp(`${label} [1-9]\\d*곳`));
+  const counts = owner.locator('#summary');
+  for (const label of ['이메일', '전화번호', '링크', '사진']) {
+    await expect(counts).toContainText(new RegExp(`${label} [1-9]\\d*`));
   }
   await owner.locator('#term').fill('김하늘');
   await owner.locator('#term-btn').click();
   await expect(owner.locator('#terms .chip')).toContainText('김하늘');
-  await expect(owner.locator('#counts, #summary')).toContainText(/지정 단어 [1-9]\d*곳/);
+  await expect(owner.locator('#summary')).toContainText(/지정 단어 [1-9]\d*/);
   await expect(owner.locator('#unmatched .msg')).toHaveCount(0);
   await imageLoaded(owner.locator('#pages img').first());
   await shot(owner, '01-owner-v1-masked-preview');
   await owner.locator('#confirm').check();
   await owner.locator('#publish-btn').click();
-  await expect(owner.locator('#publish-msg .msg.ok')).toContainText(/v1.{1,2} 게시했습니다/);
+  await expect(owner.locator('#done-card')).toContainText(/v1.{1,2} 게시했어요/);
   await shot(owner, '02-owner-v1-published');
 
   // ---- 평가자: 핀 2개(수정 1, 삭제 후 재추가 1), 총평, 총점 ----
-  await start(rater, '평가자1');
-  await rater.goto('/review.html');
+  await start(rater, '평가하기');
+  await expect(rater).toHaveURL(/review\.html/);
   await expect(rater.locator('#review-area')).toBeVisible();
   const img = rater.locator('#pages img').first();
   await imageLoaded(img);
@@ -108,7 +108,11 @@ test('주인 v1 게시 -> 평가자 핀·총평·총점 -> 핀 오버레이 -> v
   await rater.locator('input[name=score][value="4"]').check();
   await shot(rater, '03-rater-pins-before-submit');
   await rater.locator('#submit-btn').click();
-  await expect(rater.locator('#done-area')).toBeVisible();
+  await expect(rater.locator('#done-area .banner')).toBeVisible();
+  // 제출하면 다음 이력서를 자동으로 받는다. 후보가 더 없으니 빈 화면이 뜬다.
+  await expect(rater.locator('#empty-area')).toBeVisible();
+  await expect(rater.locator('#review-area')).toBeHidden();
+  await shot(rater, '03b-rater-after-submit');
 
   // ---- 주인: 핀 오버레이와 총평 ----
   const v1Row = await openLatest(owner, 1);
@@ -148,7 +152,7 @@ test('주인 v1 게시 -> 평가자 핀·총평·총점 -> 핀 오버레이 -> v
   await expect(owner.locator('#terms .chip')).toContainText('김하늘'); // 직전 버전 단어 이월
   await owner.locator('#confirm').check();
   await owner.locator('#publish-btn').click();
-  await expect(owner.locator('#publish-msg .msg.ok')).toContainText(/v2.{1,2} 게시했습니다/);
+  await expect(owner.locator('#done-card')).toContainText(/v2.{1,2} 게시했어요/);
 
   const v2Row = await openLatest(owner, 2);
   await expect(v2Row).toContainText('평가 없음');

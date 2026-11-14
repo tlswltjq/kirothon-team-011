@@ -93,12 +93,7 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
 
   // ===== a. 시작 -> 샘플 데이터 -> v1에 남은 샘플 평가 =====
   await page.goto('/');
-  await pause(page, 2);
-  await type(page.locator('#nickname'), '김하늘의 이력서', 120);
-  await pause(page, 0.6);
-  await hclick(page.locator('#start-btn'));
-  await expect(page.locator('#welcome')).toBeVisible();
-  await pause(page, 2);
+  await pause(page, 4);
   await hclick(page.locator('#demo-btn'));
   await expect(page.locator('#resume-list li')).toBeVisible();
   await pause(page, 1.5);
@@ -160,26 +155,27 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
     await imageLoaded(page.locator('#pages img').first());
     await pause(page, 2);
   }
-  await slowScroll(520, 3);
+  // 마지막 쪽 끝까지 내려야 확인 체크를 켤 수 있다(화면 규칙).
+  await page.locator('#pages-end').scrollIntoViewIfNeeded();
   await pause(page, 2.5);
-  await slowScroll(-520, 1.5);
+  await expect(page.locator('#confirm')).toBeEnabled();
   await hclick(page.locator('#confirm'));
   await pause(page, 1);
   await hclick(page.locator('#publish-btn'));
-  await expect(page.locator('#publish-msg .msg.ok')).toBeVisible();
+  await expect(page.locator('#done-card')).toBeVisible();
   await pause(page, 3);
 
   // ===== c. 평가자 시점: 토큰을 지우고 새 닉네임으로 시작 =====
   await page.evaluate(() => localStorage.clear());
   await page.goto('/');
   await pause(page, 1.5);
-  await type(page.locator('#nickname'), '지나가던 평가자', 110);
-  await hclick(page.locator('#start-btn'));
-  await expect(page.locator('#welcome')).toBeVisible();
-  await pause(page, 1);
 
-  // 화면 밖: 평가자가 다른 샘플 이력서를 먼저 평가해 대기열에 요청자 v2만 남긴다.
-  const raterToken = await page.evaluate(() => localStorage.getItem('anonToken'));
+  // 화면 밖: 평가자 토큰을 받아 두고(화면은 첫 진입 때 스스로 받지만 대기열을 미리 줄이려면 필요하다),
+  // 샘플 이력서를 평가해 대기열에 요청자 v2와 샘플 하나만 남긴다.
+  const raterUser = await api.post('/api/users', { data: { nickname: `익명${1000 + Math.floor(Math.random() * 9000)}` } });
+  expect(raterUser.status()).toBe(201);
+  const raterToken = (await raterUser.json()).token;
+  await page.evaluate((t) => localStorage.setItem('anonToken', t), raterToken);
   const H = { 'X-Anon-Token': raterToken };
   const quickReview = async (t) => {
     const score = t.targetRole === '백엔드 개발자' ? 3 : 4;
@@ -190,19 +186,45 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
     });
     expect(res.status()).toBe(201);
   };
-  for (let guard = 0; guard < 20; guard++) {
-    const r = await api.get('/api/review-queue/next', { headers: H });
-    if (r.status() === 204) break;
-    const t = await r.json();
-    if (t.versionNo !== 2) { await quickReview(t); continue; }
-    const r2 = await api.get(`/api/review-queue/next?skip=${t.versionId}`, { headers: H });
-    const t2 = r2.status() === 204 ? t : await r2.json();
-    if (t2.versionId === t.versionId) break; // v2만 남았다
-    await quickReview(t2);
+  // 샘플 하나(keep)와 요청자 v2만 남기고 나머지를 평가한다. 건너뛰기는 한 번에 하나만 제외하므로 둘을 번갈아 제외해 본다.
+  const peek = async (skipId) => {
+    const r = await api.get(`/api/review-queue/next${skipId ? `?skip=${skipId}` : ''}`, { headers: H });
+    return r.status() === 204 ? null : r.json();
+  };
+  let keep = null; let v2Id = null;
+  for (let guard = 0; guard < 30; guard++) {
+    let t = await peek(null);
+    if (!t) break;
+    if (t.versionNo === 2) v2Id = t.versionId; else if (!keep) keep = t.versionId;
+    if (t.versionId === keep || t.versionId === v2Id) {
+      const other = await peek(t.versionId);
+      if (!other) break;
+      if (other.versionNo === 2) v2Id = other.versionId; else if (!keep) keep = other.versionId;
+      if (other.versionId === keep || other.versionId === v2Id) {
+        // 두 건만 보이는지 확인: 어느 쪽을 제외해도 keep/v2만 나오면 끝
+        const third = keep ? await peek(keep) : null;
+        if (!third || third.versionId === v2Id || third.versionId === keep) {
+          const third2 = v2Id ? await peek(v2Id) : null;
+          if (!third2 || third2.versionId === keep || third2.versionId === v2Id) break;
+          t = third2;
+        } else { t = third; }
+      } else { t = other; }
+    }
+    await quickReview(t);
   }
 
-  await hclick(page.locator('.btn', { hasText: '평가하기' }));
+  await page.goto('/');
+  await pause(page, 1.5);
+  await hclick(page.locator('main .big-btn', { hasText: '평가하기' }));
   await expect(page.locator('#review-area')).toBeVisible();
+  // 첫 이력서가 남겨 둔 샘플이면 건너뛰어 요청자 v2로 넘어간다(후보가 둘이면 반드시 다른 쪽이 나온다).
+  for (let i = 0; i < 3 && !(await page.locator('#target-version').textContent()).includes('v2'); i++) {
+    await pause(page, 2);
+    page.once('dialog', (d) => d.accept());
+    await hclick(page.locator('#other-btn'));
+    await expect(page.locator('#review-area')).toBeVisible();
+    await pause(page, 1);
+  }
   await expect(page.locator('#target-version')).toContainText('v2');
   const img = page.locator('#pages img').first();
   await imageLoaded(img);
@@ -234,7 +256,8 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   await hclick(page.locator('input[name=score][value="5"]'));
   await pause(page, 1.5);
   await hclick(page.locator('#submit-btn'));
-  await expect(page.locator('#done-area')).toBeVisible();
+  await expect(page.locator('#done-area .banner')).toBeVisible();
+  await expect(page.locator('#review-area:not(.hidden), #empty-area:not(.hidden)')).toBeVisible(); // 다음 이력서(또는 빈 화면)가 자동으로 뜬다
   await pause(page, 3);
 
   // ===== d. 주인 시점으로 복귀: v2의 새 핀과 총평, 버전별 평균 총점 =====
