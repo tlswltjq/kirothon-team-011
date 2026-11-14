@@ -14,11 +14,13 @@ import dev.kirothon.resume.resume.ResumeViews.ResumeDetail;
 import dev.kirothon.resume.resume.ResumeViews.ResumeSummary;
 import dev.kirothon.resume.resume.ResumeViews.UploadResponse;
 import dev.kirothon.resume.resume.ResumeViews.VersionSummary;
+import dev.kirothon.resume.review.ReviewRepository;
 import dev.kirothon.resume.web.ApiException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -53,19 +55,21 @@ public class ResumeService {
     private final MaskTermRepository terms;
     private final MaskRegionRepository regions;
     private final PageImageRepository images;
+    private final ReviewRepository reviews;
     private final PdfProcessor processor;
     private final MaskRegionFinder finder;
     private final TransactionTemplate tx;
 
     public ResumeService(ResumeRepository resumes, ResumeVersionRepository versions, DraftSourceRepository drafts,
                          MaskTermRepository terms, MaskRegionRepository regions, PageImageRepository images,
-                         PdfProcessor processor, MaskRegionFinder finder, PlatformTransactionManager txManager) {
+                         ReviewRepository reviews, PdfProcessor processor, MaskRegionFinder finder, PlatformTransactionManager txManager) {
         this.resumes = resumes;
         this.versions = versions;
         this.drafts = drafts;
         this.terms = terms;
         this.regions = regions;
         this.images = images;
+        this.reviews = reviews;
         this.processor = processor;
         this.finder = finder;
         this.tx = new TransactionTemplate(txManager);
@@ -147,9 +151,8 @@ public class ResumeService {
         List<ResumeSummary> out = new ArrayList<>();
         for (Resume r : resumes.findByOwnerIdOrderByCreatedAtDesc(ownerId)) {
             ResumeVersion last = lastVersion(r.getId());
-            // 평가 엔티티는 다음 작업에서 추가한다. 그때까지 reviewCount=0.
             out.add(new ResumeSummary(r.getId(), r.getTitle(), r.getTargetRole(),
-                    last == null ? 0 : last.getVersionNo(), 0));
+                    last == null ? 0 : last.getVersionNo(), (int) reviews.countByResume(r.getId())));
         }
         return out;
     }
@@ -157,8 +160,12 @@ public class ResumeService {
     public ResumeDetail detail(UUID ownerId, UUID resumeId) {
         Resume r = owned(ownerId, resumeId);
         List<VersionSummary> list = versions.findByResumeIdOrderByVersionNoAsc(r.getId()).stream()
-                .map(v -> new VersionSummary(v.getVersionNo(), v.getStatus(), v.getPublishedAt(),
-                        v.getPageCount(), 0, null))
+                .map(v -> {
+                    BigDecimal avg = reviews.averageScore(v.getId());
+                    return new VersionSummary(v.getVersionNo(), v.getStatus(), v.getPublishedAt(),
+                            v.getPageCount(), (int) reviews.countByVersion(v.getId()),
+                            avg == null ? null : avg.doubleValue());
+                })
                 .toList();
         return new ResumeDetail(r.getId(), r.getTitle(), r.getTargetRole(), list);
     }
