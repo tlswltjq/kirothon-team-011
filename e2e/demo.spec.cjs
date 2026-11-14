@@ -64,6 +64,17 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
     baseURL: BASE,
   });
   await context.addInitScript(installClickMarker);
+  if (REAL_PDF) {
+    // 실제 이력서 녹화: 가릴 단어 칩에 실명이 그대로 찍히지 않도록 녹화 화면에서만 칩 글자를 흐린다(앱 코드는 그대로).
+    await context.addInitScript(() => {
+      const add = () => {
+        const s = document.createElement('style');
+        s.textContent = '#terms .chip > span{filter:blur(6px);}';
+        document.documentElement.appendChild(s);
+      };
+      if (document.documentElement) add(); else document.addEventListener('DOMContentLoaded', add);
+    });
+  }
   const page = await context.newPage();
   const api = await playwright.request.newContext({ baseURL: BASE });
   const t0 = Date.now();
@@ -133,14 +144,17 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   if (REAL_PDF) {
     // 실제 이력서: 이름이 영상에 남지 않도록 이름 후보 버튼을 항상 눌러 첫 후보를 가릴 단어에 넣는다.
     // DEMO_MASK_TERMS는 그 위에 더하는 단어다.
+    // 이전 버전의 가릴 단어가 이어져 오면 화면은 이름 후보 버튼을 보이지 않는다(가릴 단어 0개일 때만 표시).
     const cand = page.locator('#name-candidate button');
-    await expect(cand.first(), '이름 후보 버튼이 없으면 이름이 가려지지 않는다').toBeVisible();
-    await pause(page, 1.5);
-    await hclick(cand.first());
-    await imageLoaded(page.locator('#pages img').first());
-    await pause(page, 2);
+    if (await cand.count()) {
+      await pause(page, 1.5);
+      await hclick(cand.first());
+      await imageLoaded(page.locator('#pages img').first());
+      await pause(page, 2);
+    }
     const chips = await page.locator('#terms .chip > span').allTextContents();
     extra = MASK_TERMS.filter((t) => !chips.includes(t));
+    expect(chips.length + extra.length, '실제 이력서는 가릴 단어(이름)가 최소 1개 있어야 한다').toBeGreaterThanOrEqual(1);
   }
   for (const t of extra) {
     await type(page.locator('#term'), t, 110);
