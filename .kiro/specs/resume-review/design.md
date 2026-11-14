@@ -101,6 +101,21 @@ sequenceDiagram
 - `OwnerReviewView`: `reviewerLabel`(정수, 버전 안 제출 순서), `totalScore`, `summary`, `createdAt`, `sample`, `pins[{seq, page, x, y, comment}]`. 평가자 id·닉네임·토큰은 없다(1.6, 11.3).
 - 엔티티를 그대로 JSON으로 직렬화하지 않는다.
 
+### 요청·응답 JSON 계약 (병렬 구현용, 2026-11-14 고정)
+화면(작업 9·10)과 API(작업 5~8)는 이 형식을 그대로 쓴다. 모든 요청에 헤더 `X-Anon-Token`. 오류는 `{code, message, fields}`.
+- `POST /api/my/resumes` multipart(`title`, `targetRole`, `file`) → 201 `{resumeId, versionNo, version: OwnerVersionView}`
+- `POST /api/my/resumes/{resumeId}/versions` multipart(`file`) → 201 `{resumeId, versionNo, version: OwnerVersionView}`
+- `GET /api/my/resumes/{resumeId}/versions/{no}` → 200 `OwnerVersionView` + `{versionNo, publishedAt}`
+- `PUT .../mask-terms` `{terms: string[]}` → 200 `OwnerVersionView`
+- `POST .../publish` `{previewHash, confirmed: true}` → 200 `{versionNo, status: "PUBLISHED", publishedAt}`
+- `GET /api/my/resumes` → 200 `[{resumeId, title, targetRole, latestVersionNo, reviewCount}]`
+- `GET /api/my/resumes/{resumeId}` → 200 `{resumeId, title, targetRole, versions: [{versionNo, status, publishedAt, pageCount, reviewCount, averageScore(null 가능)}]}` (추이·증감 필드는 확장 작업 16에서 추가)
+- `GET .../versions/{no}/reviews` → 200 `[OwnerReviewView]`
+- `GET /api/review-queue/next?skip={versionId}` → 200 `ReviewTargetView` 또는 204(후보 없음)
+- `POST /api/versions/{versionId}/reviews` `{totalScore: 1~5, summary, pins: [{page, x, y, comment}]}` → 201 본문 없음
+- 페이지 이미지: 주인 `GET /api/my/resumes/{resumeId}/versions/{no}/pages/{p}`, 평가자 `GET /api/versions/{versionId}/pages/{p}` (p는 1부터) → `image/png`. 화면은 fetch → blob URL로 표시.
+- `status` 값: `DRAFT`, `PUBLISHED`. 날짜는 ISO-8601 UTC 문자열.
+
 ### PdfIngestor (요구사항 2)
 검사 순서와 실패 코드:
 1. 크기: `spring.servlet.multipart.max-file-size=5MB`, `max-request-size=6MB`. `MaxUploadSizeExceededException` → 413 `FILE_TOO_LARGE`.
