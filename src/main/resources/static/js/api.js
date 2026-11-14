@@ -125,7 +125,7 @@ export function showBanner(container, text, kind, ms = 4000) {
   if (!container) return null;
   clearTimeout(bannerTimers.get(container));
   for (const old of container.querySelectorAll(':scope > .banner')) old.remove();
-  const banner = el('div', { text, cls: 'banner' + (kind ? ' ' + kind : ''), attrs: { role: 'status' } });
+  const banner = el('div', { text, cls: 'banner' + (kind ? ' ' + kind : ''), attrs: { role: kind === 'error' ? 'alert' : 'status' } });
   container.insertBefore(banner, container.firstChild);
   bannerTimers.set(container, setTimeout(() => banner.remove(), ms));
   return banner;
@@ -144,5 +144,5 @@ export function el(tag, { text, cls, attrs } = {}, ...children) {
 // 오류를 사용자 문구로.
 export function errorText(err) {
   if (err instanceof ApiError) return err.message || err.code;
-  return '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+  return '서버에 연결하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
 }
