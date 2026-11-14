@@ -18,3 +18,4 @@
 | 2026-11-14T03:14:54Z | 6. 제출 | artifact | https://github.com/tlswltjq/kirothon (kirothon-2026), README.md, docs/KIRO.md | 공개 저장소 게시. 커밋 이메일 noreply로 정리 |
 | 2026-11-14T03:17:21Z | 4. 검증 | spawn_run | 작업 13 Docker 배포 (sonnet-5.5/medium, kiro backend) | 성공: compose up, smoke 통과, 이미지 467MB(fonts-noto-cjk). 업로드 확인은 curl -F가 보안 정책(반출 패턴)에 차단 → E2E로 대체 |
 | 2026-11-14T03:17:21Z | 4. 검증 | review | kiro.sh review 코드 교차 리뷰 1 (gpt-5.6-terra/high) | 높음 5건: 게시-초안 교체 경쟁, 원본 만료 미강제, 페이지 크기 무제한 메모리, 타임아웃 후 스레드 누적(추정), 평가 API 없음(구현 중). 1~4 수정 예정 |
+| 2026-11-14T03:21:55Z | 3. 구현 | spawn_run | 작업 7+8 평가 API (sonnet-5.5/medium, kiro backend) | 성공: 병합 후 테스트 135개 통과(동시 중복 제출·좌표 경계·접근 경계 포함) |
