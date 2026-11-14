@@ -1,4 +1,6 @@
-// 데모 녹화 스크립트(약 1분 40초). RECORD_DEMO=1일 때만 실행한다: e2e/run.sh demo
+// 데모 녹화 스크립트(약 1분 40초). 영상 구조: 랜딩 문제 문구 -> (편집) v2 결과 콜드 오픈 -> 업로드·마스킹·게시 -> 평가자 -> v2 결과로 끝.
+// 콜드 오픈용 구간 시각은 artifacts/demo/segments.env에 기록하고, e2e/to-mp4.sh가 이를 읽어 편집한다.
+// RECORD_DEMO=1일 때만 실행한다: e2e/run.sh demo
 // 한 페이지(한 영상)에서 진행한다. 자막은 없고, 클릭 지점의 원형 표시는 앱 코드가 아니라 addInitScript로 넣는다.
 const path = require('path');
 const fs = require('fs');
@@ -63,6 +65,9 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   await context.addInitScript(installClickMarker);
   const page = await context.newPage();
   const api = await playwright.request.newContext({ baseURL: BASE });
+  const t0 = Date.now();
+  const since = () => ((Date.now() - t0) / 1000).toFixed(2);
+  const seg = {};
 
   /** 커서를 천천히 옮긴 뒤 누른다. */
   async function hclick(locator, opts = {}) {
@@ -91,9 +96,11 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
     }
   }
 
-  // ===== a. 시작 -> 샘플 데이터 -> v1에 남은 샘플 평가 =====
+  // ===== a. 시작: 랜딩의 문제 문구(6~8초) -> 샘플 데이터 -> v1 평가 결과 =====
   await page.goto('/');
-  await pause(page, 4);
+  await expect(page.locator('.problem')).toBeVisible();
+  await pause(page, 10);
+  seg.PROBLEM_END = since();
   await hclick(page.locator('#demo-btn'));
   await expect(page.locator('#resume-list li')).toBeVisible();
   await pause(page, 1.5);
@@ -106,15 +113,9 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   await expect(page.locator('.my-page .my-pin').first()).toBeVisible();
   await imageLoaded(page.locator('.my-page img').first());
   await pause(page, 3);
-  await slowScroll(260, 3);
-  await hclick(page.locator('.my-pinitem').first());
-  await pause(page, 3);
-  await hclick(page.locator('.my-pinitem').nth(2));
-  await pause(page, 3);
-  await slowScroll(-260, 1.5);
-  await pause(page, 2);
 
   // ===== b. 새 버전 올리기: v2 업로드 -> 마스킹 미리보기 -> 단어 추가 -> 게시 =====
+  seg.BODY_START = since(); // 편집 시 v1 확인 장면은 건너뛰고 여기부터 이어 붙인다
   await hclick(page.locator('#new-version-link'));
   await expect(page.locator('#upload-btn')).toBeVisible();
   await pause(page, 1.5);
@@ -274,20 +275,22 @@ test('데모 녹화: 샘플 -> 새 버전 게시 -> 평가자 시점 -> 주인 �
   await expect(page.locator('.my-page .my-pin').first()).toBeVisible();
   await imageLoaded(page.locator('.my-page img').first());
   await pause(page, 3);
+  seg.RESULT_START = since(); // 콜드 오픈에 쓸 v2 결과 구간의 시작
   await hclick(page.locator('.my-pinitem').first());
   await pause(page, 3);
-  await slowScroll(300, 2);
-  await pause(page, 2);
-  await slowScroll(-300, 1);
-  await hclick(page.locator('#version-list li[data-no="1"]').getByRole('button', { name: '평가 보기' }));
-  await expect(page.locator('#detail-title')).toContainText('v1');
-  await pause(page, 4);
-  await page.locator('#version-list').scrollIntoViewIfNeeded();
-  await pause(page, 4);
+  // 마지막 장면: 추이 카드(v1 -> v2, 증감 배지)와 v2 상세가 한 화면에 보이게 4초 이상 멈춘다. v1은 다시 열지 않는다.
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  await pause(page, 1);
+  await expect(page.locator('#trend-card')).toBeVisible();
+  await expect(page.locator('#detail-title')).toContainText('v2');
+  await expect(page.locator('.my-page .my-pin').first()).toBeVisible();
+  await pause(page, 6);
+  seg.RESULT_END = since();
 
   const video = page.video();
   await context.close();
   const dest = path.join(OUT, 'demo.webm');
   await video.saveAs(dest);
+  fs.writeFileSync(path.join(OUT, 'segments.env'), Object.entries(seg).map(([k, v]) => `${k}=${v}`).join('\n') + '\n');
   console.log(`DEMO_VIDEO ${dest} ${fs.statSync(dest).size}`);
 });
