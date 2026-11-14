@@ -1,5 +1,6 @@
 package dev.kirothon.resume.web;
 
+import dev.kirothon.resume.pdf.PdfTypes.PdfRejectedException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -41,6 +42,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> tooLarge(MaxUploadSizeExceededException e) {
         return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
                 .body(ApiError.of("FILE_TOO_LARGE", "파일은 5MB 이하여야 합니다."));
+    }
+
+    @ExceptionHandler(PdfRejectedException.class)
+    public ResponseEntity<ApiError> pdfRejected(PdfRejectedException e) {
+        return ResponseEntity.status(e.status()).body(ApiError.of(e.code(), e.getMessage()));
     }
 
     @ExceptionHandler({NoResourceFoundException.class, NoHandlerFoundException.class})
