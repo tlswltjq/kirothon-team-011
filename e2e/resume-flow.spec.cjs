@@ -78,6 +78,13 @@ test('주인 v1 게시 -> 평가자 핀·총평·총점 -> 핀 오버레이 -> v
   await expect(owner.locator('#unmatched .msg')).toHaveCount(0);
   await imageLoaded(owner.locator('#pages img').first());
   await shot(owner, '01-owner-v1-masked-preview');
+  // 375px: 미리보기와 게시 바가 열린 업로드 화면에도 가로 넘침이 없다
+  await owner.setViewportSize({ width: 375, height: 800 });
+  {
+    const w = await owner.evaluate(() => ({ s: document.documentElement.scrollWidth, c: document.documentElement.clientWidth }));
+    expect(w.s, '업로드(미리보기 열림) 가로 넘침').toBeLessThanOrEqual(w.c);
+  }
+  await owner.setViewportSize({ width: 1280, height: 1000 });
   await owner.locator('#pages-end').scrollIntoViewIfNeeded();
   await expect(owner.locator('#confirm')).toBeEnabled();
   await owner.locator('#confirm').check();

@@ -161,6 +161,7 @@ function buildPages() {
 }
 
 function clamp01(n) {
+  if (!Number.isFinite(n)) return n;
   return Math.min(1, Math.max(0, n));
 }
 
@@ -187,8 +188,10 @@ function pct(n) {
 function movePin(idx, x, y) {
   const pin = state.pins[idx];
   if (!pin) return;
-  pin.x = clamp01(x);
-  pin.y = clamp01(y);
+  const nx = clamp01(x);
+  const ny = clamp01(y);
+  if (Number.isFinite(nx)) pin.x = nx;
+  if (Number.isFinite(ny)) pin.y = ny;
   const marker = document.querySelector(`.page-wrap .pin[data-idx="${idx}"]`);
   if (marker) {
     marker.style.left = `${pin.x * 100}%`;
@@ -262,16 +265,28 @@ function renderPins() {
       const input = el('input', { attrs: { type: 'number', id, min: '0', max: '100', step: '1', inputmode: 'numeric',
         'aria-label': `핀 ${idx + 1} ${label} 위치(0~100%)` } });
       input.value = String(pct(pin[axis]));
+      const errId = `pin-${axis}-err-${idx}`;
+      input.setAttribute('aria-describedby', errId);
       input.addEventListener('change', () => {
-        const v = Number(input.value);
-        const n = Number.isFinite(v) ? v / 100 : pin[axis];
+        const raw = input.value.trim();
+        const v = Number(raw);
+        const err = document.getElementById(errId);
+        if (raw === '' || !Number.isFinite(v) || v < 0 || v > 100) {
+          err.textContent = '0~100 사이 숫자를 입력해 주세요';
+          input.setAttribute('aria-invalid', 'true');
+          return;
+        }
+        err.textContent = '';
+        input.removeAttribute('aria-invalid');
+        const n = v / 100;
         movePin(idx, axis === 'x' ? n : pin.x, axis === 'y' ? n : pin.y);
         announce(`핀 ${idx + 1}, ${pct(pin.x)}%, ${pct(pin.y)}%`);
       });
       return el('label', { cls: 'pos-field', attrs: { for: id } }, el('span', { text: `${axis.toUpperCase()}(%)` }), input);
     };
+    const posError = (axis) => el('div', { cls: 'field-error', attrs: { id: `pin-${axis}-err-${idx}` } });
     const count = el('span', { text: `${pin.comment.length} / 500`, cls: 'muted' });
-    const ta = el('textarea', { attrs: { maxlength: '500', 'aria-label': `핀 ${idx + 1} 코멘트`,
+    const ta = el('textarea', { attrs: { maxlength: '500', 'aria-label': `핀 ${idx + 1} 코멘트`, 'aria-describedby': `pin-err-${idx}`,
       placeholder: '이 위치에 대한 코멘트 (예: 성과에 숫자를 넣어 보세요)' } });
     ta.value = pin.comment;
     ta.addEventListener('input', () => {
@@ -284,7 +299,8 @@ function renderPins() {
         el('span', {}, el('span', { text: String(idx + 1), cls: 'pin', attrs: { 'aria-hidden': 'true' } }), el('span', { text: `${pin.page}쪽` })),
         del),
       el('div', { cls: 'pos-row' }, posField('x', '가로'), posField('y', '세로')),
-      ta, count, el('div', { cls: 'field-error pin-err' })));
+      posError('x'), posError('y'),
+      ta, count, el('div', { cls: 'field-error pin-err', attrs: { id: `pin-err-${idx}` } })));
   });
   $('pin-count').textContent = `(${state.pins.length} / ${MAX_PINS})`;
   $('pin-empty').classList.toggle('hidden', state.pins.length > 0);
@@ -302,27 +318,36 @@ $('review-form').addEventListener('submit', async (e) => {
   clearErrors();
   for (const n of document.querySelectorAll('.pin-err')) n.textContent = '';
   let first = null;
+  const problems = [];
   const summary = $('summary').value.trim();
   if (summary.length < MIN_SUMMARY || summary.length > 1000) {
     $('summary-error').textContent = '총평을 20자 이상 써 주세요. 앞뒤 공백은 세지 않아요.';
     first = first || $('summary');
+    problems.push('총평');
   }
   const checked = document.querySelector('input[name=score]:checked');
   if (!checked) {
     $('score-error').textContent = '총점을 1~5 중에서 골라 주세요.';
     first = first || $('score');
+    problems.push('총점');
   }
+  const badPins = [];
+  let firstPinTa = null;
   state.pins.forEach((pin, idx) => {
     const c = pin.comment.trim();
     if (c.length < 1 || c.length > 500) {
       const item = document.querySelector(`#pin-list .pin-item[data-idx="${idx}"]`);
       const slot = item && item.querySelector('.pin-err');
       if (slot) slot.textContent = `핀 ${idx + 1}의 코멘트를 1~500자로 써 주세요.`;
-      first = first || item;
+      badPins.push(idx + 1);
+      const t = item && item.querySelector('textarea');
+      if (!firstPinTa) firstPinTa = t || item;
     }
   });
+  if (badPins.length) problems.push(`핀 ${badPins.join(', ')} 코멘트`);
+  if (!first) first = firstPinTa;
   if (first) {
-    $('form-error').appendChild(el('div', { text: '입력한 내용을 확인해 주세요. 빠진 곳을 표시했어요.', cls: 'msg error' }));
+    $('form-error').appendChild(el('div', { text: `입력한 내용을 확인해 주세요: ${problems.join(', ')}`, cls: 'msg error' }));
     if (typeof first.focus === 'function') first.focus({ preventScroll: true });
     firstScroll(first);
     return;
@@ -375,7 +400,13 @@ $('review-form').addEventListener('submit', async (e) => {
           rest.push(text);
         }
       }
-      $('form-error').appendChild(el('div', { text: rest.length ? `입력한 내용을 확인해 주세요. ${rest.join(' / ')}` : '입력한 내용을 확인해 주세요.', cls: 'msg error' }));
+      const names = [];
+      if (f.summary) names.push('총평');
+      if (f.totalScore) names.push('총점');
+      const pinNos = [...new Set(Object.keys(f).map((k) => /^pins\[(\d+)\]/.exec(k)).filter(Boolean).map((m) => Number(m[1]) + 1))];
+      if (pinNos.length) names.push(`핀 ${pinNos.join(', ')} 코멘트`);
+      const head = names.length ? `입력한 내용을 확인해 주세요: ${names.join(', ')}` : '입력한 내용을 확인해 주세요.';
+      $('form-error').appendChild(el('div', { text: rest.length ? `${head} ${rest.join(' / ')}` : head, cls: 'msg error' }));
       if (focus) {
         if (typeof focus.focus === 'function') focus.focus({ preventScroll: true });
         firstScroll(focus);

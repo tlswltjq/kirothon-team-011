@@ -52,7 +52,7 @@
             <label for="summary">총평 (20자 이상)</label>
             <textarea id="summary" maxlength="1000" aria-describedby="summary-len summary-error" placeholder="가장 먼저 고칠 점과 좋았던 점을 한두 문장으로 남겨 주세요."></textarea>
             <div id="summary-len" class="counter short" aria-live="polite">0 / 20자 이상</div>
-            <div id="summary-error" class="field-error" role="alert"></div>
+            <div id="summary-error" class="field-error"></div>
             <label id="score-label">총점 (1~5)</label>
             <div class="score" id="score" role="radiogroup" aria-labelledby="score-label" aria-describedby="score-error">
               <label><input type="radio" name="score" value="1"> 1</label>
@@ -62,7 +62,7 @@
               <label><input type="radio" name="score" value="5"> 5</label>
             </div>
             <p class="muted score-hint">1 많이 고쳐야 해요 · 5 바로 지원해도 돼요</p>
-            <div id="score-error" class="field-error" role="alert"></div>
+            <div id="score-error" class="field-error"></div>
             <div id="form-error" role="alert"></div>
             <p class="muted submit-note">보내면 수정할 수 없어요. 평가자 이름은 공개되지 않아요.</p>
             <div class="sticky-bar"><button type="submit" id="submit-btn" class="big-btn">평가 보내고 다음 이력서 보기</button></div>

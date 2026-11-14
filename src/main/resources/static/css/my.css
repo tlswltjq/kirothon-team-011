@@ -47,7 +47,7 @@ body { font-size: 16px; }
 .my-delta.down { background: var(--err); }
 .my-chart { width: 100%; }
 .my-chart svg { width: 100%; height: auto; display: block; }
-.my-grid { stroke: #6b6880; stroke-opacity: .6; stroke-width: 1; }
+.my-grid { stroke: #8a86a0; stroke-width: 1; }
 .my-axis { fill: var(--purple-glow); font-size: 12px; }
 .my-line { stroke: var(--purple-glow); stroke-width: 3; fill: none; }
 .my-dot { fill: var(--purple); stroke: var(--white); stroke-width: 1.5; }
