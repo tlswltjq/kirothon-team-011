@@ -1,20 +1,43 @@
-.landing { text-align: center; padding-top: 24px; }
-.landing .problem { color: var(--muted); font-size: 15px; margin: 0 0 8px; }
-.landing h1 { margin: 0 0 12px; }
-.landing .value { font-size: 18px; margin: 0 0 28px; }
-.landing .cta { display: flex; gap: 16px; justify-content: center; margin-bottom: 20px; }
-.landing .big-btn { flex: 1 1 0; max-width: 300px; min-height: 64px; box-sizing: border-box;
+main.landing { max-width: none; padding: 0 0 60px; }
+.landing .hero { background: var(--ink); color: var(--white);
+  background-image: radial-gradient(60% 80% at 80% 20%, var(--purple) 0%, transparent 70%),
+    radial-gradient(40% 60% at 10% 100%, var(--purple-dark) 0%, transparent 70%);
+  display: flex; align-items: center; justify-content: center; gap: 48px; padding: 56px 24px 64px; }
+.landing .hero-text { max-width: 520px; text-align: left; }
+.landing .problem { color: var(--purple-glow); font-size: 15px; margin: 0 0 12px; }
+.landing h1 { margin: 0 0 16px; font-size: 44px; line-height: 1.25; color: var(--white); }
+.landing .redact { background: var(--ink-2); box-shadow: 0 0 0 2px var(--purple-glow); padding: 0 8px; margin-right: 2px; border-radius: 4px; }
+.landing .value { font-size: 18px; margin: 0 0 28px; color: var(--white); }
+.landing .cta { display: flex; gap: 16px; margin-bottom: 20px; }
+.landing .big-btn { flex: 1 1 0; max-width: 240px; min-height: 64px; box-sizing: border-box;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  padding: 14px 16px; border-radius: 10px; background: var(--primary); color: #fff;
-  border: 1px solid var(--primary); text-decoration: none; }
-.landing .big-btn:hover { background: var(--primary-dark); }
+  padding: 14px 16px; border-radius: 12px; text-decoration: none; color: var(--white); }
+.landing .big-btn.primary { background: var(--purple); border: 2px solid var(--purple); }
+.landing .big-btn.primary:hover { background: var(--purple-dark); border-color: var(--purple-dark); }
+.landing .big-btn.outline { background: transparent; border: 2px solid var(--white); }
+.landing .big-btn.outline:hover { background: var(--white); color: var(--ink); }
+.landing .big-btn:focus-visible { outline: 2px solid var(--purple-glow); outline-offset: 3px; }
 .landing .big-btn strong { font-size: 20px; font-weight: 700; }
-.landing .big-btn small { font-size: 13px; font-weight: 400; opacity: .9; }
-.landing .assure { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
-.landing .revisit { margin: 0 0 16px; }
-.landing .demo { margin-top: 32px; }
+.landing .big-btn small { font-size: 13px; font-weight: 400; }
+.landing .revisit { margin: 0; }
+.landing .revisit a { color: var(--purple-glow); }
+.landing .hero-art { width: 300px; height: auto; flex: none; }
+.landing .steps { max-width: 960px; margin: 0 auto; padding: 40px 16px 0; text-align: center; }
+.landing .steps ol { list-style: none; margin: 0 0 24px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.landing .steps .card { border-radius: 12px; box-shadow: 0 4px 16px var(--purple-soft); margin: 0; text-align: left; }
+.landing .step-no { display: inline-block; min-width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%;
+  background: var(--purple); color: var(--white); font-weight: 700; }
+.landing .steps h2 { margin: 10px 0 6px; font-size: 18px; color: var(--ink); }
+.landing .steps p { margin: 0; font-size: 14px; color: var(--muted); }
+.landing .steps .assure { color: var(--muted); font-size: 14px; margin: 0; }
+.landing .assure::before { content: ""; display: block; width: 40px; height: 6px; background: var(--ink); border-radius: 2px; margin: 0 auto 12px; }
+.landing .demo { margin-top: 32px; text-align: center; }
 .landing .demo button { font-size: 13px; padding: 6px 12px; }
-@media (max-width: 600px) {
+@media (max-width: 760px) {
+  .landing .hero { flex-direction: column; padding: 36px 16px 44px; gap: 28px; }
+  .landing h1 { font-size: 32px; }
   .landing .cta { flex-direction: column; align-items: stretch; }
-  .landing .big-btn { max-width: none; min-height: 64px; }
+  .landing .big-btn { max-width: none; }
+  .landing .hero-art { width: 220px; }
+  .landing .steps ol { grid-template-columns: 1fr; }
 }
