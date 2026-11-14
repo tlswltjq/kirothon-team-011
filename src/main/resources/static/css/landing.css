@@ -1,0 +1,20 @@
+.landing { text-align: center; padding-top: 24px; }
+.landing .problem { color: var(--muted); font-size: 15px; margin: 0 0 8px; }
+.landing h1 { margin: 0 0 12px; }
+.landing .value { font-size: 18px; margin: 0 0 28px; }
+.landing .cta { display: flex; gap: 16px; justify-content: center; margin-bottom: 20px; }
+.landing .big-btn { flex: 1 1 0; max-width: 300px; min-height: 64px; box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  padding: 14px 16px; border-radius: 10px; background: var(--primary); color: #fff;
+  border: 1px solid var(--primary); text-decoration: none; }
+.landing .big-btn:hover { background: var(--primary-dark); }
+.landing .big-btn strong { font-size: 20px; font-weight: 700; }
+.landing .big-btn small { font-size: 13px; font-weight: 400; opacity: .9; }
+.landing .assure { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.landing .revisit { margin: 0 0 16px; }
+.landing .demo { margin-top: 32px; }
+.landing .demo button { font-size: 13px; padding: 6px 12px; }
+@media (max-width: 600px) {
+  .landing .cta { flex-direction: column; align-items: stretch; }
+  .landing .big-btn { max-width: none; min-height: 64px; }
+}
