@@ -45,12 +45,21 @@
 | 페이지를 PNG(150DPI)로 렌더링하고 검은 박스 칠하기, 픽셀 검증 | 문제 2: 디자인은 그대로, 텍스트 복사로도 개인정보가 새지 않음 | `src/main/java/dev/kirothon/resume/pdf/PageRenderer.java` |
 | 마스킹 미리보기 확인 후에만 게시, 게시하면 원본 PDF 삭제 | 문제 1: 공개 전에 직접 확인, 원본 유출 위험 축소 | `src/main/java/dev/kirothon/resume/resume/ResumeService.java`, `MyResumeController.java` |
 | 회원가입 없는 익명 토큰 | 문제 1: 이름을 드러내지 않고 참여 | `src/main/java/dev/kirothon/resume/security/AnonTokenFilter.java`, `user/UserController.java` |
-| 무작위 평가 대상과 첨삭 핀(페이지 위 클릭 위치) + 총평·총점(1~5) | 문제 1: 지인이 아닌 다수의 평가, 위치를 짚는 구체적 피드백 | `src/main/java/dev/kirothon/resume/review/ReviewService.java`, `ReviewController.java`, `src/main/resources/static/js/review.js` |
+| 무작위 평가 대상과 첨삭 핀(페이지 위 클릭 위치) + 총평·총점(1~5) | 문제 1: 지인 밖의 모르는 평가자에게 받는 평가(평가자 풀 규모는 미검증), 위치를 짚는 구체적 피드백 | `src/main/java/dev/kirothon/resume/review/ReviewService.java`, `ReviewController.java`, `src/main/resources/static/js/review.js` |
 | 버전별 평가 모아 보기: 핀 오버레이, 총평·총점 목록, 평균 총점 | 문제 3: 흩어진 피드백을 버전에 붙여 비교 | `src/main/java/dev/kirothon/resume/review/OwnerReviewController.java`, `src/main/resources/static/js/my.js` |
+
+### 화면 (가상 인물 샘플 이력서로 촬영)
+
+| 화면 | 설명 |
+|---|---|
+| ![마스킹 미리보기](docs/images/01-mask-preview.png) | 1. 평가받기: 이메일·전화·링크·사진이 자동으로 검게 가려지고, 이름은 지정한 단어로 가린 미리보기 |
+| ![평가하기](docs/images/02-review-pins.png) | 2. 평가하기: 이미지 위에 핀 2개를 꽂고 총평·총점(1~5)을 입력. 키보드는 '핀 추가' 버튼과 X·Y 칸으로 위치를 지정 |
+| ![내 이력서](docs/images/03-my-resume-pins.png) | 3. 내 이력서: 받은 핀을 페이지 위에 겹쳐 보고, 핀별 코멘트와 총평·총점을 모아 봄 |
+| ![버전 점수 추이](docs/images/04-version-trend.png) | 4. 버전 점수 추이: v1 평균 2.67점 → v2 5.00점. '데모용 샘플 데이터' 버튼과 시연 평가로 만든 값이며 실제 사용자 평가가 아님 |
 
 ## 3. 사용 시나리오
 
-1. 회원가입이나 이름 입력 없이 시작한다. 평가받기·평가하기 화면에 들어가면 익명 토큰이 자동 발급된다.
+1. 회원가입이나 이름 입력 없이 시작한다. 첫 화면의 '평가받기'·'평가하기' 두 버튼 중 하나를 누르면 익명 토큰이 자동 발급된다.
 2. 이력서 PDF를 올리면 이메일·전화·URL·사진이 자동으로 검게 가려진 페이지 미리보기가 나온다. 이름·회사·학교를 가릴 단어로 추가하면 미리보기가 다시 만들어진다.
 3. 마스킹을 확인했다고 체크하고 게시한다. 원본 PDF는 이때 서버에서 지워진다.
 4. 다른 사용자가 '평가하기'에서 무작위로 받은 이력서 이미지 위를 클릭해 첨삭 핀을 남기고, 총평과 총점(1~5)을 제출한다.
@@ -99,7 +108,7 @@ docker compose -p kirothon up -d --build
 ## 7. 테스트
 
 ```bash
-./gradlew test          # JUnit 단위·HTTP 통합 테스트 (PDF 추출, 마스킹 영역, 렌더링 픽셀, 업로드·게시, 평가 API, 접근 경계, 동시성)
+./gradlew test          # 테스트 150개: JUnit 단위·HTTP 통합 테스트 (PDF 추출, 마스킹 영역, 렌더링 픽셀, 업로드·게시, 평가 API, 접근 경계, 동시성)
 python3 -B -m unittest discover -s tests   # 개발 도구(scripts/) 테스트
 ```
 
