@@ -22,7 +22,7 @@ $('demo-btn').addEventListener('click', async () => {
   const btn = $('demo-btn');
   msg.replaceChildren();
   btn.disabled = true;
-  btn.textContent = '넣는 중…';
+  btn.textContent = '넣는 중이에요…';
   try {
     await ensureAnon();
     await api('/api/demo/seed', { method: 'POST' });
@@ -32,9 +32,9 @@ $('demo-btn').addEventListener('click', async () => {
     btn.textContent = '데모용 샘플 데이터 넣기';
     if (err instanceof ApiError && (err.status === 409 || err.code === 'DEMO_ALREADY_SEEDED')) {
       msg.appendChild(el('div', { text: '이미 샘플 데이터를 넣었어요. ', cls: 'msg warn' },
-        el('a', { text: '내 이력서 보기', attrs: { href: '/my.html' } })));
+        el('a', { text: '샘플 보러 가기', attrs: { href: '/my.html' } })));
     } else {
-      msg.appendChild(el('div', { text: '연결에 실패했어요. 잠시 후 다시 눌러 주세요.', cls: 'msg error' }));
+      msg.appendChild(el('div', { text: '서버에 연결하지 못했어요. 잠시 뒤 다시 눌러 주세요.', cls: 'msg error' }));
     }
   }
 });
