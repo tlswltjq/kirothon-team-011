@@ -5,8 +5,10 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface ReviewRepository extends JpaRepository<Review, UUID> {
     boolean existsByVersionIdAndReviewerId(UUID versionId, UUID reviewerId);
@@ -29,6 +31,11 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     @Query("select count(rv) from Review rv where rv.versionId in "
             + "(select v.id from ResumeVersion v where v.resumeId = :resumeId)")
     long countByResume(@Param("resumeId") UUID resumeId);
+
+    @Transactional
+    @Modifying
+    @Query("update Review rv set rv.sample = true where rv.versionId = :versionId and rv.reviewerId = :reviewerId")
+    int markSample(@Param("versionId") UUID versionId, @Param("reviewerId") UUID reviewerId);
 
     /** 평균 총점(소수 둘째 자리 HALF_UP). 평가 0개면 null. */
     default BigDecimal averageScore(UUID versionId) {

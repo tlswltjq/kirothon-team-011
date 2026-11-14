@@ -6,8 +6,10 @@ import jakarta.persistence.LockModeType;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface ResumeRepository extends JpaRepository<Resume, UUID> {
     Optional<Resume> findByIdAndOwnerId(UUID id, UUID ownerId);
@@ -18,4 +20,11 @@ public interface ResumeRepository extends JpaRepository<Resume, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from Resume r where r.id = :id")
     Optional<Resume> findByIdForUpdate(@Param("id") UUID id);
+
+    boolean existsByOwnerIdAndSampleTrue(UUID ownerId);
+
+    @Transactional
+    @Modifying
+    @Query("update Resume r set r.sample = true where r.id = :id")
+    int markSample(@Param("id") UUID id);
 }

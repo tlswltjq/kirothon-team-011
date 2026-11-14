@@ -19,6 +19,7 @@
 .my-pagelabel { line-height: 1.4; font-size: 12px; color: #555; margin: 0 0 2px; }
 .my-pin { position: absolute; transform: translate(-50%, -50%); min-width: 22px; height: 22px; padding: 0 4px; box-sizing: border-box; border-radius: 11px; border: 2px solid #fff; color: #fff; font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; box-shadow: 0 0 2px rgba(0,0,0,.6); }
 .my-pin.my-pin-active { transform: translate(-50%, -50%) scale(1.5); z-index: 5; outline: 3px solid #000; }
+.my-pinitem, .my-pinitem:hover { color: #222; }
 .my-pinitem { display: block; width: 100%; text-align: left; padding: 6px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer; font: inherit; }
 .my-pinitem.my-pin-active { border-color: #000; background: #fffbe0; }
 .my-pinitem .my-chip { display: inline-block; min-width: 22px; padding: 0 6px; border-radius: 11px; color: #fff; font-size: 12px; text-align: center; margin-right: 6px; }
