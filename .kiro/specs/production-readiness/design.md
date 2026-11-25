@@ -23,4 +23,5 @@
 - 마이그레이션: Flyway(Spring Boot 기본 지원, SQL 파일로 리뷰 쉬움). Liquibase보다 단순.
 - Rate limit: 외부 의존성 없이 IP별 고정 창(분 단위) 카운터를 `ConcurrentHashMap`으로 구현하거나 Bucket4j. 단일 인스턴스 기준이며 다중 인스턴스는 리버스 프록시 한도로 보완한다고 DEPLOY.md에 적는다. 클라이언트 IP는 `server.forward-headers-strategy=native` 설정 시 프록시 헤더를 신뢰한다(prod만).
 - 로그: Spring Boot 내장 구조화 로그(`logging.structured.format.console=ecs`).
+- 기존 H2 데이터(교차 리뷰 R1, 2026-11-25 사용자 확정 A): Flyway 도입 전 `ddl-auto=update`로 만든 H2 파일 DB는 이전하지 않는다. 해커톤 데모 데이터뿐이라 버리고 새로 시작하며, 절차는 DEPLOY.md 1.4에 둔다. 이전 도구는 만들지 않는다.
 - 이미지: 빌드 스테이지 `eclipse-temurin:21-jdk`, 실행 스테이지 기존 JRE digest 유지, `fonts-noto-cjk` 유지.
