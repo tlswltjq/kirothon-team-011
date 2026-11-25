@@ -1,0 +1,80 @@
+# 운영 배포: PostgreSQL + 앱. 호스트 공개는 127.0.0.1에만 한다(앞단 리버스 프록시가 TLS 종료).
+# 실행: docker compose -f compose.prod.yaml --env-file .env up -d --build
+# 비밀은 .env(커밋 금지)에서 받는다. 예시는 .env.example.
+name: resume-review
+services:
+  db:
+    # postgres:16, 2026-11-25 pull 기준 멀티 아키텍처 digest
+    image: postgres:16@sha256:07abc3f43c9395b0bdbbab36bc25ddb0e8d83cd4fcafb5fb7d6abe14ff156dd8
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # 포트를 공개하지 않는다. app만 내부 네트워크로 접근한다.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    security_opt: ["no-new-privileges:true"]
+    shm_size: 128m
+    mem_limit: 512m
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+    image: ${APP_IMAGE:-resume-review:prod}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_ADDRESS: "0.0.0.0"
+      SERVER_PORT: "18080"
+      MANAGEMENT_PORT: ${MANAGEMENT_PORT:-18081}
+      # 컨테이너 안에서는 모든 인터페이스에 바인딩해야 호스트 포트 매핑이 닿는다. 호스트 공개는 아래 ports에서 127.0.0.1만.
+      MANAGEMENT_ADDRESS: "0.0.0.0"
+      # 127.0.0.1로 공개한 포트는 docker-proxy가 이 네트워크의 게이트웨이 주소에서 접속한다.
+      # X-Forwarded-For는 그 주소(=호스트의 리버스 프록시)에서 온 것만 믿는다.
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-172\.30\.0\.1}
+      DATA_DIR: /data
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:?POSTGRES_DB is required}
+      DB_USERNAME: ${POSTGRES_USER:?POSTGRES_USER is required}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
+      RATE_LIMIT_USERS_PER_MIN: ${RATE_LIMIT_USERS_PER_MIN:-10}
+      RATE_LIMIT_UPLOADS_PER_MIN: ${RATE_LIMIT_UPLOADS_PER_MIN:-20}
+      HEALTHCHECK_URL: http://127.0.0.1:${MANAGEMENT_PORT:-18081}/actuator/health/readiness
+    ports:
+      # 호스트 loopback에만 공개. 관리 포트는 내부 모니터링 전용(리버스 프록시로 노출하지 않음).
+      - "127.0.0.1:18080:18080"
+      - "127.0.0.1:${MANAGEMENT_PORT:-18081}:${MANAGEMENT_PORT:-18081}"
+    volumes:
+      # DATA_DIR(파일 데이터)
+      - appdata:/data
+    read_only: true
+    tmpfs:
+      - /tmp:uid=10001,gid=10001,mode=1770
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 768m
+    cpus: 1.0
+    pids_limit: 256
+    stop_grace_period: 40s
+    restart: unless-stopped
+
+networks:
+  default:
+    ipam:
+      config:
+        # 호스트의 다른 Docker 네트워크·VPN과 겹치면 바꾼다. 바꾸면 TRUSTED_PROXIES도 같은 게이트웨이로 맞춘다.
+        - subnet: ${APP_SUBNET:-172.30.0.0/24}
+          gateway: ${APP_GATEWAY:-172.30.0.1}
+
+volumes:
+  pgdata:
+  appdata:

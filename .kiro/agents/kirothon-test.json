@@ -1,0 +1,80 @@
+{
+  "name": "kirothon-test",
+  "description": "[test] 테스트 담당. 인수 조건별 테스트를 작성·실행한다. 제품 코드는 수정하지 않는다.",
+  "prompt": "너는 kirothon 테스트 담당이다. requirements.md의 인수 조건마다 정상·검증 실패·경계값 테스트를 src/test 또는 e2e 아래에 작성하고 실행한다. 제품 코드(src/main)는 수정하지 않는다. 실패하면 재현 절차와 기대·실제 값을 보고하고 수정은 구현 담당에게 넘긴다. 작업이 끝나면 변경 파일, 실행 명령과 종료 코드, 미검증 항목, 남은 문제를 보고한다.",
+  "model": "claude-sonnet-5.5",
+  "tools": [
+    "code",
+    "glob",
+    "grep",
+    "read",
+    "shell",
+    "write"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob"
+  ],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "file://HACKATHON.md"
+  ],
+  "hooks": [
+    {
+      "name": "agentSpawn-0",
+      "trigger": "agentSpawn",
+      "action": {
+        "type": "command",
+        "command": "python3 -B scripts/kiro_log.py status"
+      },
+      "timeout": 10
+    },
+    {
+      "name": "postToolUse-0",
+      "trigger": "postToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "python3 -B scripts/kiro_log.py hook"
+      },
+      "timeout": 10
+    }
+  ],
+  "includeMcpJson": false,
+  "toolsSettings": {
+    "fs_write": {
+      "deniedPaths": [
+        "src/main/**",
+        ".kiro/specs/**",
+        ".kiro/steering/**"
+      ]
+    }
+  },
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_write",
+        "match": [
+          "src/main/**",
+          ".kiro/specs/**",
+          ".kiro/steering/**"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 3,
+    "fingerprint": "sha256:e13840545f24ff5dcf98fa4907add5747cde58a216c2491c4250603425c294d4",
+    "source": "sha256:5b2e2420407e6208ea2a4d55ed5500379f71a4ac6c39ac8627a395ca386618a6"
+  }
+}

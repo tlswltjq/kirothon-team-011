@@ -1,23 +1,43 @@
-# 의존성
-node_modules/
-.venv/
-venv/
-__pycache__/
-*.pyc
-
-# 빌드 결과
-dist/
-build/
-.next/
-out/
-
-# 비밀 정보 — 절대 커밋하지 마세요
 .env
 .env.*
 !.env.example
+.gradle/
+build/
+out/
+.idea/
+*.iml
+*.log
+
+# Local Python checks and private key material
+__pycache__/
+*.py[cod]
+.venv/
 *.pem
 *.key
+*.p12
+*.pfx
 
-# 기타
+# Embedded local database
+data/
+
+# Browser dependencies and generated evidence
+node_modules/
+artifacts/
+test-results/
+playwright-report/
+
+# Kiro 리뷰 입력과 hook 로그(로컬 전용)
+.kiro/review/
+!.kiro/evidence/*.log
+
+# 템플릿(kirothon-starter) 항목
 .DS_Store
-*.log
+dist/
+.next/
+venv/
+
+# 실제 이력서(개인정보) — 공개 저장소에 절대 커밋하지 않는다
+demo-private/
+
+# 병렬 작업용 git worktree
+.worktrees/

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>이게 다 너 잘되라고 하는 소리야 - team-011 취업하자</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Noto Sans CJK KR", "Noto Sans KR", sans-serif; color: #1f2933; background: #fff; }
+  .slide { width: 1280px; height: 720px; padding: 64px 80px; position: relative; overflow: hidden; page-break-after: always; break-after: page; background: #ffffff; }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .dark { background: #1d3557; color: #f1faee; }
+  h1 { font-size: 54px; margin: 0 0 16px; line-height: 1.2; }
+  h2 { font-size: 38px; margin: 0 0 28px; color: #1d3557; }
+  .dark h2 { color: #f1faee; }
+  p, li, td, th { font-size: 23px; line-height: 1.55; }
+  ul { margin: 0; padding-left: 28px; }
+  li { margin-bottom: 10px; }
+  .sub { font-size: 26px; opacity: .85; }
+  .tag { display: inline-block; background: #e63946; color: #fff; border-radius: 6px; padding: 4px 12px; font-size: 18px; margin-right: 8px; }
+  .muted { color: #52606d; font-size: 19px; }
+  .foot { position: absolute; left: 80px; right: 80px; bottom: 28px; display: flex; justify-content: space-between; font-size: 15px; color: #9aa5b1; }
+  .dark .foot { color: #a8c0d8; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .card { border: 2px solid #d9e2ec; border-radius: 12px; padding: 20px 22px; background: #f8fafc; }
+  .card h3 { margin: 0 0 10px; font-size: 25px; color: #1d3557; }
+  .card p { font-size: 20px; margin: 0; }
+  .big { font-size: 64px; font-weight: 800; color: #e63946; line-height: 1; }
+  .flow { display: flex; align-items: stretch; gap: 14px; }
+  .step { flex: 1; border-radius: 12px; padding: 18px; background: #f1f5f9; border-top: 6px solid #457b9d; }
+  .step b { display: block; font-size: 22px; margin-bottom: 8px; color: #1d3557; }
+  .step span { font-size: 18px; line-height: 1.5; display: block; }
+  .arrow { align-self: center; font-size: 30px; color: #457b9d; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border-bottom: 1px solid #d9e2ec; padding: 9px 10px; text-align: left; vertical-align: top; }
+  th { background: #eef2f7; font-size: 19px; }
+  td { font-size: 19px; line-height: 1.45; }
+  .mask { display: inline-block; background: #111; color: #111; border-radius: 2px; padding: 0 6px; }
+  .demo { display: flex; align-items: center; justify-content: center; height: 430px; border: 3px dashed #a8c0d8; border-radius: 16px; font-size: 30px; color: #a8c0d8; text-align: center; }
+
+  /* 2026-11-14 서비스 브랜드에 맞춘 디자인: 보라·검정·흰색, 제목 아래 '가림 막대' */
+  .slide { background: #F6F4FB; color: #0B0B12; }
+  h2 { color: #0B0B12; font-weight: 800; letter-spacing: -0.02em; }
+  h2::after { content: ""; display: block; width: 88px; height: 10px; background: #0B0B12; margin-top: 14px; border-radius: 2px; }
+  .dark { background: #0B0B12; color: #FFFFFF; }
+  .dark h2, .dark h1 { color: #FFFFFF; }
+  .dark h2::after { background: #7C3AED; }
+  .dark .sub { color: #C4B5FD; opacity: 1; }
+  .big { color: #7C3AED; }
+  .card { background: #FFFFFF; border-color: #E4E0F0; box-shadow: 0 6px 18px rgba(124,58,237,.08); }
+  .card h3 { color: #0B0B12; }
+  .step { background: #FFFFFF; border-top: 6px solid #7C3AED; box-shadow: 0 6px 18px rgba(124,58,237,.08); }
+  .step b { color: #0B0B12; }
+  .arrow { color: #7C3AED; }
+  .muted { color: #6B6880; }
+  .foot { color: #8A849B; }
+  .dark .foot { color: #A78BFA; }
+</style>
+</head>
+<body>
+
+<!-- 1. 표지 -->
+<section class="slide dark">
+  <div style="margin-top:130px">
+    <p class="sub">KIROTHON 2026 · 내 일상에 바로 적용할 수 있는 서비스</p>
+    <h1 style="font-size:72px">이게 다 너 잘되라고<br>하는 소리야</h1>
+    <p class="sub" style="margin-top:24px">이름은 숨기고, 조언은 더 많이.</p>
+  </div>
+  <div class="foot"><span>team-011 취업하자 · 신지섭</span><span>github.com/tlswltjq/kirothon-team-011</span></div>
+</section>
+
+<!-- 2. 내 이야기 -->
+<section class="slide">
+  <h2>16일 동안, 이력서를 8번 고쳤습니다</h2>
+  <div class="grid2" style="margin-top:30px">
+    <div class="card" style="padding:30px"><h3 style="font-size:30px">봐 줄 사람이 없었습니다</h3>
+      <p style="font-size:23px;line-height:1.6;margin-top:14px">부탁할 수 있는 건 지인 몇 명이 전부.<br>모르는 사람에게 보여 주자니 이름과 연락처가 걸렸습니다.</p></div>
+    <div class="card" style="padding:30px"><h3 style="font-size:30px">받은 조언은 흩어졌습니다</h3>
+      <p style="font-size:23px;line-height:1.6;margin-top:14px">버전은 8개, 조언은 카톡과 메모 7곳에.<br>어느 버전에 무슨 말을 들었는지 알 수 없었습니다.</p></div>
+  </div>
+  <p style="font-size:26px;margin-top:40px;text-align:center"><b>조언은 더 받고 싶은데, 받을 곳도 모아 둘 곳도 없었습니다.</b></p>
+  <div class="foot"><span>발표자 본인의 실제 경험과 이력서 기록</span><span>2 / 10</span></div>
+</section>
+
+<!-- 3. 지금 방식의 빈칸 -->
+<section class="slide">
+  <h2>파일은 자동으로 쌓이는데, 조언은 남지 않았습니다</h2>
+  <div class="flow" style="margin-top:20px">
+    <div class="step"><b>이력서 고치기</b><span>지원할 때마다 수정</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>버전 저장</b><span>"11월 2일 제출본"처럼 이름 붙여 보관</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>PDF 자동 생성</b><span>제출용 파일이 자동으로 만들어짐</span></div>
+    <div class="arrow">→</div>
+    <div class="step" style="border-top-color:#0B0B12;background:#EDE9FE"><b>조언은?</b><span>보여 줄 사람이 없고, 받아도 흩어짐</span></div>
+  </div>
+  <div class="grid" style="margin-top:46px">
+    <div><div class="big">8개</div><p class="muted">제출한 이력서 버전</p></div>
+    <div><div class="big">7곳</div><p class="muted">조언이 흩어진 메모와 대화</p></div>
+    <div><div class="big" style="color:#0B0B12">0곳</div><p class="muted">버전별 조언을 모아 둔 곳</p></div>
+  </div>
+  <div class="foot"><span>발표자가 실제로 쓰던 방식 (공개 문서 페이지: tlswltjq.github.io/DOCS)</span><span>3 / 10</span></div>
+</section>
+
+<!-- 4. 해결 약속 -->
+<section class="slide dark">
+  <h2>그래서 만들었습니다</h2>
+  <div class="grid" style="margin-top:40px">
+    <div class="card" style="background:#1A1A26;border-color:#2C2A3D;box-shadow:none"><h3 style="color:#f1faee;font-size:30px">1. 이름은 가리고</h3>
+      <p style="color:#D8D3EA;font-size:22px;line-height:1.6">PDF를 올리면 이름·연락처·사진만 검게. 디자인은 그대로입니다.</p></div>
+    <div class="card" style="background:#1A1A26;border-color:#2C2A3D;box-shadow:none"><h3 style="color:#f1faee;font-size:30px">2. 모르는 사람이 짚어서</h3>
+      <p style="color:#D8D3EA;font-size:22px;line-height:1.6">처음 보는 사람이 고칠 곳을 콕 짚어 조언과 점수를 남깁니다.</p></div>
+    <div class="card" style="background:#1A1A26;border-color:#2C2A3D;box-shadow:none"><h3 style="color:#f1faee;font-size:30px">3. 버전마다 모아서</h3>
+      <p style="color:#D8D3EA;font-size:22px;line-height:1.6">버전별 조언과 점수가 한 화면에 모입니다.</p></div>
+  </div>
+  <div class="foot"><span>회원가입 없음 · 서로 누구인지 모름</span><span>4 / 10</span></div>
+</section>
+
+<!-- 5. 이렇게 씁니다 -->
+<section class="slide">
+  <h2>이렇게 씁니다</h2>
+  <div class="grid" style="margin-top:6px">
+    <div><img src="../docs/images/01-mask-preview.png" style="width:100%;height:360px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid #d9e2ec"><p style="font-size:21px;margin:12px 0 0"><b>1. 올리면 가려진다</b><br><span class="muted">평가자는 이 이미지만 봅니다</span></p></div>
+    <div><img src="../docs/images/02-review-pins.png" style="width:100%;height:360px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid #d9e2ec"><p style="font-size:21px;margin:12px 0 0"><b>2. 고칠 곳을 누른다</b><br><span class="muted">번호 핀 + 한 줄 조언 + 점수</span></p></div>
+    <div><img src="../docs/images/03-my-resume-pins.png" style="width:100%;height:360px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid #d9e2ec"><p style="font-size:21px;margin:12px 0 0"><b>3. 내 화면에 모인다</b><br><span class="muted">받은 핀이 이력서 위에 겹쳐 보임</span></p></div>
+  </div>
+  <div class="foot"><span>실제 화면 (가상 인물 샘플 이력서)</span><span>5 / 10</span></div>
+</section>
+
+<!-- 6. 결과 -->
+<section class="slide">
+  <h2>고친 보람이 숫자로 보입니다</h2>
+  <div class="grid2" style="margin-top:6px;align-items:center">
+    <div><img src="../docs/images/04-version-trend.png" style="width:100%;height:470px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid #d9e2ec"></div>
+    <div>
+      <p style="font-size:30px;line-height:1.6"><b>v1 2.67점 → v2 5.00점</b></p>
+      <p style="font-size:23px;line-height:1.7">버전마다 받은 점수와 조언이 쌓입니다.<br>어느 버전이 나았는지, 이제 감이 아니라 기록으로 압니다.</p>
+    </div>
+  </div>
+  <div class="foot"><span>실제 화면 (가상 인물 샘플 이력서)</span><span>6 / 10</span></div>
+</section>
+
+<!-- 7. 데모 -->
+<section class="slide dark">
+  <h2>직접 보기</h2>
+  <div class="grid2" style="margin-top:20px;align-items:center">
+    <div style="text-align:center"><img src="demo-frame.png" alt="데모 영상 장면" style="width:100%;border-radius:10px">
+      <p style="font-size:24px">79초 실제 사용 영상 (발표 중 재생)</p></div>
+    <div style="text-align:center"><img src="demo-qr.png" alt="배포 주소 QR 코드" style="width:260px;height:260px;background:#fff;padding:10px;border-radius:10px">
+      <p style="font-size:26px;margin:14px 0 4px"><b>지금 바로 써 보기</b></p>
+      <p style="font-size:15px;margin:0;white-space:nowrap">https://host-10-0-0-56.tail21684f.ts.net:8443</p></div>
+  </div>
+  <div class="foot"><span>영상은 발표자의 실제 이력서로 녹화 (이름·연락처·사진 가림)</span><span>7 / 10</span></div>
+</section>
+
+<!-- 8. 어떻게 만들었나 -->
+<section class="slide">
+  <h2>노트북 없이, 휴대폰 하나로 만들었습니다</h2>
+  <p style="font-size:22px;margin-top:-6px">노트북 화면은 고장, 외부 모니터는 깜빡. 저는 <b>휴대폰으로 결정만</b> 했고, <b>만드는 일은 Kiro의 AI 팀</b>이 했습니다.</p>
+  <div class="flow" style="margin-top:24px">
+    <div class="step"><b>1. 기준 정하기</b><span>무엇을 만들지 문서로 먼저 정함 (요구사항 97개)</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>2. AI 팀이 동시에</b><span>화면·기능을 나눠 최대 6개가 동시에 작업</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>3. 다른 AI가 검사</b><span>만든 AI와 다른 AI가 독립적으로 문제를 찾음</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>4. 고치고 다시</b><span>찾은 문제를 고치고 테스트를 반복</span></div>
+  </div>
+  <div class="grid" style="margin-top:34px">
+    <div><div class="big">150</div><p class="muted">자동으로 돌린 테스트</p></div>
+    <div><div class="big">6</div><p class="muted">동시에 일한 AI</p></div>
+    <div><div class="big">4</div><p class="muted">다른 AI의 독립 검사</p></div>
+  </div>
+  <div class="foot"><span>Kiro · Kiro Crew · 모든 작업 기록: KIRO-USAGE.md, BUILD_REPORT.md</span><span>8 / 10</span></div>
+</section>
+
+<!-- 9. 개인정보 -->
+<section class="slide">
+  <h2>안심하고 올릴 수 있게</h2>
+  <div class="grid" style="margin-top:30px">
+    <div class="card"><h3>이미지로 바꿔서 가린다</h3><p>글자 위를 덮는 게 아니라 그림으로 바꿔 칠합니다. 복사해도 가린 글자가 나오지 않습니다.</p></div>
+    <div class="card"><h3>내가 확인한 그대로</h3><p>평가자는 내가 미리보기로 확인한 이미지만 봅니다. 게시 직전에 한 번 더 확인합니다.</p></div>
+    <div class="card"><h3>원본은 지운다</h3><p>게시하면 원본 PDF는 바로 지웁니다. 게시하지 않은 파일도 24시간 뒤 지웁니다.</p></div>
+  </div>
+  <p style="font-size:22px;margin-top:36px">이력서를 외부 AI나 외부 서비스로 보내지 않습니다.</p>
+  <div class="foot"><span>자동으로 가리는 것: 이메일·전화·링크·사진 / 직접 고르는 것: 이름·회사·학교</span><span>9 / 10</span></div>
+</section>
+
+<!-- 10. 마무리 -->
+<section class="slide dark">
+  <h2>다음 단계</h2>
+  <ul style="font-size:26px;line-height:1.8">
+    <li>남을 평가할수록 내 이력서가 더 많이 보이게 (초기 평가자 부족 대책)</li>
+    <li>버전끼리 바뀐 문장 비교</li>
+    <li>기기를 바꿔도 이어 쓰기</li>
+  </ul>
+  <p style="margin-top:56px;font-size:34px"><b>이름은 숨기고, 조언은 더 많이.</b></p>
+  <div class="foot"><span>team-011 취업하자 · 신지섭</span><span>10 / 10</span></div>
+</section>
+</body>
+</html>

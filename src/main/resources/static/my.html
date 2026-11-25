@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>내 이력서가 받은 평가 - 이게 다 너 잘되라고 하는 소리야</title>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/my.css">
+</head>
+<body>
+  <header id="nav"></header>
+  <main class="my-main">
+    <h1>내 이력서가 받은 평가</h1>
+    <p id="status" class="my-status" role="status"></p>
+
+    <section id="empty-state" class="my-emptystate" hidden>
+      <p>아직 올린 이력서가 없어요.</p>
+      <a class="btn big-btn" href="upload.html">첫 이력서 올리고 평가받기</a>
+      <p class="muted">다른 브라우저나 시크릿 창에서 올렸다면 그 브라우저에서 열어 주세요.</p>
+    </section>
+
+    <section id="error-state" class="my-emptystate" hidden>
+      <p>불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.</p>
+      <button id="retry-btn" type="button">다시 시도</button>
+    </section>
+
+    <section id="trend-card" class="card my-trend" aria-label="버전별 점수 추이" hidden>
+      <h2 id="trend-title"></h2>
+      <p id="trend-role" class="my-meta"></p>
+      <div class="my-summary-row">
+        <p id="trend-summary" class="my-bigsummary"></p>
+        <span id="trend-badge" class="my-delta" hidden></span>
+        <a id="trend-wait" class="btn secondary" href="review.html" hidden>기다리는 동안 다른 사람 이력서 평가하기</a>
+      </div>
+      <p id="trend-latest-note" class="my-meta" hidden></p>
+      <div id="trend-chart" class="my-chart"></div>
+      <div id="trend-single" hidden>
+        <p id="trend-single-text"></p>
+        <p id="trend-single-hint" class="muted">v2를 올리면 여기서 점수 변화를 비교해요.</p>
+        <a id="trend-upload" class="btn" href="upload.html">고친 이력서 올리기</a>
+      </div>
+    </section>
+
+    <section id="list-section" aria-labelledby="list-title">
+      <h2 id="list-title">내 이력서</h2>
+      <ul id="resume-list" class="my-list"></ul>
+    </section>
+
+    <section id="versions-section" aria-labelledby="versions-title" hidden>
+      <h2 id="versions-title">버전</h2>
+      <p id="versions-meta" class="my-meta"></p>
+      <ul id="version-list" class="my-list"></ul>
+      <p><a id="new-version-link" class="btn secondary" href="upload.html">고친 이력서 올리기</a></p>
+    </section>
+
+    <section id="detail-section" aria-labelledby="detail-title" hidden>
+      <h2 id="detail-title">평가 결과</h2>
+      <div class="my-detail">
+        <div id="pages" class="my-pages"></div>
+        <aside class="my-side">
+          <h3>핀 코멘트</h3>
+          <ul id="pin-list" class="my-pinlist"></ul>
+          <p id="pin-empty" class="my-empty" hidden>핀 코멘트가 없어요.</p>
+          <h3>평가 (총평·총점)</h3>
+          <ul id="review-list" class="my-reviews"></ul>
+          <p id="review-empty" class="my-empty" hidden>아직 받은 평가가 없어요. 평가는 무작위로 배정돼서 시간이 걸릴 수 있어요. <a href="review.html">기다리는 동안 다른 사람 이력서 평가하기</a></p>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="js/my.js"></script>
+</body>
+</html>
