@@ -2,6 +2,8 @@ package dev.kirothon.resume.user;
 
 import dev.kirothon.resume.security.AnonTokenFilter;
 import dev.kirothon.resume.security.TokenHasher;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "사용자", description = "익명 사용자 발급과 내 정보")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -38,6 +41,7 @@ public class UserController {
     public record MeResponse(String nickname) {
     }
 
+    @Operation(summary = "익명 사용자를 만들고 토큰을 발급한다")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CreateUserResponse create(@Valid @RequestBody CreateUserRequest request) {
@@ -46,6 +50,7 @@ public class UserController {
         return new CreateUserResponse(token, request.nickname());
     }
 
+    @Operation(summary = "내 닉네임을 조회한다")
     @GetMapping("/me")
     public MeResponse me(@RequestAttribute(AnonTokenFilter.USER_ATTRIBUTE) AnonUser user) {
         return new MeResponse(user.getNickname());
