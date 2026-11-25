@@ -30,13 +30,15 @@ public class FixedWindowRateLimiter {
         long now = clock.millis();
         long start = now - Math.floorMod(now, WINDOW_MILLIS);
         cleanup(start);
-        Window window = windows.compute(key, (k, w) -> w == null || w.start() != start
+        // 창은 앞으로만 바꾼다: 분 경계에서 늦게 도착한(이전 창 start를 계산한) 요청이 새 창을 덮어써
+        // 카운터를 되돌리지 못하게 한다. 그런 요청은 이미 있는 더 새로운 창에 센다.
+        Window window = windows.compute(key, (k, w) -> w == null || w.start() < start
                 ? new Window(start, new AtomicLong()) : w);
         long used = window.count().incrementAndGet();
         if (used <= limitPerWindow) {
             return new Decision(true, 0);
         }
-        long retryAfter = Math.max(1, (start + WINDOW_MILLIS - now + 999) / 1000);
+        long retryAfter = Math.max(1, (window.start() + WINDOW_MILLIS - now + 999) / 1000);
         return new Decision(false, retryAfter);
     }
 

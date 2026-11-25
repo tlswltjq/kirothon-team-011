@@ -90,6 +90,7 @@ docker compose -f compose.prod.yaml --env-file .env logs -f app
 - 앱이 기동할 때 Flyway가 `db/migration`의 SQL을 자동 적용한다. 별도 명령이 없다. Hibernate는 `ddl-auto=validate`로 스키마 일치만 검사한다.
 - `db`가 `pg_isready`로 healthy가 된 뒤에 app이 뜬다(`depends_on: service_healthy`).
 - 마이그레이션이 실패하면 app이 기동하지 않고 readiness가 올라오지 않는다. `logs app`에서 원인을 확인한다.
+- 기존 H2 데이터와 호환되지 않는다: Flyway 도입 전(`ddl-auto=update`) 만든 H2 파일 DB(`./data`, 데모 볼륨 `kirothon_data`)에는 Flyway 이력 테이블이 없어 기동이 "non-empty schema" 오류로 멈춘다. 데모 데이터는 버리고 새로 시작한다: 로컬은 새 `DATA_DIR`을 쓰거나 `./data`를 비우고, 데모 컨테이너는 `docker compose -p kirothon down -v`로 볼륨을 지운다(데이터 삭제, 되돌릴 수 없음).
 
 ### 1.5 백업과 복구
 
@@ -123,7 +124,7 @@ APP_IMAGE=resume-review:<이전-sha> docker compose -f compose.prod.yaml --env-f
 
 ### 1.7 운영 주의
 
-- **Rate limit은 단일 인스턴스 기준이다.** IP별 카운터가 앱 메모리에 있으므로, 앱을 여러 개 띄우면 한도가 인스턴스 수만큼 늘어난다. 다중 인스턴스에서는 리버스 프록시(nginx `limit_req` 등)에 한도를 둔다. 프록시는 `X-Forwarded-For`를 덮어써서(클라이언트가 보낸 값을 그대로 넘기지 않게) 설정한다. prod는 `server.forward-headers-strategy=native`로 이 헤더를 신뢰한다.
+- **Rate limit은 단일 인스턴스 기준이다.** IP별 카운터가 앱 메모리에 있으므로, 앱을 여러 개 띄우면 한도가 인스턴스 수만큼 늘어난다. 다중 인스턴스에서는 리버스 프록시(nginx `limit_req` 등)에 한도를 둔다. 프록시는 `X-Forwarded-For`를 덮어써서(클라이언트가 보낸 값을 그대로 넘기지 않게) 설정한다. prod는 `server.forward-headers-strategy=native`로 이 헤더를 받되, `TRUSTED_PROXIES`(정규식, 기본 `127\.0\.0\.1|0:0:0:0:0:0:0:1`; `compose.prod.yaml`은 고정 서브넷 게이트웨이 `172\.30\.0\.1`)에 맞는 직전 홉에서 온 경우만 믿는다. 다른 주소에서 온 헤더는 무시하고 접속 주소로 센다.
 - **원본 PDF 24시간 정리**: 초안 원본 PDF는 미리보기 재생성용으로 DB 초안 테이블에 최대 24시간 보관되고, 게시 시점에 지워지며 남은 것은 `DraftSourceCleaner`가 10분(`app.draft-source.cleanup-millis`)마다 만료분을 지운다. 이 동작은 운영(PostgreSQL)에서도 그대로다. 다중 인스턴스면 각 인스턴스가 같은 정리 작업을 돌리지만 만료 행 삭제라 결과는 같다.
 - 종료는 graceful shutdown(요청 마무리 후 종료)이다. compose `stop_grace_period`는 40초다.
 - 컨테이너는 비루트(10001), read_only 루트 파일시스템, tmpfs `/tmp`, `cap_drop: ALL`, `no-new-privileges`, 메모리 768m이다.

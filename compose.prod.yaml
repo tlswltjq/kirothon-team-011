@@ -38,6 +38,9 @@ services:
       MANAGEMENT_PORT: ${MANAGEMENT_PORT:-18081}
       # 컨테이너 안에서는 모든 인터페이스에 바인딩해야 호스트 포트 매핑이 닿는다. 호스트 공개는 아래 ports에서 127.0.0.1만.
       MANAGEMENT_ADDRESS: "0.0.0.0"
+      # 127.0.0.1로 공개한 포트는 docker-proxy가 이 네트워크의 게이트웨이 주소에서 접속한다.
+      # X-Forwarded-For는 그 주소(=호스트의 리버스 프록시)에서 온 것만 믿는다.
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-172\.30\.0\.1}
       DATA_DIR: /data
       DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:?POSTGRES_DB is required}
       DB_USERNAME: ${POSTGRES_USER:?POSTGRES_USER is required}
@@ -63,6 +66,13 @@ services:
     pids_limit: 256
     stop_grace_period: 40s
     restart: unless-stopped
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+          gateway: 172.30.0.1
 
 volumes:
   pgdata:

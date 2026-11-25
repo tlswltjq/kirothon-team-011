@@ -66,8 +66,9 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-def smoke(port):
-    url = "http://127.0.0.1:{}/actuator/health".format(port)
+def smoke(port, management_port=None):
+    # prod 프로필은 actuator를 관리 포트(MANAGEMENT_PORT, 기본 18081)로 분리한다.
+    url = "http://127.0.0.1:{}/actuator/health".format(management_port or port)
     try:
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
         with opener.open(url, timeout=5) as response:
@@ -86,11 +87,15 @@ def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=["doctor", "check", "smoke"])
     parser.add_argument("--port", type=int, default=18080)
+    parser.add_argument("--management-port", type=int, default=None,
+                        help="smoke: actuator port when separated (prod: 18081); default --port")
     parser.add_argument("--strict", action="store_true",
                         help="doctor: optional tool failures also fail readiness")
     args = parser.parse_args(argv)
     if not 1 <= args.port <= 65535:
         parser.error("--port must be between 1 and 65535")
+    if args.management_port is not None and not 1 <= args.management_port <= 65535:
+        parser.error("--management-port must be between 1 and 65535")
     if args.action == "doctor":
         return doctor(args.strict)
     if args.action == "check":
@@ -99,7 +104,7 @@ def main(argv=None):
         ok, _ = command(["bash", "./gradlew", "--no-daemon", "test", "bootJar"], timeout=900)
         print("{}: test bootJar (run Wrapper directly for detailed logs)".format("OK" if ok else "FAIL"))
         return 0 if ok else 1
-    return smoke(args.port)
+    return smoke(args.port, args.management_port)
 
 
 if __name__ == "__main__":

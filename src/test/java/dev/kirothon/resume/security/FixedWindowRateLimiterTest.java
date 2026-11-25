@@ -48,6 +48,21 @@ class FixedWindowRateLimiterTest {
     }
 
     @Test
+    void req2_3_lateRequestFromPreviousWindowDoesNotResetNewWindow() {
+        long windowStart = 1_800_000_000_000L;
+        MutableClock clock = new MutableClock(windowStart + 60_000); // 새 창
+        FixedWindowRateLimiter limiter = new FixedWindowRateLimiter(clock);
+        assertThat(limiter.tryAcquire("k", 2).allowed()).isTrue();
+
+        clock.millis = windowStart + 59_999; // 이전 창 시각을 계산한 뒤 늦게 도착한 요청
+        assertThat(limiter.tryAcquire("k", 2).allowed()).isTrue();
+
+        clock.millis = windowStart + 60_001;
+        // 늦은 요청이 새 창을 덮어써 카운터를 되돌렸다면 여기서 허용된다.
+        assertThat(limiter.tryAcquire("k", 2).allowed()).isFalse();
+    }
+
+    @Test
     void req2_3_staleKeysAreRemovedInNextWindow() {
         MutableClock clock = new MutableClock(1_800_000_000_000L);
         FixedWindowRateLimiter limiter = new FixedWindowRateLimiter(clock);
