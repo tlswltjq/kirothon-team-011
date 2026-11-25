@@ -1,7 +1,14 @@
+# 허용 목록 방식: 빌드에 필요한 파일만 컨텍스트에 넣는다.
+# 따라서 .git, .worktrees, .gradle, build, node_modules, data, demo-private, artifacts,
+# test-results, playwright-report, .env, e2e, presentation, docs 등은 모두 제외된다.
 **
-!Dockerfile
-!build/
-build/*
-!build/libs/
-build/libs/*
-!build/libs/*.jar
+!gradlew
+!gradle/
+!settings.gradle
+!build.gradle
+!src/
+# 허용한 경로 안에서도 다시 제외
+**/.DS_Store
+**/*.log
+.env
+.env.*
