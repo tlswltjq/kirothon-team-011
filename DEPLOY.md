@@ -125,6 +125,8 @@ APP_IMAGE=resume-review:<이전-sha> docker compose -f compose.prod.yaml --env-f
 ### 1.7 운영 주의
 
 - **Rate limit은 단일 인스턴스 기준이다.** IP별 카운터가 앱 메모리에 있으므로, 앱을 여러 개 띄우면 한도가 인스턴스 수만큼 늘어난다. 다중 인스턴스에서는 리버스 프록시(nginx `limit_req` 등)에 한도를 둔다. 프록시는 `X-Forwarded-For`를 덮어써서(클라이언트가 보낸 값을 그대로 넘기지 않게) 설정한다. prod는 `server.forward-headers-strategy=native`로 이 헤더를 받되, `TRUSTED_PROXIES`(정규식, 기본 `127\.0\.0\.1|0:0:0:0:0:0:0:1`; `compose.prod.yaml`은 고정 서브넷 게이트웨이 `172\.30\.0\.1`)에 맞는 직전 홉에서 온 경우만 믿는다. 다른 주소에서 온 헤더는 무시하고 접속 주소로 센다.
+- **신뢰 프록시 주소는 실제 접속 경로로 확인한다.** 게이트웨이 주소를 믿는 기본값은 Docker userland-proxy(기본 켜짐)가 `127.0.0.1` 공개 포트 접속을 게이트웨이 주소에서 넘겨주는 경로를 전제로 한다(2026-11-25 실측). `userland-proxy: false`이거나 프록시를 컨테이너로 같은 네트워크에 두면 앱이 보는 직전 홉이 달라져 XFF가 무시되고 모든 사용자가 한 IP의 한도를 나눠 쓴다. 배포 뒤 프록시를 거친 요청 몇 개를 보내 IP별로 따로 세는지(예: 한도를 2로 낮추고 XFF만 바꿔 3회 → 모두 201) 확인하고, 아니면 앱 로그의 접속 주소에 맞춰 `TRUSTED_PROXIES`를 고친다.
+- 고정 서브넷(`APP_SUBNET`, 기본 `172.30.0.0/24`)이 호스트의 다른 네트워크와 겹치면 `up`이 실패한다. 바꿀 때는 `APP_GATEWAY`와 `TRUSTED_PROXIES`(점은 `\.`로)를 같은 게이트웨이로 맞춘다.
 - **원본 PDF 24시간 정리**: 초안 원본 PDF는 미리보기 재생성용으로 DB 초안 테이블에 최대 24시간 보관되고, 게시 시점에 지워지며 남은 것은 `DraftSourceCleaner`가 10분(`app.draft-source.cleanup-millis`)마다 만료분을 지운다. 이 동작은 운영(PostgreSQL)에서도 그대로다. 다중 인스턴스면 각 인스턴스가 같은 정리 작업을 돌리지만 만료 행 삭제라 결과는 같다.
 - 종료는 graceful shutdown(요청 마무리 후 종료)이다. compose `stop_grace_period`는 40초다.
 - 컨테이너는 비루트(10001), read_only 루트 파일시스템, tmpfs `/tmp`, `cap_drop: ALL`, `no-new-privileges`, 메모리 768m이다.

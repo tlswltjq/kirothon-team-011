@@ -14,4 +14,4 @@
   - _요구사항: 4.1, 4.2_
 - [x] 6. 통합: 브랜치 병합, 충돌 해결, `./gradlew test bootJar`
 - [x] 7. 검증(독립): `compose.prod.yaml` 기동 → smoke → readiness·prometheus·429·헤더 확인
-- [ ] 8. 교차 리뷰(작성과 다른 모델) → 지적 반영 → 재검증
+- [x] 8. 교차 리뷰(작성과 다른 모델) → 지적 반영 → 재검증

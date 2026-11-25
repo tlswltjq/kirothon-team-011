@@ -42,3 +42,4 @@
 | 2026-11-14T07:52:37Z | 6. 제출 | deploy | Tailscale Funnel https://host-10-0-0-56.tail21684f.ts.net:8443 -> 127.0.0.1:18080 (사용자가 sudo로 직접 실행) | 외부 접속 확인(web_fetch로 랜딩 HTML·health 응답). 443 대시보드는 tailnet 전용 유지 |
 | 2026-11-25T08:21:20Z | 3 | spawn_run | production-readiness A~E: dab2cc03,2c93876c,e14516f7,e8ce4300,1a520838 | 시작: worktree 5개 병렬 |
 | 2026-11-25T08:59:17Z | 4 | spawn_run | verify b2680a61(claude), review ea3214c3(codex) | 실기동 11/12 통과(smoke 포트 분리 실패->수정), 리뷰 R1~R3: R2·R3 반영, R1 사용자 결정 대기 |
+| 2026-11-25T09:02:16Z | 4 | spawn_run | re-review a219b14e(codex) | R2 부분 해결->R4로 완결, R3 해결, R4~R6 반영 |

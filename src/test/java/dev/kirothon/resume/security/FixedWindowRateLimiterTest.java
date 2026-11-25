@@ -63,6 +63,36 @@ class FixedWindowRateLimiterTest {
     }
 
     @Test
+    void req2_3_concurrentRequestsNeverExceedLimit() throws Exception {
+        MutableClock clock = new MutableClock(1_800_000_000_000L + 1_000);
+        FixedWindowRateLimiter limiter = new FixedWindowRateLimiter(clock);
+        int threads = 16;
+        int perThread = 500;
+        int limit = 1_000;
+        java.util.concurrent.atomic.AtomicInteger allowed = new java.util.concurrent.atomic.AtomicInteger();
+        java.util.concurrent.CountDownLatch go = new java.util.concurrent.CountDownLatch(1);
+        try (var pool = java.util.concurrent.Executors.newFixedThreadPool(threads)) {
+            var futures = new java.util.ArrayList<java.util.concurrent.Future<?>>();
+            for (int t = 0; t < threads; t++) {
+                futures.add(pool.submit(() -> {
+                    go.await();
+                    for (int i = 0; i < perThread; i++) {
+                        if (limiter.tryAcquire("k", limit).allowed()) {
+                            allowed.incrementAndGet();
+                        }
+                    }
+                    return null;
+                }));
+            }
+            go.countDown();
+            for (var f : futures) {
+                f.get();
+            }
+        }
+        assertThat(allowed.get()).isEqualTo(limit);
+    }
+
+    @Test
     void req2_3_staleKeysAreRemovedInNextWindow() {
         MutableClock clock = new MutableClock(1_800_000_000_000L);
         FixedWindowRateLimiter limiter = new FixedWindowRateLimiter(clock);
