@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 /** 요구사항 12: 데모 프로필에서 샘플 데이터 시드. 실제 업로드·마스킹·게시·평가 경로를 거친다. */
-@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:demo-seed-test;DB_CLOSE_DELAY=-1")
+@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:demo-seed-test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE")
 @AutoConfigureMockMvc
 @ActiveProfiles({"test", "demo"})
 class DemoSeedApiTest {

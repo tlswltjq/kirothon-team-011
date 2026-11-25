@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 /** 요구사항 12.2: 데모 프로필이 꺼지면 상태는 enabled=false, 시드 API는 404 NOT_FOUND. */
-@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:demo-disabled-test;DB_CLOSE_DELAY=-1")
+@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:demo-disabled-test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE")
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class DemoDisabledApiTest {

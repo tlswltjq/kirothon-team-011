@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import dev.kirothon.resume.review.RandomPicker;
 
 /** 작업 7·8: 무작위 평가 대상, 평가 제출, 주인 평가 조회, 접근 경계. 전용 H2 메모리 DB를 쓴다. */
-@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:review-api-test;DB_CLOSE_DELAY=-1")
+@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:review-api-test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE")
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Import(ReviewApiTest.FixedPickerConfig.class)

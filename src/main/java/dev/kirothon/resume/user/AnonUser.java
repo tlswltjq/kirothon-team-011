@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -16,10 +18,12 @@ public class AnonUser {
     @Column(nullable = false, length = 20)
     private String nickname;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "token_hash", nullable = false, unique = true, length = 64, columnDefinition = "char(64)")
     private String tokenHash;
 
     /** 작업 12(복구 코드)용 자리. 지금은 항상 null. */
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "recovery_hash", length = 64, columnDefinition = "char(64)")
     private String recoveryHash;
 
