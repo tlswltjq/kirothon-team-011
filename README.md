@@ -106,19 +106,19 @@ SPRING_PROFILES_ACTIVE=demo SERVER_ADDRESS=127.0.0.1 SERVER_PORT=18080 java -jar
 # (선택) Docker 로컬 배포: 한글 글꼴 포함 이미지
 docker compose -p kirothon up -d --build
 ```
-- 데이터는 `DATA_DIR`(기본 `./data`)의 H2 파일 DB에 저장된다. Docker 사용법은 [`DEPLOY.md`](DEPLOY.md).
+- 로컬 기본 프로필은 `DATA_DIR`(기본 `./data`)의 H2 파일 DB(PostgreSQL 모드)에, `prod` 프로필은 PostgreSQL에 저장한다. 스키마는 두 경우 모두 Flyway(`src/main/resources/db/migration`)가 만든다. 운영 배포(`compose.prod.yaml`)와 로컬 데모는 [`DEPLOY.md`](DEPLOY.md).
 - 데모용 가상 인물 이력서 PDF: `src/main/resources/demo/`.
 
 ## 7. 테스트
 
 ```bash
-./gradlew test          # 테스트 150개: JUnit 단위·HTTP 통합 테스트 (PDF 추출, 마스킹 영역, 렌더링 픽셀, 업로드·게시, 평가 API, 접근 경계, 동시성)
+./gradlew test          # 테스트 186개(Testcontainers PostgreSQL 포함, Docker 필요): JUnit 단위·HTTP 통합 테스트 (PDF 추출, 마스킹 영역, 렌더링 픽셀, 업로드·게시, 평가 API, 접근 경계, 동시성)
 python3 -B -m unittest discover -s tests   # 개발 도구(scripts/) 테스트
 ```
 
 ## 기술 스택과 Kiro 활용
 
-- Java 21, Spring Boot 4.1.2, Gradle 8.14.3(Wrapper SHA-256 고정), Apache PDFBox 3.0.7, H2, 정적 HTML/JS(외부 CDN 없음, CSP 적용)
+- Java 21, Spring Boot 4.1.2, Gradle 8.14.3(Wrapper SHA-256 고정), Apache PDFBox 3.0.7, Spring Security, Flyway, PostgreSQL 16(운영)·H2(로컬·테스트), Micrometer Prometheus, springdoc-openapi 3.2.0, Testcontainers, 정적 HTML/JS(외부 CDN 없음, CSP 적용), GitHub Actions CI
 - Kiro 활용 내역: [`BUILD_REPORT.md`](BUILD_REPORT.md) / 명세·규칙·에이전트·워크플로: [`.kiro/`](.kiro/) / 실행 기록: [`KIRO-USAGE.md`](KIRO-USAGE.md)
 
 ---

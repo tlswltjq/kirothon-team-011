@@ -1,5 +1,7 @@
 # 설계: 익명 이력서 평가와 버전별 평가 이력
 
+> 2026-11-25: 저장소(H2 파일 DB·`ddl-auto=update`), 인증 필터(`AnonTokenFilter` 단독), 보안 헤더 필터, 컨테이너 구성은 `.kiro/specs/production-readiness/`가 대체했다(Flyway + PostgreSQL, Spring Security, 관리 포트, 멀티 스테이지 이미지). 이 문서는 MVP 당시 설계 기록으로 남긴다.
+
 ## 개요
 Spring Boot 단일 앱이 JSON API와 정적 화면(HTML/CSS/바닐라 JS)을 함께 제공한다. 업로드된 PDF는 PDFBox로 글자 좌표(TextPosition)와 함께 텍스트를 추출하고, 정규식·가릴 단어·페이지 내 이미지 위치로 마스킹 영역을 계산한다. 그다음 `PDFRenderer`로 페이지를 150DPI PNG로 렌더링하고 그 이미지 위에 불투명 검은 박스를 칠한다. PDF 자체에는 아무것도 덮지 않는다. 평가자는 게시된 PNG만 받는다. 평가자는 이미지 위에 정규화 좌표로 핀과 코멘트를 남기고, 총평·총점과 함께 한 번에 제출한다. 주인은 버전별로 모든 핀을 겹쳐 보고, 평균 총점 추이(SVG)와 추출 텍스트 줄 단위 diff를 본다. 외부 API·AI 호출은 없으므로 타임아웃·샘플 응답 대상이 없다. 데모 데이터는 `demo` 프로필과 명시적 버튼으로만 들어간다.
 
