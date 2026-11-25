@@ -14,12 +14,11 @@ import org.springframework.test.context.ActiveProfiles;
 /** prod 프로필: actuator는 별도 관리 포트에만 있고 Prometheus 지표를 낸다(요구사항 3.2). DB는 H2 메모리로 덮어쓴다. */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "management.server.port=0",
-        "spring.datasource.url=jdbc:h2:mem:ops-prod-test;DB_CLOSE_DELAY=-1",
+        // prod와 같게 Flyway + validate로 띄우되 DB만 PostgreSQL 모드 H2로 바꾼다.
+        "spring.datasource.url=jdbc:h2:mem:ops-prod-test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE",
         "spring.datasource.driver-class-name=org.h2.Driver",
         "spring.datasource.username=sa",
-        "spring.datasource.password=",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.flyway.enabled=false"
+        "spring.datasource.password="
 })
 @ActiveProfiles("prod")
 class ProdManagementPortTest {

@@ -80,7 +80,13 @@ class ApiDocsTest {
     }
 
     @Nested
-    @SpringBootTest
+    // prod 프로필은 DB_URL 등이 필수이므로 테스트에서는 PostgreSQL 모드 H2로 덮어쓴다.
+    @SpringBootTest(properties = {
+            "spring.datasource.url=jdbc:h2:mem:apidocs-prod-test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE",
+            "spring.datasource.driver-class-name=org.h2.Driver",
+            "spring.datasource.username=sa",
+            "spring.datasource.password="
+    })
     @AutoConfigureMockMvc
     @ActiveProfiles({"test", "prod"})
     class ProdDefault {
