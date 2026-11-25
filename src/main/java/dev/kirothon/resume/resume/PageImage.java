@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.UUID;
@@ -25,7 +24,7 @@ public class PageImage {
     @Column(name = "page_no")
     private int pageNo;
 
-    @Lob
+    /** bytea(PostgreSQL)·VARBINARY(H2). @Lob은 PostgreSQL에서 oid(대형 객체)로 매핑되므로 쓰지 않는다. */
     @Column(nullable = false)
     private byte[] png;
 

@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
@@ -34,7 +33,7 @@ public class ResumeVersion {
     @Column(nullable = false, length = 10)
     private String status;
 
-    @Lob
+    /** 길이 제한 없는 varchar(V1__init.sql). @Lob(clob/oid) 대신 일반 문자열로 매핑한다. */
     @Column(name = "extracted_text", nullable = false)
     private String extractedText;
 

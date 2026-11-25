@@ -3,7 +3,6 @@ package dev.kirothon.resume.resume;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
@@ -16,7 +15,7 @@ public class DraftSource {
     @Column(name = "version_id")
     private UUID versionId;
 
-    @Lob
+    /** bytea(PostgreSQL)·VARBINARY(H2). @Lob은 PostgreSQL에서 oid(대형 객체)로 매핑되므로 쓰지 않는다. */
     @Column(nullable = false)
     private byte[] pdf;
 
