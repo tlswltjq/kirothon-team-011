@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.apache.pdfbox:pdfbox:3.0.7'
     implementation 'org.springframework.boot:spring-boot-starter-flyway'
     runtimeOnly 'org.flywaydb:flyway-database-postgresql'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.0'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.postgresql:postgresql'
     // /actuator/prometheus (prod). 내보내기 자동 설정은 spring-boot-starter-actuator가 끌어오는 spring-boot-micrometer-metrics에 있다.
@@ -38,6 +39,11 @@ dependencies {
     testImplementation 'org.testcontainers:testcontainers-postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+springBoot {
+    // OpenAPI 문서 버전에 프로젝트 version을 쓴다(BuildProperties).
+    buildInfo()
 }
 
 bootJar {
